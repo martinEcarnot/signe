@@ -1,6 +1,6 @@
 Package: signe
 Title: Useful functions to handle spectra
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
            person("Martin", "Ecarnot", email = "martin.ecarnot@inra.fr", role = c("aut", "cre")),
            person("Timothee", "Flutre", email="timothee.flutre@inra.fr", role=c("aut", "ctb"))
@@ -11,4 +11,4 @@ Depends:
 License: GPL-3 | AGPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
