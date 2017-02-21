@@ -1,11 +1,25 @@
-#' Dummy function
+#' Function to import ASD spectra
 #'
-#' Add 1 to the input number.
-#' @param x numeric
+#' @param d character
 #'
-#' @return numeric
+#' @return matrix
 #' @author Martin Ecarnot
 #' @export
-firstFunction <- function(x){
-  return(x + 1)
+#' 
+
+load <- function (d) {
+library(asdreader)
+l=Sys.glob(file.path(d, "*.asd"))
+
+sp=matrix(nrow=length(l),ncol=2151)	
+spt=list()
+
+for (i in 1:length(l)) {
+  # sp[i,]=get_spectra(l[i], type = "reflectance")
+  # spt[i]=asd_read(l[i])  # Fonction pour lire les fichiers .asd
+  sp1=asd_read(l[i])  # Fonction pour lire les fichiers .asd
+  sp[i,]=t(sp1$spectrum/sp1$reference)
+
+}
+return(sp)
 }
