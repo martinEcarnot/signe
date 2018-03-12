@@ -6,6 +6,7 @@
 #' @author Martin Ecarnot
 #' @export
 #' 
+"15:38"
 
 load <- function (d) {
 library(asdreader)
