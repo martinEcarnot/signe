@@ -6,7 +6,7 @@
 #' @author Martin Ecarnot
 #' @export
 #'
-coucou
+coucou2
 
 load <- function (d) {
 library(asdreader)
