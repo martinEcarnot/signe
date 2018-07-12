@@ -5,14 +5,14 @@
 #' @return matrix
 #' @author Martin Ecarnot
 #' @export
-#' 
-"15:38"
+#'
+coucou2
 
 load <- function (d) {
 library(asdreader)
 l=Sys.glob(file.path(d, "*.asd"))
 
-sp=matrix(nrow=length(l),ncol=2151)	
+sp=matrix(nrow=length(l),ncol=2151)
 spt=list()
 
 for (i in 1:length(l)) {
