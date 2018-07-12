@@ -1,6 +1,6 @@
-coucou
-eheh
-blabla
-ohoh
-salut
-hihi
+rpca=PCA(x,graph=F)
+
+condition = as.factor(condition))
+df=data.frame(rpca=rpca$ind$coord,condition=condition)
+p=ggplot(data = df, aes(rpca.Dim.1,rpca.Dim.2, colour=jour)) + geom_point() + geom_text(aes(label=condition),hjust=0, vjust=0)
+plot(p)
