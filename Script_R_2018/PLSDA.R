@@ -9,16 +9,16 @@ library(dplyr)
 
 rm(list = ls())
 
-source('C:/Users/Noémie/Desktop/SFE/Script_R/adj_asd.R')
-source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_load.R')
-source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_maha.R')
-source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_maha0.R')
+source('C:/Users/NoÃ©mie/Desktop/SFE/Script_R/adj_asd.R')
+source('C:/Users/NoÃ©mie/Desktop/SFE/Script_R/SIGNE_load.R')
+source('C:/Users/NoÃ©mie/Desktop/SFE/Script_R/SIGNE_maha.R')
+source('C:/Users/NoÃ©mie/Desktop/SFE/Script_R/SIGNE_maha0.R')
 
 
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 # set.seed(1)
 
-brb="C:/Users/Noémie/Desktop/SFE/Resultats/PTN1/PLSDA/P/globalmatrix"
+brb="C:/Users/NoÃ©mie/Desktop/SFE/Resultats/PTN1/PLSDA/P/globalmatrix"
 load(file=brb)
 
 #globalmatrix[,500]>0.6
@@ -100,7 +100,7 @@ sp=t(scale(t(sp)))
 # # Derivation Savitsky Golay
 sp=t(apply(sp,1,sgolayfilt,p=p,n=n,m=m))
 
-#brb="C:\\Users\\Noémie\\Desktop\\SFE\\Resultats\\PTN1\\PLSDA\\P\\"
+#brb="C:\\Users\\NoÃ©mie\\Desktop\\SFE\\Resultats\\PTN1\\PLSDA\\P\\"
 #write.table(sp, file=paste(brb,"sp.csv",sep=""),sep=";", quote=FALSE)
 
 ###PLSDA###
@@ -110,14 +110,14 @@ sp1 = sp[1:179, ]  #division de sp selon les 3 dates
 sp2 = sp[180:358, ]
 sp3 = sp[359:536, ]
 tr1 <- sample(1:nrow(sp1), 100) # echantillonne aleatoirement 100 spectres sur sp1
-te1 <- setdiff(1 : nrow(sp1),tr1)# recupère les 80 spectres restant de sp1
+te1 <- setdiff(1 : nrow(sp1),tr1)# recupÃ¨re les 80 spectres restant de sp1
 tr2 <- sample(1 : nrow(sp2),100) 
 te2 <- setdiff(1 : nrow(sp2),tr2)
 tr3 <- sample(1 : nrow(sp3),100)
 te3 <- setdiff(1 : nrow(sp3),tr3)
 
-train <- rbind(sp1[tr1],sp2[ tr2], sp3[tr3]) #rassemble les 3 sous echantillons en 1 seul pour former le jeu d'entrainement
-test <- rbind(sp1[te1], sp2[te2], sp3[te3]) #rassemble les 3 sous echantillons en 1 seul pour former le jeu de test
+train <- rbind(sp1[tr1,],sp2[ tr2,], sp3[tr3,]) #rassemble les 3 sous echantillons en 1 seul pour former le jeu d'entrainement
+test <- rbind(sp1[te1,], sp2[te2,], sp3[te3,]) #rassemble les 3 sous echantillons en 1 seul pour former le jeu de test
 
 #entrainement <- plsda(sp[train,], class[train],ncomp=ncmax) # creation du modele??
 #prediction <- predict( plsda.train, sp[test,]) #prediction de de test??
