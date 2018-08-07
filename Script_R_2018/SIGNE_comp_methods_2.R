@@ -7,16 +7,16 @@ library(caret)
 
 rm(list = ls())
 
-source('C:/Users/Noémie/Desktop/SFE/Script_R/adj_asd.R')
-source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_load.R')
-source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_maha.R')
-source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_maha0.R')
+source('C:/Users/No?mie/Desktop/SFE/Script_R/adj_asd.R')
+source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_load.R')
+source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_maha.R')
+source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_maha0.R')
 
 
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 # set.seed(1)
 
-brb="C:/Users/Noémie/Desktop/SFE/Resultats/PTN1/globalmatrix"
+brb="C:/Users/No?mie/Desktop/SFE/Resultats/PTN1/globalmatrix"
 load(file=brb)
 
 #globalmatrix[,500]>0.6
@@ -127,42 +127,42 @@ colnames(maxi_final)= c("maxi.id","perok max")
 colnames(mc_final)= c(basename(levels(class)))
 
 for(j in 1:repet) {
-  
+
   # creation des jeux d'apprentissage et validation
   flds <- createFolds(1:sum(iok), k = k)
-  pred=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))  # As many sample as the whole set 
-  predm=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))  # As many sample as the whole set 
+  pred=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))  # As many sample as the whole set
+  predm=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))  # As many sample as the whole set
   predm0=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))
   # pred0=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))
   predPLSDA=as.data.frame(matrix(nrow = sum(iok), ncol = ncmax))
-  
-  
-  predpost=array(0,dim=c(sum(iok),c,ncmax))  
-  predmah=array(0,dim=c(sum(iok),c,ncmax))   # As many sample as the whole set 
 
-  
+
+  predpost=array(0,dim=c(sum(iok),c,ncmax))
+  predmah=array(0,dim=c(sum(iok),c,ncmax))   # As many sample as the whole set
+
+
   # Boucle sur les groupes de CV
   for (i in 1:k) {
     id_val=sort(unlist(flds[i]))
     sp_val=sp[id_val,]
     class_val=class[id_val]
-    sp_cal=sp[-id_val,]  
+    sp_cal=sp[-id_val,]
     class_cal=class[-id_val]
-    
+
     # PLSDA and application to have loadings and scores
     rplsda=caret::plsda(sp_cal, class_cal,ncomp=ncmax)
     sc_cal=rplsda$scores
     # sp_cal_c=scale(sp_cal,center=rplsda$Xmeans,scale = F)
-    # sc_cal=sp_cal_c%*%rplsda$projection 
+    # sc_cal=sp_cal_c%*%rplsda$projection
     sp_val_c=scale(sp_val,center=rplsda$Xmeans,scale = F)
     sc_val=sp_val_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-    
+
     # rpca=prcomp(sp_cal)
     # spca_cal=rpca$x
     # spca_val=predict(rpca,sp_val)
-    
+
     for (ii in 2:ncmax) {
-      # Apprentissage    
+      # Apprentissage
       rlda=lda(sc_cal[,1:ii], class_cal,tol=1.0e-5)
       # Validation
       pred[id_val,ii]=predict(rlda ,sc_val[,1:ii])$class
@@ -170,27 +170,28 @@ for(j in 1:repet) {
       # browser()
       predm[id_val,ii]=SIGNE_maha(rlda,sc_cal[,1:ii],class_cal,sc_val[,1:ii])$class
       predmah[id_val,,ii]=SIGNE_maha(rlda,sc_cal[,1:ii],class_cal,sc_val[,1:ii])$posterior
-      
+
       predm0[id_val,ii]=SIGNE_maha0(sc_cal[,1:ii], class_cal, sc_val[,1:ii])$class
-      
+
       # pred0[id_val,ii]=SIGNE_maha0(spca_cal[,1:ii], class_cal, spca_val[,1:ii])$class
-      
+
       predPLSDA[id_val,ii]=predict(rplsda,sp_val,ncomp=ii)
 
       # p=predict(rlda ,sc_val[,1:ii])
       # predx[id_val,ii]=predict(rlda ,sc_val[,1:ii])$x
       # predp[id_val,ii]=predict(rlda ,sc_val[,1:ii])$posterior
-      
+
     }
   }
     # Table de contingence
+
 
     ts=lapply(as.list(pred), class, FUN = table)
     tsm=lapply(as.list(predm), class, FUN = table)
     tsm0=lapply(as.list(predm0), class, FUN = table)
     # ts0=lapply(as.list(pred0), class, FUN = table)
     tsPLSDA=lapply(as.list(predPLSDA), class, FUN = table)
-    
+
     # Matrice mauvais classements par clone
     #mc[i,]=(rowSums((as.matrix(t)))-diag(as.matrix(t)))/rowSums((as.matrix(t)))
     Sumpred=lapply(ts, FUN = rowSums)
@@ -199,17 +200,17 @@ for(j in 1:repet) {
     diagsm0=lapply(tsm0, FUN = diag)
     # diags0=lapply(ts0, FUN = diag)
     diagsPLSDA=lapply(tsPLSDA, FUN = diag)
-    
+
     # Pourcentage de bien classes
     perok=100*unlist(lapply(diags, FUN = sum))/length(class)
     perokm=100*unlist(lapply(diagsm, FUN = sum))/length(class)
     perokm0=100*unlist(lapply(diagsm0, FUN = sum))/length(class)
     # perok0=100*unlist(lapply(diags0, FUN = sum))/length(class)
     perokPLSDA=100*unlist(lapply(diagsPLSDA, FUN = sum))/length(class)
-    
+
     # pred[id_val,]=predict(rplsda ,sp_val,ncomp = 1:ncmax)
 
-  
+
   # # Table de contingence
    ts=lapply(as.list(pred), class, FUN = table)
   # # Matrice mauvais classements par clone
@@ -218,11 +219,11 @@ for(j in 1:repet) {
    #diags=lapply(ts, FUN = diag)
   # # Pourcentage de bien classes
    #perok=100*unlist(lapply(diags, FUN = sum))/length(class)
-  
+
   maxi=max(perok)
   maxi.id=which.max(perok)
-  
-  
+
+
   ## Enregistrement des matrices de resultat final
   # remplissage de la matrice des perok finale
   perok_final[j,]=perok
@@ -230,8 +231,8 @@ for(j in 1:repet) {
   perok_finalm0[j,]=perokm0
   #perok_final0[j,]=perok0
   perok_finalPLSDA[j,]=perokPLSDA
-  
-  
+
+
   # remplissage de la dv max et de son % de bon classements globaux
   maxi_final[j,1]=maxi.id
   maxi_final[j,2]=maxi
