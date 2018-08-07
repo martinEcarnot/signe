@@ -40,7 +40,6 @@ wl=seq(from=md$ch1_wavel, to=md$ch1_wavel+md$channels-1)
 colnames(sp)=wl
 row.names(sp)=l1
 
-
 # Create class file
  clas=substr(l1,1,3)
 

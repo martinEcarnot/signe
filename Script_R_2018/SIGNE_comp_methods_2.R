@@ -185,7 +185,6 @@ for(j in 1:repet) {
   }
     # Table de contingence
 
-
     ts=lapply(as.list(pred), class, FUN = table)
     tsm=lapply(as.list(predm), class, FUN = table)
     tsm0=lapply(as.list(predm0), class, FUN = table)
