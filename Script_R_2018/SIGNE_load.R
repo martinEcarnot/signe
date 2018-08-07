@@ -5,18 +5,21 @@
 #' @return matrix
 #' @author Martin Ecarnot
 #' @export
-#' 
-#' 
-source('C:/Users/Noémie/Desktop/SFE/Script_R/asd_read.R')
+#'
+#'
+
+user="ME"
+if (user=="NL") {source('C:/Users/NoÃ©mie/Desktop/SFE/Script_R/asd_read.R')} else {source('/home/ecarnot/Documents/INRA/R/asd_read.R')}
+
 
 SIGNE_load <- function (d) {
 library(asdreader)
 #d=choose.dir()
-#d="C:\\Users\\Noémie\\Desktop\\SFE\\Pour_Nathan\\Documents_finaux\\test_spectres\\"
+#d="C:\\Users\\No?mie\\Desktop\\SFE\\Pour_Nathan\\Documents_finaux\\test_spectres\\"
 l=Sys.glob(file.path(d, "*.asd"))
 l=sort(l)
 
-sp=matrix(nrow=length(l),ncol=2151)	
+sp=matrix(nrow=length(l),ncol=2151)
 spt=list()
 
 for (i in 1:length(l)) {
@@ -39,13 +42,13 @@ row.names(sp)=l1
 
 # Create class file
  clas=substr(l1,1,3)
- 
+
 # uclas=unique(clas)
 # for (i in 1:length(uclas)) {
 #   iok=which(clas==uclas[i])
 #   clas[iok]=i
 # }
- 
+
  clas=data.frame(clas)
  row.names(clas)=l1
  colnames(clas)="clone"
