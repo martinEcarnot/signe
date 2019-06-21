@@ -5,8 +5,8 @@
 #' @return matrix
 #' @author Martin Ecarnot
 #' @export
-#' 
-#' 
+#'
+#'
 source('~/Documents/NICOLAS/Stage de fin annee au Grau du roi/Pour Noemie/SIGNE_2018_LAFOUGE/Script_R/asd_read.R')
 
 SIGNE_load <- function (d) {
@@ -16,7 +16,7 @@ library(asdreader)
 l=Sys.glob(file.path(d, "*.asd"))
 l=sort(l)
 # browser()
-sp=matrix(nrow=length(l),ncol=2151)	
+sp=matrix(nrow=length(l),ncol=2151)
 spt=list()
 
 for (i in 1:length(l)) {
@@ -25,7 +25,6 @@ for (i in 1:length(l)) {
   sp1=sp1$spectrum/sp1$reference
   sp[i,]=sp1
 }
-
 
 l1=basename(l)
 l1=gsub(".asd","",l1)
@@ -39,13 +38,13 @@ row.names(sp)=l1
 
 # Create class file
  clas=substr(l1,1,3)
- 
+
 # uclas=unique(clas)
 # for (i in 1:length(uclas)) {
 #   iok=which(clas==uclas[i])
 #   clas[iok]=i
 # }
- 
+
  clas=data.frame(clas)
  row.names(clas)=l1
  colnames(clas)="clone"
@@ -54,6 +53,6 @@ row.names(sp)=l1
 return(sp)
 # setwd(d)
 # write.table(sp,file=paste(basename(d),"_sp.csv",sep=""),sep=';', quote=FALSE,col.names = NA)
-# write.table(clas,file=paste(basename(d),"_clon.csv",sep=""),sep=';', quote=FALSE,col.names = NA)
+ # write.table(clas,file=paste(basename(d),"_clon.csv",sep=""),sep=';', quote=FALSE,col.names = NA)
 
 }
