@@ -16,7 +16,7 @@ if (user=="NL") {source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_load.R')} e
 # fonction load
 #load <- function (d) {
 #  library(asdreader)
-  #d=choose.dir()
+#d=choose.dir()
 #  l=Sys.glob(file.path(d, "*.asd"))
 #  l=sort(l)
 
@@ -24,7 +24,7 @@ if (user=="NL") {source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_load.R')} e
 #  spt=list()
 
 #  for (i in 1:length(l)) {
-    #sp1=get_spectra(l[i], type = "reflectance") # Fonction pour lire les fichiers .asd
+#sp1=get_spectra(l[i], type = "reflectance") # Fonction pour lire les fichiers .asd
 #    sp1=asd_read(l[i])
 #    sp1=sp1$spectrum/sp1$reference
 #    sp[i,]=sp1
@@ -41,7 +41,7 @@ if (user=="NL") {source('C:/Users/Noémie/Desktop/SFE/Script_R/SIGNE_load.R')} e
 #  colnames(sp)=wl
 #  row.names(sp)=l1
 
-  # Create class file
+# Create class file
 #  clas=substr(l1,1,3)
 
 #  uclas=unique(clas)
@@ -81,10 +81,10 @@ dates[9]="20180709N"
 globalmatrix=matrix(nrow=(s*180), ncol=2072)
 
 for (k in 1:s)
-  {
+{
   if (user=="NL") {
     em=paste("C:\\Users\\Noémie\\Desktop\\SFE\\Spectres_SIGNE\\Fichiers_ASD\\PTN\\",dates[k], sep="")} else {
-    em=paste("/home/ecarnot/Documents/INRA/Projets/SIGNE/2018/GrauduRoi/PTN/",dates[k], sep="")}
+      em=paste("/home/ecarnot/Documents/INRA/Projets/SIGNE/2018/GrauduRoi/PTN/",dates[k], sep="")}
 
   w=SIGNE_load(em)
   rownames(w)=paste(dates[k],rownames(w))
