@@ -107,9 +107,9 @@ sp=t(apply(sp,1,sgolayfilt,p=p,n=n,m=m))
 titre=rownames(sp)
 
 ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169" |  (substr(titre,11,13))== "685"
-#ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169" 
+#ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169"
 yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "509" |  (substr(titre,11,13))== "787"
-#yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "787" 
+#yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "787"
 yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"
 #yc=(substr(titre,11,13))== "525" |  (substr(titre,11,13))== "471" |  (substr(titre,11,13))== "877"
 #yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877" #Si on supprime le 525
@@ -117,9 +117,9 @@ yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525" |  (substr(tit
 #yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525"
 
 ##Separation en 3 matrices
-spa=sp[ya==TRUE,]
-spb=sp[yb==TRUE,]
-spc=sp[yc==TRUE,]
+spa=sp[ya,]
+spb=sp[yb,]
+spc=sp[yc,]
 
 ##Rajoute le nom du cepage au nom de la ligne
 rownames(spa)=paste(rownames(spa),"C",sep = "-")
@@ -142,14 +142,14 @@ c=length(levels(class))
 titre=rownames(sp)
 
 # Boucle en fonction de la date
-# d1 = (substr(titre,1,9))== "20170624P" 
+# d1 = (substr(titre,1,9))== "20170624P"
 # d2 = (substr(titre,1,9))== ""
-# 
+#
 # #g1=sp[(d1==TRUE),] #1
-# 
-# 
+#
+#
 # s=2 #indice de la date
-# 
+#
 # for (i in 1:s) {
 #   commd=paste("g",i,"=sp[(d",i,sep="")
 #   eval(parse(text=commd))
@@ -625,57 +625,57 @@ rownames(t_final)=c(basename(levels(class)))
 colnames(maxi_final)= c("maxi.id","perok max")
 colnames(mc_final)= c(basename(levels(class)))
 
-###séparation validation calibration PLSDA###
+###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
-# 
-# id2=matrix( ,nrow=1, ncol=10) 
+#
+# id2=matrix( ,nrow=1, ncol=10)
 #  for (i in 1:3) {
 #    id2[,i]=sample(id[,i],1, replace = FALSE)
-  
-  
+
+
  idval=matrix( ,nrow=1, ncol=10) #matrice validation PLSDA
  idcal=matrix( ,nrow=2, ncol=10) #matrice calibration PLSDA
  idcal2=matrix( ,nrow=2, ncol=10) #matrice calibration PLSDA
  # idval2=matrix( ,nrow=1, ncol=10) #idval pour CV
  # idcal2=matrix( ,nrow=1, ncol=10) #idcal pour CV
- 
+
   for (i in 1:10) {
     icol=sample(1:3,1)
     # id2[,i]=sample(id[,i],1, replace = FALSE)
     idval[,i]=id[icol,i]
     idcal[,i]=id[c(1:3)[-icol],i]
-    
-    }  
+
+    }
 
  for (i in 1:10) {
    # icol2=sample(1:2,1)
    idcal2[,i]=idcal[sample(1:2),i]
    # idval2[,i]=idcal[icol2,i]
    # idcal2[,i]=idcal[c(1:2)[-icol2],i]
-     
+
      }
- 
+
  ###PLSDA cepages
- 
+
 commd2=paste("sp_val=rbind(sp",idval[1,1],",sp",idval[1,2],",sp",idval[1,3],",sp",idval[1,4],",sp",idval[1,5],",sp",idval[1,6],",sp",idval[1,7],",sp",idval[1,8],",sp",idval[1,9],",sp",idval[1,10],")",sep="")
  #commd2=paste("sp_val=rbind(sp",idval[1,1],",sp",idval[1,2],",sp",idval[1,3],",sp",idval[1,4],",sp",idval[1,5],",sp",idval[1,6],",sp",idval[1,7],",sp",idval[1,8],",sp",idval[1,9],")",sep="") # Si on supprime 1 clone
  # commd2=paste("sp_val=rbind(sp",idval[1,1],",sp",idval[1,2],",sp",idval[1,3],",sp",idval[1,4],",sp",idval[1,5],",sp",idval[1,6],",sp",idval[1,7],",sp",idval[1,8],")",sep="")
  eval(parse(text=commd2))
- 
- 
+
+
  id_val=which(rownames(sp)  %in%  rownames(sp_val))
- 
- ##On selectionne les spectres ayant ces numéros dans le jeu de validation, les autres vont dans le jeu de calibration
+
+ ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
  sp_val=sp[id_val,]
  sp_cal=sp[-id_val,]
  class_val=class[id_val]
  class_cal=class[-id_val]
- 
+
  ## Creation des jeux d'apprentissage et validation
  predm0=as.data.frame(matrix(nrow = sum(iok2), ncol = ncmax))
- 
-## Boucle CV  
+
+## Boucle CV
    for (i in 1:k) {
     #commd=paste("sp_val=rbind(sp",idcal2[i,1],",sp",idcal2[i,2],",sp",idcal2[i,3],")",sep="")   # pour CS et G
     commd=paste("spvalCV=rbind(sp",idcal2[i,1],",sp",idcal2[i,2],",sp",idcal2[i,3],",sp",idcal2[i,4],")",sep="") # pour S
@@ -685,52 +685,52 @@ commd2=paste("sp_val=rbind(sp",idval[1,1],",sp",idval[1,2],",sp",idval[1,3],",sp
      eval(parse(text=commd))
 
     idvalCV=which(rownames(sp_cal)  %in%  rownames(spvalCV))
-    
-    spvalCV=sp_cal[idvalCV,]       # matrice du jeu de validation 
+
+    spvalCV=sp_cal[idvalCV,]       # matrice du jeu de validation
     class_valCV=class_cal[idvalCV]  #identifiants des classes du jeu de validation
-    spcalCV=sp_cal[-idvalCV,]      #matrice du jeu de calibration composée de tout ce qui n'est pas en validation
+    spcalCV=sp_cal[-idvalCV,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
     class_calCV=class_cal[-idvalCV] #identifiants des classes du jeu de calibration
- 
+
     ## PLSDA and application to have loadings and scores
     rplsda=caret::plsda(spcalCV, class_calCV,ncomp=ncmax)
     sccalCV=rplsda$scores
     spvalCV_c=scale(spvalCV,center=rplsda$Xmeans,scale = F)
     scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-  
+
       for (ii in 2:ncmax) {
-     
+
      ## Validation
      predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], class_calCV, scvalCV[,1:ii])$class
        }
    }
- 
+
  ## Table de contingence CV
   tsm0=lapply(as.list(predm0), class, FUN = table)
- 
+
  ## Matrice mauvais classements par clone CV
   diagsm0=lapply(tsm0, FUN = diag)
- 
+
  ## Pourcentage de bien classes CV
   perokm0=100*unlist(lapply(diagsm0, FUN = sum))/length(class)
- 
+
  ## Pourcentage de bien classes CV
   maxi=max(perokm0)
   maxi.id=which.max(perokm0)
- 
+
  ### Enregistrement des matrices de resultat final
  ##Remplissage de la matrice des perok finale
  perok_finalm0[j,]=perokm0
- 
+
  ## Remplissage de la VL max et de son % de bons classements globaux
  maxi_final[j,1]=maxi.id
  maxi_final[j,2]=maxi
  ## Remplissage de la matrice de mauvais classements par clone
  mc_final[j,]=mc[maxi.id,]
 
- 
+
 ###PLSDA on Maha scores
 ## Calibration
-rplsda=caret::plsda(sp_cal, class_cal,ncomp=10) 
+rplsda=caret::plsda(sp_cal, class_cal,ncomp=10)
 sc_cal=rplsda$scores
 
 ## Validation
@@ -779,70 +779,70 @@ class_cal_S=droplevels(class_clones[id_cal_S])
 #   c4=idcal[2,1]
 #   c5=idcal[2,2]
 #   c6=idcal[2,3]
-# 
+#
 # idcalC=c(c1,c2,c3,c4,c5,c6)
 # dim(idcalC)=c(3,2)
 # idcalC=t(idcalC)
-# 
+#
 # idcal2C=matrix( ,nrow=2, ncol=3)
-# 
+#
 # for (i in 1:3) {
 #   idcal2C[,i]=idcalC[sample(1:2),i]
 # }
-# 
+#
 # ## Boucle CV (Cabernet)
 # for (i in 1:k) {
 #   commdC=paste("spvalCVC=rbind(sp",idcal2C[i,1],",sp",idcal2C[i,2],",sp",idcal2C[i,3],")",sep="")
 #   eval(parse(text=commdC))
-# 
+#
 #   idvalCVC=which(rownames(sp_cal_C)  %in%  rownames(spvalCVC))
-# 
+#
 #   spvalCVC=sp_cal_C[idvalCVC,]       # matrice du jeu de validation
 #   class_valCVC=droplevels(class_cal_C[idvalCVC])  #identifiants des classes du jeu de validation
-#   spcalCVC=sp_cal_C[-idvalCVC,]      #matrice du jeu de calibration composée de tout ce qui n'est pas en validation
+#   spcalCVC=sp_cal_C[-idvalCVC,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
 #   class_calCVC=droplevels(class_cal_C[-idvalCVC]) #identifiants des classes du jeu de calibration
-# 
+#
 #   ## PLSDA and application to have loadings and scores (Cabernet)
 #   rplsdaCVC=caret::plsda(spcalCVC, class_calCVC,ncomp=ncmax)
 #   sccalCVC=rplsdaCVC$scores
 #   spvalCVC_c=scale(spvalCVC,center=rplsdaCVC$Xmeans,scale = F)
 #   scvalCVC=spvalCVC_c%*%rplsdaCVC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-# 
+#
 #   ## Creation des jeux d'apprentissage et validation
 #   iok3=substr(rownames(sp_cal_C),1,9) %in% dates
 #   predm0C=as.data.frame(matrix(nrow = sum(iok3), ncol = ncmax))
-# 
-# 
+#
+#
 #   for (ii in 2:ncmax) {
-# 
+#
 #     ## Validation
 #     predm0C[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], class_calCVC, scvalCVC[,1:ii])$class
 #   }
 # }
-# 
-# 
+#
+#
 # ## Table de contingence CV
 # tsm0C=lapply(as.list(predm0C), class_cal_C, FUN = table)
-# 
-# 
+#
+#
 # ## Matrice mauvais classements par clone CV
 # diagsm0C=lapply(tsm0C, FUN = diag)
-# 
+#
 # ## Pourcentage de bien classes CV
 # perokm0C=100*unlist(lapply(diagsm0C, FUN = sum))/length(class_valCVC)
-# 
+#
 # ## Pourcentage de bien classes CV
 # maxiC=max(perokm0C)
 # maxi.idC=which.max(perokm0C)
-# 
+#
 # ### Enregistrement des matrices de resultat final
 # ##Remplissage de la matrice des perok finale
 # perok_finalm0C[j,]=perokm0C
-# 
+#
 # ## Remplissage de la VL max et de son % de bons classements globaux
 # maxi_finalC[j,1]=maxi.idC
 # maxi_finalC[j,2]=maxiC
-# 
+#
 # ##Formation de idcalG (Gamay)
 #   g1=idcal[1,4]
 #   g2=idcal[1,5]
@@ -850,63 +850,63 @@ class_cal_S=droplevels(class_clones[id_cal_S])
 #   g4=idcal[2,4]
 #   g5=idcal[2,5]
 #   g6=idcal[2,6]
-# 
+#
 # idcalG=c(g1,g2,g3,g4,g5,g6)
 # dim(idcalG)=c(3,2)
 # idcalG=t(idcalG)
-# 
+#
 # idcal2G=matrix( ,nrow=2, ncol=3)
-# 
+#
 # for (i in 1:3) {
 #   idcal2G[,i]=idcalG[sample(1:2),i]
 # }
-# 
+#
 # ## Boucle CV (Gamay)
 # for (i in 1:k) {
 #   commdG=paste("spvalCVG=rbind(sp",idcal2G[i,1],",sp",idcal2G[i,2],",sp",idcal2G[i,3],")",sep="")
 #   eval(parse(text=commdG))
-# 
+#
 #   idvalCVG=which(rownames(sp_cal_G)  %in%  rownames(spvalCVG))
-# 
+#
 #   spvalCVG=sp_cal_G[idvalCVG,]       # matrice du jeu de validation
 #   class_valCVG=droplevels(class_cal_G[idvalCVG])  #identifiants des classes du jeu de validation
-#   spcalCVG=sp_cal_G[-idvalCVG,]      #matrice du jeu de calibration composée de tout ce qui n'est pas en validation
+#   spcalCVG=sp_cal_G[-idvalCVG,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
 #   class_calCVG=droplevels(class_cal_G[-idvalCVG]) #identifiants des classes du jeu de calibration
-# 
+#
 #   ## PLSDA and application to have loadings and scores (Gamay)
 #   rplsdaCVG=caret::plsda(spcalCVG, class_calCVG,ncomp=ncmax)
 #   sccalCVG=rplsdaCVG$scores
 #   spvalCVG_c=scale(spvalCVG,center=rplsdaCVG$Xmeans,scale = F)
 #   scvalCVG=spvalCVG_c%*%rplsdaCVG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-# 
+#
 #   ## Creation des jeux d'apprentissage et validation
 #   iok4=substr(rownames(sp_cal_G),1,9) %in% dates
 #   predm0G=as.data.frame(matrix(nrow = sum(iok4), ncol = ncmax))
-# 
+#
 #   for (ii in 2:ncmax) {
-# 
+#
 #     ## Validation
 #     predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], class_calCVG, scvalCVG[,1:ii])$class
 #   }
 # }
-# 
+#
 # ## Table de contingence CV
 # tsm0G=lapply(as.list(predm0G), class_cal_G, FUN = table)
-# 
+#
 # ## Matrice mauvais classements par clone CV
 # diagsm0G=lapply(tsm0G, FUN = diag)
-# 
+#
 # ## Pourcentage de bien classes CV
 # perokm0G=100*unlist(lapply(diagsm0G, FUN = sum))/length(class_valCVG)
-# 
+#
 # ## Pourcentage de bien classes CV
 # maxiG=max(perokm0G)
 # maxi.idG=which.max(perokm0G)
-# 
+#
 # ### Enregistrement des matrices de resultat final
 # ##Remplissage de la matrice des perok finale
 # perok_finalm0G[j,]=perokm0G
-# 
+#
 # ## Remplissage de la VL max et de son % de bons classements globaux
 # maxi_finalG[j,1]=maxi.idG
 # maxi_finalG[j,2]=maxiG
@@ -920,13 +920,13 @@ class_cal_S=droplevels(class_clones[id_cal_S])
 #   s6=idcal[2,8]
 # #  s7=idcal[2,9]
 # #  s8=idcal[2,10]
-# 
+#
 # idcalS= c(s1,s2,s5,s6)#c(s1,s2,s3,s4,s5,s6,s7,s8)
 # dim(idcalS)=c(2,2)
 # idcalS=t(idcalS)
-# 
+#
 # idcal2S=matrix( ,nrow=2, ncol=2)
-# 
+#
 # for (i in 1:2) {
 #   idcal2S[,i]=idcalS[sample(1:2),i]
 # }
@@ -936,26 +936,26 @@ class_cal_S=droplevels(class_clones[id_cal_S])
 #   #commdS=paste("spvalCVS=rbind(sp",idcal2S[i,1],",sp",idcal2S[i,2],",sp",idcal2S[i,3],",sp",idcal2S[i,4],")",sep="")
 #   commdS=paste("spvalCVS=rbind(sp",idcal2S[i,1],",sp",idcal2S[i,2],")",sep="")
 #   eval(parse(text=commdS))
-# 
+#
 #   idvalCVS=which(rownames(sp_cal_S)  %in%  rownames(spvalCVS))
-# 
+#
 #   spvalCVS=sp_cal_S[idvalCVS,]       # matrice du jeu de validation
 #   class_valCVS=droplevels(class_cal_S[idvalCVS])  #identifiants des classes du jeu de validation
-#   spcalCVS=sp_cal_S[-idvalCVS,]      #matrice du jeu de calibration composée de tout ce qui n'est pas en validation
+#   spcalCVS=sp_cal_S[-idvalCVS,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
 #   class_calCVS=droplevels(class_cal_S[-idvalCVS]) #identifiants des classes du jeu de calibration
-# 
+#
 #   ## PLSDA and application to have loadings and scores (Syrah)
 #   rplsdaCVS=caret::plsda(spcalCVS, class_calCVS,ncomp=ncmax)
 #   sccalCVS=rplsdaCVS$scores
 #   spvalCVS_c=scale(spvalCVS,center=rplsdaCVS$Xmeans,scale = F)
 #   scvalCVS=spvalCVS_c%*%rplsdaCVS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-# 
+#
 #   ## Creation des jeux d'apprentissage et validation
 #    iok5=substr(rownames(sp_cal_S),1,9) %in% dates
 #    predm0S=as.data.frame(matrix(nrow = sum(iok5), ncol = ncmax))
-# 
+#
 #   for (ii in 2:ncmax) {
-# 
+#
 #     ## Validation
 #     predm0S[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], class_calCVS, scvalCVS[,1:ii])$class
 #   }
@@ -963,21 +963,21 @@ class_cal_S=droplevels(class_clones[id_cal_S])
 
 # ## Table de contingence CV
 # tsm0S=lapply(as.list(predm0S), class_cal_S, FUN = table)
-# 
+#
 # ## Matrice mauvais classements par clone CV
 # diagsm0S=lapply(tsm0S, FUN = diag)
-# 
+#
 # ## Pourcentage de bien classes CV
 # perokm0S=100*unlist(lapply(diagsm0S, FUN = sum))/length(class_valCVS)
-# 
+#
 # ## Pourcentage de bien classes CV
 # maxiS=max(perokm0S)
 # maxi.idS=which.max(perokm0S)
-# 
+#
 # ### Enregistrement des matrices de resultat final
 # ##Remplissage de la matrice des perok finale
 # perok_finalm0S[j,]=perokm0S
-# 
+#
 # ## Remplissage de la VL max et de son % de bons classements globaux
 # maxi_finalS[j,1]=maxi.idS
 # maxi_finalS[j,2]=maxiS
@@ -1118,7 +1118,7 @@ perok_cepages=100*(sum(diag(cepage))/sum(cepage))
 perok_final_cepages[j,]=perok_cepages
 
 }
-  
+
 # print(perok_final)
 # print(perok_final_cepages)
 print(mean(perok_final))
@@ -1132,27 +1132,27 @@ print(mean(perok_final_S_cep))
 
 ###Sorties graphiques
 ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (cepages)
-plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens classés",pch=19, cex=1.5)
+plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
        col=c("black"), lty=1, cex=0.8)
 
 # ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (Cabernet)
-# plot(colMeans(perok_finalm0C), xlab= "Nombre de VL", ylab = "Pourcentage de biens classés",pch=19, cex=1.5)
+# plot(colMeans(perok_finalm0C), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 # legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
 #        col=c("black"), lty=1, cex=0.8)
-# 
+#
 # ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (Gamay)
-# plot(colMeans(perok_finalm0G), xlab= "Nombre de VL", ylab = "Pourcentage de biens classés",pch=19, cex=1.5)
+# plot(colMeans(perok_finalm0G), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 # legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
 #        col=c("black"), lty=1, cex=0.8)
-# 
+#
 # ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (Syrah)
-# plot(colMeans(perok_finalm0S), xlab= "Nombre de VL", ylab = "Pourcentage de biens classés",pch=19, cex=1.5)
+# plot(colMeans(perok_finalm0S), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 # legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
 #        col=c("black"), lty=1, cex=0.8)
 
 ## Clones
-plot(perok_final, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de clones biens classés",pch=19, cex=2)
+plot(perok_final, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de clones biens class?s",pch=19, cex=2)
 
 ##Cepages
-plot(perok_final_cepages, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de cépages biens classés",pch=21, cex=2,bg="blue")
+plot(perok_final_cepages, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de c?pages biens class?s",pch=21, cex=2,bg="blue")

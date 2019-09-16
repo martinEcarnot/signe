@@ -1,8 +1,8 @@
 
-# ACP 
+# ACP
 
 library(FactoMineR)
-library(factoextra) 
+library(factoextra)
 library(pls)
 library(MASS)
 library(mixOmics)
@@ -84,11 +84,11 @@ dates=list(
   # ,"20180816E"
   # ,"20180731A"
   # ,"20180731E"
-  
-  
+
+
 )
 print(dates)
-#Esca <- read.table("C:/Users/Noémie/Desktop/Test_poids_ok/Esca.csv",
+#Esca <- read.table("C:/Users/No?mie/Desktop/Test_poids_ok/Esca.csv",
 #                   header=TRUE, sep=";",dec=".",row.names=1, check.names=FALSE,
 #                   fileEncoding="latin1")
 
@@ -111,7 +111,7 @@ k=5
 # print(globalmatrix)
 # mean1_final=matrix(nrow = 1, ncol = ncol(globalmatrix))
 # mean2_final=matrix(nrow = 220, ncol = ncol(globalmatrix))
-# 
+#
 # mean1_final=colMeans(globalmatrix[(1:z),])
 
 # for(j in 1:moy) {
@@ -119,7 +119,7 @@ k=5
 #   z=z+6
 #   #print(mean2)
 #   #print(z)
-#   
+#
 #   mean2_final[j,]=mean2
 # }
 
@@ -150,10 +150,10 @@ str(sp)
 
 
 
-# globalmatrix2 <- read.table("C:/Users/Noémie/Desktop/SFE/Caracteristiques_agro/globalmatrix2.csv", 
-#                             header=TRUE, sep=";",dec=".", row.names=1, check.names=FALSE, 
+# globalmatrix2 <- read.table("C:/Users/No?mie/Desktop/SFE/Caracteristiques_agro/globalmatrix2.csv",
+#                             header=TRUE, sep=";",dec=".", row.names=1, check.names=FALSE,
 #                             fileEncoding="latin1")
-# 
+#
 # globalmatrix2=globalmatrix2[globalmatrix2[,500]>0.6,]
 # globalmatrix2=globalmatrix2[globalmatrix2[,1]<0.2,]
 # globalmatrix2=globalmatrix2[globalmatrix2[,2000]<0.25,]
@@ -171,7 +171,7 @@ eig.val <- get_eigenvalue(spok.pca)
 print (eig.val)
 p <-fviz_eig(spok.pca, addlabels = TRUE) +
 labs(title = "Graph des valeurs propres", x= "Valeurs propres" ,
-y= "Pourcentage de variabilité expliquée (%)") +
+y= "Pourcentage de variabilit? expliqu?e (%)") +
  theme_minimal()
 print (p)
 
@@ -186,13 +186,13 @@ plot(spok.pca, habillage = 1993, axes=c(1,2))
 
 
 acp3<-PCA(sp, scale.unit=F, ncp=5, graph=T, axes=c(1,2) )
-axeX <- acp3$ind$coord[,1] ; axeY <- acp3$ind$coord[,2] 
+axeX <- acp3$ind$coord[,1] ; axeY <- acp3$ind$coord[,2]
 plot(axeX,axeY,pch=16);grid()
 
 ###
 
-d <- fviz_pca_ind (spok.pca, axes = c(1,2) , mean.point = FALSE, legend.title = "Modalités", axes.linetype = "solid",
-              habillage= "none", col.ind=3, pointsize = 5) + 
+d <- fviz_pca_ind (spok.pca, axes = c(1,2) , mean.point = FALSE, legend.title = "Modalit?s", axes.linetype = "solid",
+              habillage= "none", col.ind=3, pointsize = 5) +
              scale_color_brewer(palette="Set1")+
               labs(title = "ACP: graph des individus") +
                 theme_minimal()
@@ -200,16 +200,16 @@ d <- fviz_pca_ind (spok.pca, axes = c(1,2) , mean.point = FALSE, legend.title = 
 print(d)
 str(spok[,1993])
 ## Graphique des individus
-e <- fviz_pca_ind (spok.pca, axes = c(1,3) , mean.point = FALSE, legend.title = "Modalités", axes.linetype = "solid", label="none",
-                     habillage =  spok$Degré, pointsize = 5) + 
+e <- fviz_pca_ind (spok.pca, axes = c(1,3) , mean.point = FALSE, legend.title = "Modalit?s", axes.linetype = "solid", label="none",
+                     habillage =  spok$Degr?, pointsize = 5) +
   scale_color_brewer(palette="Set1")+
   labs(title = "ACP: graph des individus") +
   theme_minimal()
 print(e)
 
 ## Graphique des individus
-g <- fviz_pca_ind (spok.pca, axes = c(1,4) , mean.point = FALSE, legend.title = "Modalités", axes.linetype = "solid", label="none",
-                   habillage =  spok$Degré, pointsize = 5) + 
+g <- fviz_pca_ind (spok.pca, axes = c(1,4) , mean.point = FALSE, legend.title = "Modalit?s", axes.linetype = "solid", label="none",
+                   habillage =  spok$Degr?, pointsize = 5) +
   scale_color_brewer(palette="Set1")+
   labs(title = "ACP: graph des individus") +
   theme_minimal()
@@ -221,10 +221,10 @@ print(g)
 
 
 
-#rpca=prcomp(globalmatrix2) 
-#scor=rpca$x 
-# Representation graphique de l'ACP: 
-# plot(scor, col=as.factor(substr(rownames(globalmatrix2),1,3))) 
+#rpca=prcomp(globalmatrix2)
+#scor=rpca$x
+# Representation graphique de l'ACP:
+# plot(scor, col=as.factor(substr(rownames(globalmatrix2),1,3)))
 
 
 
@@ -232,7 +232,7 @@ print(g)
 
 #library(FactoMineR)
 
-#globalmatrix2 <- read.table("C:/Users/Noémie/Desktop/SFE/Resultats/PTN1/globalmatrix.csv",
+#globalmatrix2 <- read.table("C:/Users/No?mie/Desktop/SFE/Resultats/PTN1/globalmatrix.csv",
 #                        header=TRUE, sep=";",dec=".", row.names=1, check.names=FALSE, fileEncoding="latin1")
 #res <- PCA(globalmatrix2[,1:2072])
 #plot(res, cex=0.8, invisible="quali", label="none", title="Graphe des individus")
@@ -241,7 +241,7 @@ print(g)
 
 
 
-#brb="C:/Users/Noémie/Desktop/SFE/Resultats/PTN1/globalmatrix2"
+#brb="C:/Users/No?mie/Desktop/SFE/Resultats/PTN1/globalmatrix2"
 #load(file=brb)
 #rpca=PCA(globalmatrix,graph=FALSE)
 
