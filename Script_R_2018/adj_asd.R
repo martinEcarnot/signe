@@ -6,7 +6,7 @@ adj_asd <- function(Xi,iadj)
 #[651,1451]
 ws=5
 #browser()
-#ctvyui
+
 for (i in 1:length(iadj)) {
 
 	x= (iadj[i] - ws + 1):iadj[i]
