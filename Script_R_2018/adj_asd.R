@@ -6,17 +6,18 @@ adj_asd <- function(Xi,iadj)
 #[651,1451]
 ws=5
 #browser()
+#ctvyui
 for (i in 1:length(iadj)) {
 
 	x= (iadj[i] - ws + 1):iadj[i]
 	Y=Xi[, x]
 	my=t(colMeans(t(Y)))
 
-	sx=var(x) 
+	sx=var(x)
 	mx=mean(x)
 	b=cov(x,t(Y))/sx # Ajustement lineaire.
 	b0=my-b*mx  # Ajustement lineaire.
-	dif=Xi[,iadj[i]+1]-(b0+b*(iadj[i]+1)) 
+	dif=Xi[,iadj[i]+1]-(b0+b*(iadj[i]+1))
 	loremp=(iadj[i]+1):dim(Xi)[2]
 	Xi[,loremp]=Xi[,loremp]-kronecker(matrix(1,1,dim(Xi)[2]-iadj[i]),t(dif))  # On utilise kronecker pour remplacer repmat
 }
