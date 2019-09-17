@@ -7,7 +7,7 @@
 #' @export
 #'
 #'
-source('~/Documents/NICOLAS/Stage de fin annee au Grau du roi/Pour Noemie/SIGNE_2018_LAFOUGE/Script_R/asd_read.R')
+source('Script_R_2019/asd_read.R')
 
 SIGNE_load <- function (d) {
 library(asdreader)

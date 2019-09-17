@@ -17,7 +17,6 @@ source('Script_R_2019/SIGNE_load.R')
 # source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_maha.R')
 source('Script_R_2019/SIGNE_maha0.R')
 source("Script_R_2019/sp2df.R")
-source('Script_R_2019/SIGNE_PLSDACV.R')
 
 
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
@@ -91,8 +90,8 @@ dates=list(
  #  , "20180730P"
 
 
-iok=substr(rownames(globalmatrixN1),1,9) %in% dates
-sp=globalmatrixN1[iok,]
+# iok=substr(rownames(globalmatrixN1),1,9) %in% dates
+sp=globalmatrixN1 #[iok,]
 
 ###Ajout du cepage au nom de la ligne. !!Attention a bien commenter en fonction des cepages presents dans la BDD!!
 ##Filtre en fonction du cepage
@@ -101,6 +100,9 @@ titre=rownames(sp)
 yC= substr(titre,11,13)== "015" |  substr(titre,11,13)== "169" |  substr(titre,11,13)== "685"
 yG= substr(titre,11,13)== "222" | substr(titre,11,13)== "509" |  substr(titre,11,13)== "787"
 yS= substr(titre,11,13)== "471" |  substr(titre,11,13)== "525" |  substr(titre,11,13)== "747" |  substr(titre,11,13)== "877"
+#yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877" #Si on supprime le 525
+#yc=(substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"# Si on compare le 877 et le 747
+#yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525"
 
 ##Rajoute le nom du cepage au nom de la ligne
 rownames(sp)[yC]=paste(rownames(sp)[yC],"C",sep = "-")
@@ -108,10 +110,15 @@ rownames(sp)[yG]=paste(rownames(sp)[yG],"G",sep = "-")
 rownames(sp)[yS]=paste(rownames(sp)[yS],"S",sep = "-")
 
 ## Creation de la matrice de classes
-class=as.factor(substr(rownames(sp),18,18))
+class=as.factor(substr(rownames(sp),11,13))  #as.factor(substr(rownames(sp),18,18))
+## Variable qui mesure le nombre de classes
+c=length(levels(class))
 
+
+# Création des jeux de calibration/ validation
 # On créé un facteur datclone qui groupe un clone à 1 date
 datclone=substr(titre,1,13)
+ndc=length(unique(datclone))
 # On créé un facteur souche qui groupe les 6 spectres de chaque souche
 numsp=as.numeric(substr(titre,15,16))
 souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))  # paste(datclone,cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3")))
@@ -122,15 +129,17 @@ sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=s
 
 ### FIXATION DES PARAMETRES UTILISES:
 ## Nombre de repetitions de la boucle de PLSDA:
-repet= 10
+repet= 2
 ## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
 p=2
 n=11
 m=1
 ## Nombre de VL max autorisees
 ncmax=20
+## Taille de l'echantillon de validation (1/v):
+v=3
 ## Nombre de groupes de CV
-k=2
+k=3
 
 ## PLSDA ##
 
@@ -147,37 +156,128 @@ sp_pre=t(scale(t(sp_pre)))
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
-## Creation des jeux d'apprentissage et validation
-# On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
-ndc=length(unique(sp$datclone))
-m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
-spval=getdata(sp,m)[[2]]
-id_val=which(rownames(sp)  %in%  rownames(spval))
-##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
-spval=sp[id_val,]
-spcal=sp[-id_val,]
+## Definition des matrices de resultat final
+# Creation de la matrice des perok finale
+perok_final=matrix(nrow = repet, ncol = 1)
+perok_final_C=matrix(nrow = repet, ncol = 1)
+perok_final_G=matrix(nrow = repet, ncol = 1)
+perok_final_S=matrix(nrow = repet, ncol = 1)
+perok_final_F=matrix(nrow = repet, ncol = 1)
+perok_final_C_cep=matrix(nrow = repet, ncol = 1)
+perok_final_G_cep=matrix(nrow = repet, ncol = 1)
+perok_final_S_cep=matrix(nrow = repet, ncol = 1)
+perok_final_F_cep=matrix(nrow = repet, ncol = 1)
+perok_final_cepages=matrix(nrow = repet, ncol = 1)
+perok_finalm0=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0C=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0G=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0S=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0F=matrix(nrow = repet, ncol = ncmax)
+## Creation matrice de % de mauvais classements par clone
+mc=matrix(nrow = ncmax,ncol = c)
 
-perok_finalm0=colMeans(SIGNE_PLSDACV(spcal,ncmax,repet,k))
+## Creation de la matrice des VL et perok maximaux
+maxi_final=matrix(nrow= repet, ncol = 2)
+maxi_finalC=matrix(nrow= repet, ncol = 2)
+#maxi_finalG=matrix(nrow= repet, ncol = 2)
+maxi_finalS=matrix(nrow= repet, ncol = 2)
+maxi_finalF=matrix(nrow= repet, ncol = 2)
+## Creation de la matrice de % de mauvais classements
+mc_final=matrix(nrow= repet, ncol = length(levels(class)))
+## Creation d'un matrice cubique pour enregistrer les tables de contingence
+t_final=array(dim=c(c,c,repet))
+## Noms des colonnes et des lignes
+colnames(t_final)=c(basename(levels(class)))
+rownames(t_final)=c(basename(levels(class)))
+colnames(maxi_final)= c("maxi.id","perok max")
+colnames(mc_final)= c(basename(levels(class)))
 
+###s?paration validation calibration PLSDA###
+#set.seed(1) # fixe le tirage aleatoire
+for(j in 1:repet) {
+
+ # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
+ # m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+ # spval=getdata(sp,m)[[2]]
+ #
+ # id_val=which(rownames(sp)  %in%  rownames(spval))
+ #
+ # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
+ # spval=sp[id_val,]
+ # spcal=sp[-id_val,]
+ # classval=class[id_val]
+ classcal=class #class[-id_val]
+ #
+
+ # ## Creation des jeux d'apprentissage et validation
+ predm0=as.data.frame(matrix(nrow = length(classcal), ncol = ncmax))
+ # spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
+
+
+  spcal=sp
+  spcaldef=spcal
+## Boucle CV
+   for (i in 1:k) {
+     m=mstage(spcaldef,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+     spvalCV=getdata(spcaldef,m)[[2]]
+
+    idvalCV =which(rownames(spcal)  %in%  rownames(spvalCV))
+# print(nrow(spcaldef))
+    spcaldef=spcaldef[-(which(rownames(spcaldef)  %in%  rownames(spvalCV))),]
+
+    # spvalCV=sp_cal[idvalCV,]       # matrice du jeu de validation
+    classvalCV=classcal[idvalCV]  #identifiants des classes du jeu de validation
+    spcalCV=spcal[-idvalCV,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
+    classcalCV=classcal[-idvalCV] #identifiants des classes du jeu de calibration
+
+    # ## PLSDA and application to have loadings and scores
+    # rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
+    # sccalCV=rplsda$scores
+    # spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
+    # scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    #   for (ii in 2:ncmax) {
+    #  ## Validation
+    #  predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+   # }
+    rknnwda=knnwda(spcalCV$x, classcalCV,spvalCV$x, classvalCV, ncompdis = ncmax, diss = "mahalanobis",k=15)
+    predm0[idvalCV,1]=rknnwda$y$y1
+
+   }
+
+ ## Table de contingence CV
+  tsm0=lapply(as.list(predm0), classcal, FUN = table)
+
+ ## Matrice mauvais classements par clone CV
+  diagsm0=lapply(tsm0, FUN = diag)
+
+ ## Pourcentage de bien classes CV
+  perokm0 =100*unlist(lapply(diagsm0, FUN = sum))/length(classcal)
+
+
+ ### Enregistrement des matrices de resultat final
+ ##Remplissage de la matrice des perok finale
+ perok_finalm0[j,]=perokm0
+
+}
+plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
+
+stop()
 ###PLSDA on Maha scores
 ## Calibration
-rplsda=caret::plsda(spcal$x, spcal$y,ncomp=10)
+rplsda=caret::plsda(sp_cal, class_cal,ncomp=10)
 sc_cal=rplsda$scores
 
 ## Validation
-sp_val_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+sp_val_c=scale(sp_val,center=rplsda$Xmeans,scale = F)
 sc_val=sp_val_c%*%rplsda$projection
-res_val=SIGNE_maha0(sc_cal[,1:10], spcal$y, sc_val[,1:10])$class
+res_val=SIGNE_maha0(sc_cal[,1:10], class_cal, sc_val[,1:10])$class
 
-cepage=table (res_val,spval$y)
-print (cepage)
-
-
+cepage=table (res_val,class_val)
+#print (cepage)
 
 
 ###En fonction des clones
-
-
 
 ## Creation de la matrice de classes clones
 class_clones=as.factor(substr(rownames(sp),11,13))
@@ -586,7 +686,7 @@ perok_cepages=100*(sum(diag(cepage))/sum(cepage))
 #print(perok_cepages)
 perok_final_cepages[j,]=perok_cepages
 
-
+# }
 
 # print(perok_final)
 # print(perok_final_cepages)
