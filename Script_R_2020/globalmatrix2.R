@@ -4,7 +4,7 @@
 rm(list = ls())
 
 source('C:/Users/avitvale/Documents/Script_R/SIGNE_load.R')
-
+source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
 
 
 
@@ -15,39 +15,38 @@ globalmatrix=matrix(ncol=2072)
 setwd("C:/Users/avitvale/Documents/SIGNE")
 for (a in 2017:2019)
   {
-  print(a)
   setwd("C:/Users/avitvale/Documents/SIGNE")
   setwd(as.character(a))
   for (n in 1:length(dir()))
     {
-    print('passe')
-    if(substr(dir()[n],9,9)=="P" | substr(dir()[n],9,9)=="_")
-      {
-      print('entre')
-      em=paste(dir()[n], sep="")
-      w=SIGNE_load(em)
-      rownames(w)=paste(dir()[n],rownames(w))
-      globalmatrix=rbind(globalmatrix, w)
-    }
-    else if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96")
-      {
-      print("ELSE")
+
+    if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96")
+    {
       setwd(as.character(dir()[n]))
-      print(getwd())
       for (m in 1:length(dir()))
+      {
+        if(substr(dir()[m],9,9)=="P")
         {
-        print('PAAAAASSE')
-        print(substr(dir()[m],9,9))
-        if(substr(dir()[m],9,9)=="P" | substr(dir()[m],9,9)=="_")
-          {
-          print('ENTREUUUHHH')
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
           rownames(w)=paste(dir()[m],rownames(w))
           globalmatrix=rbind(globalmatrix, w)
         }
       }
-    setwd("../")
+      setwd("../")
+    }
+
+
+
+
+
+    else if(substr(dir()[n],9,9)=="P")
+      {
+      em=paste(dir()[n], sep="")
+      print(em)
+      w=SIGNE_load(em)
+      rownames(w)=paste(dir()[n],rownames(w))
+      globalmatrix=rbind(globalmatrix, w)
     }
   }
 }
@@ -66,3 +65,7 @@ print(length(globalmatrix))
 
 
 ### END ###
+unique(nchar(rownames(globalmatrix)))
+unique(rownames(globalmatrix))
+nrow(globalmatrix)
+5875/36

@@ -28,7 +28,20 @@ m=1
 ncmax=10
 k=5
 
+
 sp=globalmatrix
+sp
+
+iout=which(nchar(rownames(sp))>16)
+
+for (i in (1:length(iout))){
+  sp[iout][i]=0
+}
+sp <- sp[sp!=0]
+sp
+###Pourquoi ???
+
+
 ## Filtrage des spectres aberrants
 sp=sp[sp[,500]>0.6,]
 sp=sp[sp[,1]<0.2,]
