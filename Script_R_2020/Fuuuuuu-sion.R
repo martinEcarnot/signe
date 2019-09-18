@@ -34,10 +34,7 @@ sp
 
 iout=which(nchar(rownames(sp))>16)
 
-for (i in (1:length(iout))){
-  sp[iout][i]=0
-}
-sp <- sp[sp!=0]
+sp <- sp[-iout,]
 sp
 ###Pourquoi ???
 
@@ -85,7 +82,8 @@ rownames(sp4)
 
 
 ## Creation de la matrice de classes
-clas=as.factor(substr(rownames(sp4),9,9)) #cépages
+rownames(sp4)
+clas=as.factor(substr(rownames(sp4),11,13)) #cépages
 # axes PLS
 rplsda=caret::plsda(sp4, clas,ncomp=20)
 axe1<-1
@@ -93,18 +91,29 @@ axe2<-2
 axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2]
 
 #acp = PCA(spok1, scale.unit=F, ncp=5, graph=F, quali.sup = 1993)
-
 #axeX <- acp$ind$coord[,1] ; axeY <- acp$ind$coord[,2]
-coloration=c(1,2,3,4,5,6,7,8)
 #Tracer le graphique
-plot(axeX,axeY,pch=16, col=coloration[clas],
+
+
+
+
+plot(axeX,axeY,pch=16, col=clas,
      main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
-legend(x="topright", legend=unique(clas), col=unique(clas), pch=16,bg="white")
+
+
+legend(x="right", legend=levels(clas), col=unique(clas), pch=16,bg="white")
+
 ###Comment sait-on que la légende correspond ? Réponse : on sait pas. Hihi.
-for (i in unique(clas)) {
+for (i in levels(clas)) {
   x_ell <- rplsda$scores[,axe1][clas==i] ; y_ell <- rplsda$scores[,axe2][clas==i] ; xy_ell <- data.frame(x_ell,y_ell)
-  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=clas)
+  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=which(levels(clas)==i))
 }
+
+
+
+
+
+
 
 
 #text(axeX,axeY,rownames(x)) #Afficher un texte au dessus des points, par ex leur nom ou leur c?page...

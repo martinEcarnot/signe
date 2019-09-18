@@ -22,6 +22,10 @@ for (a in 2017:2019)
 
     if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96")
     {
+      lieu=substr(dir()[n],1,1)
+      if ((dir()[n])=="GDRautre"){
+        lieu='g'
+      }
       setwd(as.character(dir()[n]))
       for (m in 1:length(dir()))
       {
@@ -29,7 +33,8 @@ for (a in 2017:2019)
         {
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
-          rownames(w)=paste(dir()[m],rownames(w))
+          rownames(w)=paste(dir()[m],rownames(w),lieu)
+#          print(rownames(w))
           globalmatrix=rbind(globalmatrix, w)
         }
       }
@@ -43,9 +48,9 @@ for (a in 2017:2019)
     else if(substr(dir()[n],9,9)=="P")
       {
       em=paste(dir()[n], sep="")
-      print(em)
       w=SIGNE_load(em)
-      rownames(w)=paste(dir()[n],rownames(w))
+      rownames(w)=paste(dir()[n],rownames(w),"G")
+#      print(rownames(w))
       globalmatrix=rbind(globalmatrix, w)
     }
   }
@@ -65,7 +70,3 @@ print(length(globalmatrix))
 
 
 ### END ###
-unique(nchar(rownames(globalmatrix)))
-unique(rownames(globalmatrix))
-nrow(globalmatrix)
-5875/36
