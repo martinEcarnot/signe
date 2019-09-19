@@ -9,6 +9,9 @@ library(caret)
 library(dplyr)
 #library(nirs)
 library("ellipse")
+library(rgl)
+library(ade4)
+library("plotrix")
 
 
 
@@ -32,7 +35,7 @@ k=5
 sp=globalmatrix
 sp
 
-iout=which(nchar(rownames(sp))>16)
+iout=which(nchar(rownames(sp))>18)
 
 sp <- sp[-iout,]
 sp
@@ -71,28 +74,79 @@ spc=sp4[yc,]
 substr(rownames(spa),9,9)="C"
 substr(rownames(spb),9,9)="G"
 substr(rownames(spc),9,9)="S"
+#substr(rownames(spa),9,9)="1"
+#substr(rownames(spb),9,9)="2"
+#substr(rownames(spc),9,9)="3"
 
 ##Recombine les 3 matrices pour reformer sp
 sp4=rbind(spa,spb,spc)
 rownames(sp4)
 
 
+#### Chamanisme <- Ca change la couleur d'affichage. POur des raisons mystérieuses.
+
+ data = read.table("cancers.txt",sep="\t",header=T)
+
+ colnames(data)
+
+ rownames(data) = data[,1] # On donne ? chaque ligne le nom de son cancer (Cancer 1, Cancer 2)
+
+ x = data[1:7,-1] # On exclue la colonne 1 qui contenait les noms des cancers.
 
 
+ acp3 = PCA(x, scale.unit=F, ncp=5, graph=T, axes=c(1,2))
+
+####
 
 
 ## Creation de la matrice de classes
-rownames(sp4)
-clas=as.factor(substr(rownames(sp4),11,13)) #cépages
+rownames(sp4)[1]
+clas=as.factor(paste(as.factor(substr(rownames(sp4),1,4)),as.factor(substr(rownames(sp4),9,9)))) #cépages
+clas=as.factor(substr(rownames(sp4),9,9))
 # axes PLS
 rplsda=caret::plsda(sp4, clas,ncomp=20)
 axe1<-1
 axe2<-2
-axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2]
+axe3<-3
+axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scores[,axe3]
 
-#acp = PCA(spok1, scale.unit=F, ncp=5, graph=F, quali.sup = 1993)
+colo=as.numeric(clas)
+colo
+
+#acp = PCA(sp4, scale.unit=F, ncp=5, graph=F)
 #axeX <- acp$ind$coord[,1] ; axeY <- acp$ind$coord[,2]
+
 #Tracer le graphique
+
+#plot3d(axeX,axeY,axeZ,pch=16, col=colo,
+#     main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
+
+
+
+plot3d(axeX[clas==levels(clas)[1]],axeY[clas==levels(clas)[1]],axeZ[clas==levels(clas)[1]],
+
+       col=which(levels(clas)==levels(clas)[1]),radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+
+for (i in levels(clas)) {
+  points3d(axeX[clas==i],axeY[clas==i],axeZ[clas==i], col=which(levels(clas)==i),radius=0.2)
+}
+
+
+
+for (i in levels(clas)) {
+  x = rplsda$scores[,axe1][clas==i] ; y = rplsda$scores[,axe2][clas==i] ; z = rplsda$scores[,axe3][clas==i]
+
+  ellipse <- ellipse3d(cov(cbind(x,y,z)), centre=c(mean(x), mean(y), mean(z)), level = 0.95)
+
+  plot3d(ellipse, col=which(levels(clas)==i), alpha = 0.2, add = TRUE, type="shade")
+}
+
+
+
+
+
+
+
 
 
 
@@ -101,7 +155,7 @@ plot(axeX,axeY,pch=16, col=clas,
      main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
 
-legend(x="right", legend=levels(clas), col=unique(clas), pch=16,bg="white")
+legend(x="right", legend=unique(clas), col=unique(clas), pch=16,bg="white")
 
 ###Comment sait-on que la légende correspond ? Réponse : on sait pas. Hihi.
 for (i in levels(clas)) {
