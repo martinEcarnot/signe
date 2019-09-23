@@ -62,6 +62,19 @@ setwd("C:/Users/avitvale/Documents/signeG")
 #print(globalmatrix)
 globalmatrix=globalmatrix[complete.cases(globalmatrix),]
 
+
+#Filtrage des noms non standardisés
+iout=which(nchar(rownames(globalmatrix))>18)
+globalmatrix <- globalmatrix[-iout,]
+
+## Filtrage des spectres aberrants
+globalmatrix=globalmatrix[globalmatrix[,500]>0.6,]
+globalmatrix=globalmatrix[globalmatrix[,1]<0.2,]
+globalmatrix=globalmatrix[globalmatrix[,2000]<0.25,]
+
+
+
+
 print(globalmatrix)
 brb="C:/Users/avitvale/Documents/Test/"
 save(globalmatrix, file=paste(brb,"globalmatrix",sep=""))

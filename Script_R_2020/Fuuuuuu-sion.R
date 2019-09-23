@@ -35,17 +35,7 @@ k=5
 sp=globalmatrix
 sp
 
-iout=which(nchar(rownames(sp))>18)
 
-sp <- sp[-iout,]
-sp
-###Pourquoi ???
-
-
-## Filtrage des spectres aberrants
-sp=sp[sp[,500]>0.6,]
-sp=sp[sp[,1]<0.2,]
-sp=sp[sp[,2000]<0.25,]
 
 ### Pretraitements
 ## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
