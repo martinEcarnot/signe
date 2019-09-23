@@ -12,7 +12,7 @@ library("ellipse")
 library(rgl)
 library(ade4)
 library("plotrix")
-
+library(ggplot2)
 
 
 rm(list = ls())
@@ -80,8 +80,6 @@ substr(rownames(spc),9,9)="S"
 
 ##Recombine les 3 matrices pour reformer sp
 sp4=rbind(spa,spb,spc)
-rownames(sp4)
-
 
 #### Chamanisme <- Ca change la couleur d'affichage. POur des raisons mystérieuses.
 
@@ -97,48 +95,79 @@ rownames(sp4)
  acp3 = PCA(x, scale.unit=F, ncp=5, graph=T, axes=c(1,2))
 
 ####
-
+rownames(sp5)[1]
+tri=as.factor(substr(rownames(sp4),9,9))
+levels(tri)
+c=which(tri=="S")
+sp5=sp4[c,]
+sp5=sp4
+length(sp5[,1])
+# sp5=sp4
+# iout=sample(5210,5000)
+# sp5 <- sp5[-iout,]
 
 ## Creation de la matrice de classes
-rownames(sp4)[1]
-clas=as.factor(paste(as.factor(substr(rownames(sp4),1,4)),as.factor(substr(rownames(sp4),9,9)))) #cépages
-clas=as.factor(substr(rownames(sp4),9,9))
+rownames(sp5)[1]
+#clas=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),15,16)))) #cépages
+clas=as.factor(substr(rownames(sp5),11,13))
+
 # axes PLS
-rplsda=caret::plsda(sp4, clas,ncomp=20)
+rplsda=caret::plsda(sp5, clas,ncomp=20)
 axe1<-1
 axe2<-2
 axe3<-3
 axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scores[,axe3]
-
-colo=as.numeric(clas)
-colo
 
 #acp = PCA(sp4, scale.unit=F, ncp=5, graph=F)
 #axeX <- acp$ind$coord[,1] ; axeY <- acp$ind$coord[,2]
 
 #Tracer le graphique
 
-#plot3d(axeX,axeY,axeZ,pch=16, col=colo,
-#     main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
+colo=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),9,9)))) #cépages
+colo=as.factor(substr(rownames(sp5),9,9))
+#forme=as.factor(substr(rownames(sp5),18,18))
+texte=as.factor(substr(rownames(sp5),9,9))
+
+#2D
+
+ plot(axeX,axeY,pch=16, col=colo, #type="n",
+      main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
 
 
-plot3d(axeX[clas==levels(clas)[1]],axeY[clas==levels(clas)[1]],axeZ[clas==levels(clas)[1]],
+#text(axeX,axeY,texte, col=as.numeric(colo))
 
-       col=which(levels(clas)==levels(clas)[1]),radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+legend(x="right", legend=unique(colo), col=unique(colo), pch=15, bg="white")
+#legend(x="left", legend=unique(forme), col=1, pch=unique(as.numeric(forme)), bg="white")
 
-for (i in levels(clas)) {
-  points3d(axeX[clas==i],axeY[clas==i],axeZ[clas==i], col=which(levels(clas)==i),radius=0.2)
+###Comment sait-on que la légende correspond ? Réponse : on sait pas. Hihi.
+for (i in levels(colo)) {
+  x_ell <- axeX[colo==i] ; y_ell <- axeY[colo==i] ; xy_ell <- data.frame(x_ell,y_ell)
+  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=which(levels(colo)==i))
 }
 
 
 
-for (i in levels(clas)) {
-  x = rplsda$scores[,axe1][clas==i] ; y = rplsda$scores[,axe2][clas==i] ; z = rplsda$scores[,axe3][clas==i]
+###3D
+
+
+
+plot3d(axeX[colo==levels(colo)[1]],axeY[colo==levels(colo)[1]],axeZ[colo==levels(colo)[1]],
+
+       col=which(levels(colo)==levels(colo)[1]),radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+
+for (i in levels(colo)) {
+  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=which(levels(colo)==i),radius=0.2)
+}
+
+
+
+for (i in levels(colo)) {
+  x = rplsda$scores[,axe1][colo==i] ; y = rplsda$scores[,axe2][colo==i] ; z = rplsda$scores[,axe3][colo==i]
 
   ellipse <- ellipse3d(cov(cbind(x,y,z)), centre=c(mean(x), mean(y), mean(z)), level = 0.95)
 
-  plot3d(ellipse, col=which(levels(clas)==i), alpha = 0.2, add = TRUE, type="shade")
+  plot3d(ellipse, col=which(levels(colo)==i), alpha = 0.2, add = TRUE, type="shade")
 }
 
 
@@ -146,22 +175,6 @@ for (i in levels(clas)) {
 
 
 
-
-
-
-
-
-plot(axeX,axeY,pch=16, col=clas,
-     main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
-
-
-legend(x="right", legend=unique(clas), col=unique(clas), pch=16,bg="white")
-
-###Comment sait-on que la légende correspond ? Réponse : on sait pas. Hihi.
-for (i in levels(clas)) {
-  x_ell <- rplsda$scores[,axe1][clas==i] ; y_ell <- rplsda$scores[,axe2][clas==i] ; xy_ell <- data.frame(x_ell,y_ell)
-  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=which(levels(clas)==i))
-}
 
 
 

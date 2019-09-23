@@ -23,7 +23,7 @@ source("Script_R_2019/sp2df.R")
 # brb3="~/Documents/NICOLAS/Stage de fin annee au Grau du roi/globalmatrixN1"
 brb3="~/Documents/INRA/Projets/SIGNE/spectres/globalmatrixN1"
 load(file=brb3)
-
+globalmatrixN1=globalmatrix
 ## Filtrage des spectres aberrants
 globalmatrixN1=globalmatrixN1[globalmatrixN1[,500]>0.5,]
 globalmatrixN1=globalmatrixN1[globalmatrixN1[,1]<0.2,]

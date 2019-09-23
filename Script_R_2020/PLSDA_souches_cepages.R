@@ -1,11 +1,11 @@
 library(MASS)
-library(mixOmics)
+#library(mixOmics)
 library(FactoMineR)
 library(signal)
 library(plyr)
 library(caret)
 library(dplyr)
-# library(nirs)
+library(rnirs)
 
 
 rm(list = ls())
