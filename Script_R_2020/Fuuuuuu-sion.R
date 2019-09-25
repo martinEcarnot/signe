@@ -32,44 +32,28 @@ ncmax=10
 k=5
 
 
+
 sp=globalmatrix
 sp
 
 
 
+
+
+
+
+
+
+
+
+
 ### Pretraitements
-## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
-sp1=adj_asd(sp,c(602,1402))
-## Reduction des variables (extremites bruitees)
-sp2=sp1[,seq(51,ncol(sp1)-30,1)]
 ## SNV
-sp3=t(scale(t(sp2)))
+sp3=t(scale(t(sp)))
 # ## Derivation Savitsky Golay
 sp4=t(apply(sp3,1,sgolayfilt,p=p,n=n,m=m))
 
-###Ajout du cepage au nom de la ligne.
-##Filtre en fonction du cepage
-titre=rownames(sp4)
 
-ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169" |  (substr(titre,11,13))== "685"
-yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "509" |  (substr(titre,11,13))== "787"
-yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"
-
-##Separation en 3 matrices
-spa=sp4[ya,]
-spb=sp4[yb,]
-spc=sp4[yc,]
-
-##Rajoute le nom du cepage au nom de la ligne à la place de P/T/N
-substr(rownames(spa),9,9)="C"
-substr(rownames(spb),9,9)="G"
-substr(rownames(spc),9,9)="S"
-#substr(rownames(spa),9,9)="1"
-#substr(rownames(spb),9,9)="2"
-#substr(rownames(spc),9,9)="3"
-
-##Recombine les 3 matrices pour reformer sp
-sp4=rbind(spa,spb,spc)
 
 #### Chamanisme <- Ca change la couleur d'affichage. POur des raisons mystérieuses.
 
@@ -85,7 +69,7 @@ sp4=rbind(spa,spb,spc)
  acp3 = PCA(x, scale.unit=F, ncp=5, graph=T, axes=c(1,2))
 
 ####
-rownames(sp5)[1]
+rownames(sp4)[1]
 tri=as.factor(substr(rownames(sp4),9,9))
 levels(tri)
 c=which(tri=="S")
@@ -93,9 +77,9 @@ sp5=sp4[c,]
 sp5=sp4
 length(sp5[,1])
 # sp5=sp4
-# iout=sample(5210,5000)
-# sp5 <- sp5[-iout,]
-
+#iout=sample(5210,4000)
+#sp5 <- sp5[-iout,]
+length(sp5[1,])
 ## Creation de la matrice de classes
 rownames(sp5)[1]
 #clas=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),15,16)))) #cépages
@@ -103,9 +87,9 @@ clas=as.factor(substr(rownames(sp5),11,13))
 
 # axes PLS
 rplsda=caret::plsda(sp5, clas,ncomp=20)
-axe1<-1
-axe2<-2
-axe3<-3
+axe1<- 1
+axe2<- 2
+axe3<- 3
 axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scores[,axe3]
 
 #acp = PCA(sp4, scale.unit=F, ncp=5, graph=F)
@@ -122,8 +106,6 @@ texte=as.factor(substr(rownames(sp5),9,9))
 
  plot(axeX,axeY,pch=16, col=colo, #type="n",
       main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
-
-
 
 #text(axeX,axeY,texte, col=as.numeric(colo))
 
@@ -241,7 +223,17 @@ for (i in levels(colo)) {
 
 ####
 
-
-
 #pareto(acp$eig[,2], h=95)
 #acp
+
+
+library(ggplot2)
+data(msleep)
+p=ggplot(msleep,aes(x=bodywt,y=sleep_total, label=name))+
+  geom_point(aes(color=vore),size=2)+
+  geom_smooth()+
+  scale_x_log10()
+p
+library(plotly)
+ply <- ggplotly(p)
+ply

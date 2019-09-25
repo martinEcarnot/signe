@@ -5,7 +5,7 @@ rm(list = ls())
 
 source('C:/Users/avitvale/Documents/Script_R/SIGNE_load.R')
 source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
-
+source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
 
 
 # #création de la matrice qui rassemble tous les dossiers:
@@ -73,6 +73,37 @@ globalmatrix=globalmatrix[globalmatrix[,1]<0.2,]
 globalmatrix=globalmatrix[globalmatrix[,2000]<0.25,]
 
 
+## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
+globalmatrix=adj_asd(globalmatrix,c(602,1402))
+
+## Reduction des variables (extremites bruitees)
+globalmatrix=globalmatrix[,seq(51,ncol(globalmatrix)-30,1)]
+
+
+
+###Ajout du cepage au nom de la ligne.
+##Filtre en fonction du cepage
+titre=rownames(globalmatrix)
+
+ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169" |  (substr(titre,11,13))== "685"
+yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "509" |  (substr(titre,11,13))== "787"
+yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"
+
+##Separation en 3 matrices
+spa=globalmatrix[ya,]
+spb=globalmatrix[yb,]
+spc=globalmatrix[yc,]
+
+##Rajoute le nom du cepage au nom de la ligne à la place de P/T/N
+substr(rownames(spa),9,9)="C"
+substr(rownames(spb),9,9)="G"
+substr(rownames(spc),9,9)="S"
+#substr(rownames(spa),9,9)="1"
+#substr(rownames(spb),9,9)="2"
+#substr(rownames(spc),9,9)="3"
+
+##Recombine les 3 matrices pour reformer sp
+globalmatrix=rbind(spa,spb,spc)
 
 
 print(globalmatrix)
@@ -80,6 +111,5 @@ brb="C:/Users/avitvale/Documents/Test/"
 save(globalmatrix, file=paste(brb,"globalmatrix",sep=""))
 print(length(globalmatrix))
 # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
-
 
 ### END ###

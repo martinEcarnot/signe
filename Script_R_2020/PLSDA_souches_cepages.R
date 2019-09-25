@@ -18,8 +18,8 @@ source('C:/Users/avitvale/Documents/Script_R/SIGNE_maha0.R')
 
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 #set.seed(1)
-brb4="C:/Users/avitvale/Documents/matrice toutes dates/Globalmatrix/globalmatrix"
-j(file=brb4)
+brb4="C:/Users/avitvale/Documents/Test/globalmatrix"
+load(file=brb4)
 
 ## Filtrage des spectres aberrants
 globalmatrix=globalmatrix[globalmatrix[,500]>0.6,]
@@ -102,38 +102,13 @@ sp=t(scale(t(sp)))
 ## Derivation Savitsky Golay
 sp=t(apply(sp,1,sgolayfilt,p=p,n=n,m=m))
 
-###Ajout du cepage au nom de la ligne. !!Attention a bien commenter en fonction des cepages presents dans la BDD!!
-##Filtre en fonction du cepage
-titre=rownames(sp)
 
-ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169" |  (substr(titre,11,13))== "685"
-#ya=(substr(titre,11,13))== "015" |  (substr(titre,11,13))== "169"
-yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "509" |  (substr(titre,11,13))== "787"
-#yb=(substr(titre,11,13))== "222" |  (substr(titre,11,13))== "787"
-yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"
-#yc=(substr(titre,11,13))== "525" |  (substr(titre,11,13))== "471" |  (substr(titre,11,13))== "877"
-#yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877" #Si on supprime le 525
-#yc=(substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"# Si on compare le 877 et le 747
-#yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525"
 
-##Separation en 3 matrices
-spa=sp[ya,]
-spb=sp[yb,]
-spc=sp[yc,]
-
-##Rajoute le nom du cepage au nom de la ligne
-rownames(spa)=paste(rownames(spa),"C",sep = "-")
-rownames(spb)=paste(rownames(spb),"G",sep = "-")
-rownames(spc)=paste(rownames(spc),"S",sep = "-")
-
-##Recombine les 3 matrices pour reformer sp
-sp=rbind(spa,spb,spc)
-
-iok2=substr(rownames(sp),1,9) %in%s dates
+iok2=substr(rownames(sp),1,9) %in% dates
 sp=sp[iok2,]
 
 ## Creation de la matrice de classes
-class=as.factor(substr(rownames(sp),18,18))
+class=as.factor(substr(rownames(sp),9,9))
 ## Variable qui mesure le nombre de classes
 c=length(levels(class))
 
@@ -1156,3 +1131,4 @@ plot(perok_final, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de clo
 
 ##Cepages
 plot(perok_final_cepages, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de c?pages biens class?s",pch=21, cex=2,bg="blue")
+

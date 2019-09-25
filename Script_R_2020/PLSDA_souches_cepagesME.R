@@ -9,25 +9,22 @@ library(prospectr)
 library(sampling)
 library(rnirs)
 
-# rm(list = ls())
+ rm(list = ls())
 
-source('Script_R_2019/adj_asd.R')
-source('Script_R_2019/SIGNE_load.R')
+source('Script_R_2020/adj_asd.R')
+source('Script_R_2020/SIGNE_load.R')
 # source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_maha.R')
-source('Script_R_2019/SIGNE_maha0.R')
-source("Script_R_2019/sp2df.R")
+source('Script_R_2020/SIGNE_maha0.R')
+source("Script_R_2020/sp2df.R")
 
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 #set.seed(1)
 
 # brb3="~/Documents/NICOLAS/Stage de fin annee au Grau du roi/globalmatrixN1"
-brb3="~/Documents/Test/globalmatrix"
+brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb3)
 globalmatrixN1=globalmatrix
-## Filtrage des spectres aberrants
-globalmatrixN1=globalmatrixN1[globalmatrixN1[,500]>0.5,]
-globalmatrixN1=globalmatrixN1[globalmatrixN1[,1]<0.2,]
-globalmatrixN1=globalmatrixN1[globalmatrixN1[,2000]<0.25,]
+
 
 # Data Filter
 # Select dates
@@ -90,40 +87,32 @@ dates=list(
 # iok=substr(rownames(globalmatrixN1),1,9) %in% dates
 sp=globalmatrixN1 #[iok,]
 
-###Ajout du cepage au nom de la ligne. !!Attention a bien commenter en fonction des cepages presents dans la BDD!!
-##Filtre en fonction du cepage
-
-titre=rownames(sp)
-yC= substr(titre,11,13)== "015" |  substr(titre,11,13)== "169" |  substr(titre,11,13)== "685"
-yG= substr(titre,11,13)== "222" | substr(titre,11,13)== "509" |  substr(titre,11,13)== "787"
-yS= substr(titre,11,13)== "471" |  substr(titre,11,13)== "525" |  substr(titre,11,13)== "747" |  substr(titre,11,13)== "877"
-#yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877" #Si on supprime le 525
-#yc=(substr(titre,11,13))== "747" |  (substr(titre,11,13))== "877"# Si on compare le 877 et le 747
-#yc=(substr(titre,11,13))== "471" |  (substr(titre,11,13))== "525"
-
-##Rajoute le nom du cepage au nom de la ligne
-rownames(sp)[yC]=paste(rownames(sp)[yC],"C",sep = "-")
-rownames(sp)[yG]=paste(rownames(sp)[yG],"G",sep = "-")
-rownames(sp)[yS]=paste(rownames(sp)[yS],"S",sep = "-")
+aC= substr(rownames(sp),1,4)=="2017"
+sp =sp[(aC==TRUE),]
 
 ## Creation de la matrice de classes
 # class=as.factor(substr(rownames(sp),11,13))
-class=as.factor(substr(rownames(sp),18,18))
+class=as.factor(substr(rownames(sp),9,9))
+rownames(sp)
 ## Variable qui mesure le nombre de classes
 c=length(levels(class))
 
 
+
+
+
+
 # Création des jeux de calibration/ validation
 # On créé un facteur datclone qui groupe un clone à 1 date
-datclone=substr(titre,1,13)
+datclone=substr(rownames(sp),1,13)
 ndc=length(unique(datclone))
 # On créé un facteur souche qui groupe les 6 spectres de chaque souche
-numsp=as.numeric(substr(titre,15,16))
+numsp=as.numeric(substr(rownames(sp),15,16))
 souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))  # paste(datclone,cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3")))
 sp=sp2df(sp,class)
 sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=substr(souche,15,16))
 # Le tirage sera fait plus loin dans la boucle
-
+sp$datclone
 ### FIXATION DES PARAMETRES UTILISES:
 ## Nombre de repetitions de la boucle de PLSDA:
 repet= 2
@@ -187,7 +176,20 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 # colnames(maxi_final)= c("maxi.id","perok max")
 # colnames(mc_final)= c(basename(levels(class)))
 
+perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
+perok_final=matrix(nrow = repet, ncol = ncmax)
+
+perok_final_C=matrix(nrow = repet, ncol = ncmax)
+perok_final_G=matrix(nrow = repet, ncol = ncmax)
+perok_final_S=matrix(nrow = repet, ncol = ncmax)
+
+perok_final_C_cep=matrix(nrow = repet, ncol = ncmax)
+perok_final_G_cep=matrix(nrow = repet, ncol = ncmax)
+perok_final_S_cep=matrix(nrow = repet, ncol = ncmax)
+perok_final_F_cep=matrix(nrow = repet, ncol = ncmax)
+
+perok_final_cepages=matrix(nrow = repet, ncol = ncmax)
 
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
@@ -272,13 +274,13 @@ for(j in 1:repet) {
  perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
  perok_finalm[j,]=perokm
 
-
 }
+
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 
-stop()
+#stop()
 
 
 
@@ -288,16 +290,16 @@ stop()
 
 ###PLSDA on Maha scores
 ## Calibration
-rplsda=caret::plsda(sp_cal, class_cal,ncomp=10)
-sc_cal=rplsda$scores
+rplsda=caret::plsda(spcal$x, classcal,ncomp=10)
+sccal=rplsda$scores
 
 ## Validation
-sp_val_c=scale(sp_val,center=rplsda$Xmeans,scale = F)
-sc_val=sp_val_c%*%rplsda$projection
-res_val=SIGNE_maha0(sc_cal[,1:10], class_cal, sc_val[,1:10])$class
+spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+scval=spval_c%*%rplsda$projection
+resval=SIGNE_maha0(sccal[,1:10], classcal, scval[,1:10])$class
 
-cepage=table (res_val,class_val)
-#print (cepage)
+cepage=table (resval,classval)
+print (cepage)
 
 
 ###En fonction des clones
@@ -308,31 +310,31 @@ class_clones=as.factor(substr(rownames(sp),11,13))
 c=length(levels(class_clones))
 
 ## Separation de sp_cal en 3 jeux de calibration par cepage
-aC= substr(rownames(sp_cal),18,18)=="C"
-#aG= substr(rownames(sp_cal),18,18)=="G"
-aS= substr(rownames(sp_cal),18,18)=="S"
-aF= substr(rownames(sp_cal),18,18)=="F"
+aC= substr(rownames(spcal),9,9)=="C"
+aG= substr(rownames(spcal),9,9)=="G"
+aS= substr(rownames(spcal),9,9)=="S"
+#aF= substr(rownames(spcal),9,9)=="F"
 
-sp_cal_C =sp_cal[(aC==TRUE),]
-#sp_cal_G =sp_cal[(aG==TRUE),]
-sp_cal_S =sp_cal[(aS==TRUE),]
-sp_cal_F =sp_cal[(aF==TRUE),]
+spcal_C =spcal[(aC==TRUE),]
+spcal_G =spcal[(aG==TRUE),]
+spcal_S =spcal[(aS==TRUE),]
+#spcal_F =spcal[(aF==TRUE),]
 
 ###Identifiants des matrices de calibration
 ##Cabernet
-id_cal_C=which(rownames(sp)  %in%  rownames(sp_cal_C))
-class_cal_C=droplevels(class_clones[id_cal_C])
+idcal_C=which(rownames(sp)  %in%  rownames(spcal_C))
+classcal_C=droplevels(class_clones[idcal_C])
 
-# ##Gamay
-# id_cal_G=which(rownames(sp)  %in%  rownames(sp_cal_G))
-# class_cal_G=droplevels(class_clones[id_cal_G])
-#CF
-id_cal_F=which(rownames(sp)  %in%  rownames(sp_cal_F))
-class_cal_F=droplevels(class_clones[id_cal_F])
+##Gamay
+idcal_G=which(rownames(sp)  %in%  rownames(spcal_G))
+classcal_G=droplevels(class_clones[idcal_G])
+# #CF
+# idcal_F=which(rownames(sp)  %in%  rownames(spcal_F))
+# classcal_F=droplevels(class_clones[idcal_F])
 
 ##Syrah
-id_cal_S=which(rownames(sp)  %in%  rownames(sp_cal_S))
-class_cal_S=droplevels(class_clones[id_cal_S])
+idcal_S=which(rownames(sp)  %in%  rownames(spcal_S))
+classcal_S=droplevels(class_clones[idcal_S])
 
 
 
@@ -551,34 +553,33 @@ class_cal_S=droplevels(class_clones[id_cal_S])
 ###PLSDA sur clones sans CV
 ## Separation de sp_val en 3 jeux de validation par cepage
 ## Seulement avec les biens classes en cepages
-test=cbind(res_val,class_val)
-rownames(test)=rownames(sp[id_val,])
+test=cbind(resval,classval)
+rownames(test)=rownames(sp[idval,])
 
-z1=(substr(rownames(test),18,18))=="C"
-#z2=(substr(rownames(test), 18, 18))=="G"
-z3=(substr(rownames(test),18,18))=="S"
-z4=(substr(rownames(test),18,18))=="F"
+z1=(substr(rownames(test),9,9))=="C"
+z2=(substr(rownames(test), 9, 9))=="G"
+z3=(substr(rownames(test),9,9))=="S"
+#z4=(substr(rownames(test),9,9))=="F"
 
 test1 =test[(z1==TRUE),]
-#test2 =test[(z2==TRUE),]
+test2 =test[(z2==TRUE),]
 test3 =test[(z3==TRUE),]
-test4 =test[(z4==TRUE),]
+#test4 =test[(z4==TRUE),]
 
 test1a = test1[test1[,1]==1,]
-#test2a = test2[test2[,1]==2,]
-#test3a = test3[test3[,1]==3,]
+test2a = test2[test2[,1]==2,]
 test3a = test3[test3[,1]==3,]
-test4a = test4[test4[,1]==2,]
+#test4a = test4[test4[,1]==2,]
 
-sp_val_C =sp_val[rownames(test1a),]
-#sp_val_G =sp_val[rownames(test2a),]
-sp_val_S =sp_val[rownames(test3a),]
-sp_val_F =sp_val[rownames(test4a),]
+spval_C =spval[rownames(test1a),]
+spval_G =spval[rownames(test2a),]
+spval_S =spval[rownames(test3a),]
+#spval_F =spval[rownames(test4a),]
 
 ##Avec tous
-# bC= substr(rownames(sp_val),18,18)=="C"
-# bG= substr(rownames(sp_val),18,18)=="G"
-# bS= substr(rownames(sp_val),18,18)=="S"
+# bC= substr(rownames(sp_val),9,9)=="C"
+# bG= substr(rownames(sp_val),9,9)=="G"
+# bS= substr(rownames(sp_val),9,9)=="S"
 #
 # sp_val_C =sp_val[(bC==TRUE),]
 # sp_val_G =sp_val[(bG==TRUE),]
@@ -586,143 +587,153 @@ sp_val_F =sp_val[rownames(test4a),]
 
 ###Selection des spectres
 ##Cabernet Sauvignon
-id_val_C=which(rownames(sp)  %in%  rownames(sp_val_C))
-class_val_C=droplevels(class_clones[id_val_C])
+idval_C=which(rownames(sp)  %in%  rownames(spval_C))
+classval_C=droplevels(class_clones[idval_C])
 
-# ##Gamay
-# id_val_G=which(rownames(sp)  %in%  rownames(sp_val_G))
-# class_val_G=droplevels(class_clones[id_val_G])
-##Cabernet franc
-id_val_F=which(rownames(sp)  %in%  rownames(sp_val_F))
-class_val_F= droplevels(class_clones[id_val_F])
+##Gamay
+idval_G=which(rownames(sp)  %in%  rownames(spval_G))
+classval_G=droplevels(class_clones[idval_G])
+
+# ##Cabernet franc
+# idval_F=which(rownames(sp)  %in%  rownames(spval_F))
+# classval_F= droplevels(class_clones[idval_F])
 
 ##Syrah
-id_val_S=which(rownames(sp)  %in%  rownames(sp_val_S))
-class_val_S=droplevels(class_clones[id_val_S])
+idval_S=which(rownames(sp)  %in%  rownames(spval_S))
+classval_S=droplevels(class_clones[idval_S])
 
 
 
 ####PLSDA on Maha scores
 ### Calibration
 ## Cabernet Sauvignon
-rplsdaC=caret::plsda(sp_cal_C, class_cal_C,ncomp= 8)# Modifier ncmax en fonction des resultats de CV_2
-sc_cal_C=rplsdaC$scores
+rplsdaC=caret::plsda(spcal_C$x, classcal_C,ncomp= 8)# Modifier ncmax en fonction des resultats de CV_2
+sccal_C=rplsdaC$scores
 
-# ##Gamay
-# rplsdaG=caret::plsda(sp_cal_G, class_cal_G,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
-# sc_cal_G=rplsdaG$scores
+##Gamay
+rplsdaG=caret::plsda(spcal_G$x, classcal_G,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
+sccal_G=rplsdaG$scores
 
 ##Syrah
-rplsdaS=caret::plsda(sp_cal_S, class_cal_S,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
-sc_cal_S=rplsdaS$scores
+rplsdaS=caret::plsda(spcal_S$x, classcal_S,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
+sccal_S=rplsdaS$scores
 
 ##Cabernet franc
-rplsdaF=caret::plsda(sp_cal_F, class_cal_F,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
-sc_cal_F=rplsdaF$scores
+#rplsdaF=caret::plsda(spcal_F$x, classcal_F,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
+#sccal_F=rplsdaF$scores
 
 ### Validation
 ## Cabernet Sauvignon
-sp_val_c_C=scale(sp_val_C,center=rplsdaC$Xmeans,scale = F)
-sc_val_C=sp_val_c_C%*%rplsdaC$projection
-res_val_C=SIGNE_maha0(sc_cal_C[,1:8], class_cal_C, sc_val_C[,1:8])$class
+spval_c_C=scale(spval_C$x,center=rplsdaC$Xmeans,scale = F)
+scval_C=spval_c_C%*%rplsdaC$projection
+resval_C=SIGNE_maha0(sccal_C[,1:8], classcal_C, scval_C[,1:8])$class
 
-Cabernet=table (res_val_C,class_val_C)
-#print (Cabernet)
+Cabernet=table (resval_C,classval_C)
+print (Cabernet)
 
-# ##Gamay
-# sp_val_c_G=scale(sp_val_G,center=rplsdaG$Xmeans,scale = F)
-# sc_val_G=sp_val_c_G%*%rplsdaG$projection
-# res_val_G=SIGNE_maha0(sc_cal_G[,1:8], class_cal_G, sc_val_G[,1:8])$class
-#
-# Gamay=table (res_val_G,class_val_G)
-# #print (Gamay)
+##Gamay
+spval_c_G=scale(spval_G$x,center=rplsdaG$Xmeans,scale = F)
+scval_G=spval_c_G%*%rplsdaG$projection
+resval_G=SIGNE_maha0(sccal_G[,1:8], classcal_G, scval_G[,1:8])$class
+
+Gamay=table (resval_G,classval_G)
+print (Gamay)
 
 ##Syrah
-sp_val_c_S=scale(sp_val_S,center=rplsdaS$Xmeans,scale = F)
-sc_val_S=sp_val_c_S%*%rplsdaS$projection
-res_val_S=SIGNE_maha0(sc_cal_S[,1:8], class_cal_S, sc_val_S[,1:8])$class
+spval_c_S=scale(spval_S$x,center=rplsdaS$Xmeans,scale = F)
+scval_S=spval_c_S%*%rplsdaS$projection
+resval_S=SIGNE_maha0(sccal_S[,1:8], classcal_S, scval_S[,1:8])$class
 
-Syrah=table (res_val_S,class_val_S)
-#print (Syrah)
+Syrah=table (resval_S,classval_S)
+print (Syrah)
 
-##Cabernet franc
-sp_val_c_F=scale(sp_val_F,center=rplsdaF$Xmeans,scale = F)
-sc_val_F=sp_val_c_F%*%rplsdaF$projection
-res_val_F=SIGNE_maha0(sc_cal_F[,1:8], class_cal_F, sc_val_F[,1:8])$class
-
-CF=table (res_val_F,class_val_F)
-#print (CF)
+# ##Cabernet franc
+# spval_c_F=scale(sp_val_F,center=rplsdaF$Xmeans,scale = F)
+# scval_F=spval_c_F%*%rplsdaF$projection
+# resval_F=SIGNE_maha0(sccal_F[,1:8], classcal_F, scval_F[,1:8])$class
+#
+# CF=table (res_val_F,class_val_F)
+# #print (CF)
 
 ###Calcul des pourcentages de bons classements en fonction du tirage
 ##Somme des clones biens classes
-#clones_bc= sum(diag(Cabernet))+sum(diag(Gamay))+sum(diag(Syrah))
-clones_bc= sum(diag(Cabernet))+sum(diag(Syrah))+sum(diag(CF))
+clones_bc= sum(diag(Cabernet))+sum(diag(Gamay))+sum(diag(Syrah))
+#clones_bc= sum(diag(Cabernet))+sum(diag(Syrah))+sum(diag(CF))
 #print(clones_bc)
 
 #Somme colonne table contingence cepages
 sumcolcep=apply(cepage,2,sum)
 
 ##Nombre total de clones
-#total=clones_bc+(sum(cepage)-sum(diag(cepage)))+(sum(Cabernet)-sum(diag(Cabernet)))+(sum(Gamay)-sum(diag(Gamay)))+(sum(Syrah)-sum(diag(Syrah)))
-total=clones_bc+(sum(cepage)-sum(diag(cepage)))+(sum(Cabernet)-sum(diag(Cabernet)))+(sum(Syrah)-sum(diag(Syrah)))+(sum(CF)-sum(diag(CF)))
+total=clones_bc+(sum(cepage)-sum(diag(cepage)))+(sum(Cabernet)-sum(diag(Cabernet)))+(sum(Gamay)-sum(diag(Gamay)))+(sum(Syrah)-sum(diag(Syrah)))
+#total=clones_bc+(sum(cepage)-sum(diag(cepage)))+(sum(Cabernet)-sum(diag(Cabernet)))+(sum(Syrah)-sum(diag(Syrah)))+(sum(CF)-sum(diag(CF)))
 total_C=sum(Cabernet)
-#total_G=sum(Gamay)
+total_G=sum(Gamay)
 total_S=sum(Syrah)
-total_F=sum(CF)
+#total_F=sum(CF)
 
 total_C_cep=sum(diag(Cabernet))+(sum(Cabernet)-sum(diag(Cabernet)))+(sumcolcep[1]-cepage[1,1])
-#total_G_cep=sum(diag(Gamay))+(sum(Gamay)-sum(diag(Gamay)))+(sumcolcep[2]-cepage[2,2])
-#total_S_cep=sum(diag(Syrah))+(sum(Syrah)-sum(diag(Syrah)))+(sumcolcep[3]-cepage[3,3])
+total_G_cep=sum(diag(Gamay))+(sum(Gamay)-sum(diag(Gamay)))+(sumcolcep[2]-cepage[2,2])
 total_S_cep=sum(diag(Syrah))+(sum(Syrah)-sum(diag(Syrah)))+(sumcolcep[3]-cepage[3,3])
-total_F_cep=sum(diag(CF))+(sum(CF)-sum(diag(CF)))+(sumcolcep[2]-cepage[2,2])
+#total_F_cep=sum(diag(CF))+(sum(CF)-sum(diag(CF)))+(sumcolcep[2]-cepage[2,2])
 #print(total)
+
+
 
 ## Pourcentage total de clones biens classes(prise en compte erreur cepages)
 perok=100*(clones_bc/total)
 #print(perok)
-perok_final[j,]=perok
+perok_final=perok
 
 ## Pourcentage de clones biens classes
 perok_C=100*(sum(diag(Cabernet))/total_C)
-#perok_G=100*(sum(diag(Gamay))/total_G)
+perok_G=100*(sum(diag(Gamay))/total_G)
 perok_S=100*(sum(diag(Syrah))/total_S)
-perok_F=100*(sum(diag(CF))/total_F)
+#perok_F=100*(sum(diag(CF))/total_F)
 
 perok_final_C[j,]=perok_C
-#perok_final_G[j,]=perok_G
+perok_final_G[j,]=perok_G
 perok_final_S[j,]=perok_S
-perok_final_F[j,]=perok_F
+#perok_final_F[j,]=perok_F
 
 ## Pourcentage de clones biens classes (prise en compte erreur cepages)
 perok_C_cep=100*(sum(diag(Cabernet))/total_C_cep)
-#perok_G_cep=100*(sum(diag(Gamay))/total_G_cep)
+perok_G_cep=100*(sum(diag(Gamay))/total_G_cep)
 perok_S_cep=100*(sum(diag(Syrah))/total_S_cep)
-perok_F_cep=100*(sum(diag(CF))/total_F_cep)
+#perok_F_cep=100*(sum(diag(CF))/total_F_cep)
 
 perok_final_C_cep[j,]=perok_C_cep
-# perok_final_G_cep[j,]=perok_G_cep
+perok_final_G_cep[j,]=perok_G_cep
 perok_final_S_cep[j,]=perok_S_cep
-perok_final_F_cep[j,]=perok_F_cep
+#perok_final_F_cep[j,]=perok_F_cep
 
 ##Pourcentage de cepages biens classes
 perok_cepages=100*(sum(diag(cepage))/sum(cepage))
 #print(perok_cepages)
 perok_final_cepages[j,]=perok_cepages
 
-# }
 
-# print(perok_final)
-# print(perok_final_cepages)
-print(mean(perok_final))
-print(mean(perok_final_cepages))
-print(mean(perok_final_C))
+
+#print(perok_final)
+#print(perok_final_cepages)
+print(perok_cepages)
+#print(mean(perok_final))
+print(perok_final)
+#print(mean(perok_final_cepages))
+#print(mean(perok_final_C))
+print(perok_C)
 #print(mean(perok_final_G))
-print(mean(perok_final_S))
-print(mean(perok_final_F))
-print(mean(perok_final_C_cep))
+print(perok_G)
+#print(mean(perok_final_S))
+print(perok_S)
+#print(mean(perok_final_F))
+#print(mean(perok_final_C_cep))
+print(perok_C_cep)
 #print(mean(perok_final_G_cep))
-print(mean(perok_final_S_cep))
-print(mean(perok_final_F_cep))
+print(perok_G_cep)
+#print(mean(perok_final_S_cep))
+print(perok_S_cep)
+#print(mean(perok_final_F_cep))
 
 ###Sorties graphiques
 ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (cepages)
@@ -746,8 +757,11 @@ legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
 #        col=c("black"), lty=1, cex=0.8)
 
 ## Clones
+
+
 plot(perok_final, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de clones biens class?s",pch=19, cex=2)
 
 ##Cepages
 plot(perok_final_cepages, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de c?pages biens class?s",pch=21, cex=2,bg="blue")
+
 
