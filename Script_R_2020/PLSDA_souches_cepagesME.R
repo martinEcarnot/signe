@@ -87,8 +87,8 @@ dates=list(
 # iok=substr(rownames(globalmatrixN1),1,9) %in% dates
 sp=globalmatrixN1 #[iok,]
 
-aC= substr(rownames(sp),1,4)=="2017"
-sp =sp[(aC==TRUE),]
+#aC= substr(rownames(sp),1,4)=="2017"
+#sp =sp[(aC==TRUE),]
 
 ## Creation de la matrice de classes
 # class=as.factor(substr(rownames(sp),11,13))
@@ -299,8 +299,7 @@ scval=spval_c%*%rplsda$projection
 resval=SIGNE_maha0(sccal[,1:10], classcal, scval[,1:10])$class
 
 cepage=table (resval,classval)
-print (cepage)
-
+cepage
 
 ###En fonction des clones
 

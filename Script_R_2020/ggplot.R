@@ -35,7 +35,6 @@ as.vector(sp1)
 
 
 
-
 library(ggplot2)
 
 spx=as.vector(sp1)

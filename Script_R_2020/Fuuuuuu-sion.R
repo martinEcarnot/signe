@@ -1,5 +1,3 @@
-
-
 library(FactoMineR)
 library(factoextra)
 library(pls)
@@ -15,6 +13,7 @@ library(rgl)
 library(ade4)
 library("plotrix")
 library(ggplot2)
+library(plotly)
 
 
 rm(list = ls())
@@ -34,18 +33,23 @@ ncmax=10
 k=5
 
 
+bleu=rgb(0.09,0.63,1)
+bleu2=rgb(0,0.43,0.8)
+bleu3=rgb(0.59,0.83,1)
+vert=rgb(0.10,0.94,0.36)
+vert2=rgb(0.12,0.75,0.10)
+vert3=rgb(0.50,0.94,0.36)
+vert4=rgb(0.50,0.75,0.36)
+rouge=rgb(1,0.35,0.13)
+rouge2=rgb(0.8,0.35,0.13)
+rouge3=rgb(1,0.55,0.33)
+
+coloclone=c(rouge, rouge2, rouge3, bleu, bleu2, bleu3, vert, vert2, vert3, vert4)
+
+
 
 sp=globalmatrix
 sp
-
-
-
-
-
-
-
-
-
 
 
 
@@ -128,10 +132,10 @@ for (i in levels(colo)) {
 
 plot3d(axeX[colo==levels(colo)[1]],axeY[colo==levels(colo)[1]],axeZ[colo==levels(colo)[1]],
 
-       col=which(levels(colo)==levels(colo)[1]),radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+       col=coloclone[which(levels(colo)==levels(colo)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
 
 for (i in levels(colo)) {
-  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=which(levels(colo)==i),radius=0.2)
+  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=coloclone[which(levels(colo)==i)],radius=0.2)
 }
 
 
@@ -141,19 +145,25 @@ for (i in levels(colo)) {
 
   ellipse <- ellipse3d(cov(cbind(x,y,z)), centre=c(mean(x), mean(y), mean(z)), level = 0.95)
 
-  plot3d(ellipse, col=which(levels(colo)==i), alpha = 0.2, add = TRUE, type="shade")
+  plot3d(ellipse, col=coloclone[which(levels(colo)==i)], alpha = 0.05, add = TRUE, type="shade")
 }
 
 
 
 
 
+###
 
 
 
+sp6=data.frame(sp=sp5,axeX=rplsda$scores[,axe1],axeY=rplsda$scores[,axe2],jour=substr(rownames(sp5),4,8),annee=substr(rownames(sp5),1,4),cepage=substr(rownames(sp5),9,9),clone=substr(rownames(sp5),9,13),parcelle=substr(rownames(sp5),18,18))
 
-
-
+# Nuage de points avec estimation de la densité 2d
+sp <- ggplot(sp6, aes(x=axeX, y=axeY,colour=clone)) +
+  geom_point(size=0.5, alpha=1) +
+  scale_color_manual(values = coloclone) +
+  geom_density_2d(data = sp6, size=0.3, bins=3)
+ggplotly(sp)
 
 
 
@@ -227,5 +237,6 @@ for (i in levels(colo)) {
 
 #pareto(acp$eig[,2], h=95)
 #acp
+
 
 
