@@ -1,3 +1,5 @@
+
+
 library(FactoMineR)
 library(factoextra)
 library(pls)
@@ -98,24 +100,24 @@ axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scor
 #Tracer le graphique
 
 colo=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),9,9)))) #cépages
-colo=as.factor(substr(rownames(sp5),9,9))
+colo=as.factor(substr(rownames(sp5),9,13))
 #forme=as.factor(substr(rownames(sp5),18,18))
 texte=as.factor(substr(rownames(sp5),9,9))
 
 #2D
 
- plot(axeX,axeY,pch=16, col=colo, #type="n",
+ plot(axeX,axeY,pch=16, col=coloclone[colo], #type="n",
       main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
 #text(axeX,axeY,texte, col=as.numeric(colo))
 
-legend(x="right", legend=unique(colo), col=unique(colo), pch=15, bg="white")
+legend(x="right", legend=unique(colo), col=unique(coloclone), pch=15, bg="white")
 #legend(x="left", legend=unique(forme), col=1, pch=unique(as.numeric(forme)), bg="white")
 
 ###Comment sait-on que la légende correspond ? Réponse : on sait pas. Hihi.
 for (i in levels(colo)) {
   x_ell <- axeX[colo==i] ; y_ell <- axeY[colo==i] ; xy_ell <- data.frame(x_ell,y_ell)
-  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=which(levels(colo)==i))
+  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=coloclone[which(levels(colo)==i)])
 }
 
 
@@ -227,13 +229,3 @@ for (i in levels(colo)) {
 #acp
 
 
-library(ggplot2)
-data(msleep)
-p=ggplot(msleep,aes(x=bodywt,y=sleep_total, label=name))+
-  geom_point(aes(color=vore),size=2)+
-  geom_smooth()+
-  scale_x_log10()
-p
-library(plotly)
-ply <- ggplotly(p)
-ply
