@@ -175,7 +175,7 @@ for(j in 1:repet) {
        sccalCV2=as.data.frame(sccalCV2)
        df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
 
-       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=1000)
+       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=10)
        TEST=predict(mpoly,scvalCV)
        TEST1=TEST[1:length(scvalCV[,1])]
 #       predm0[idvalCV,ii]=TEST
@@ -211,7 +211,24 @@ for(j in 1:repet) {
  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
- for (ii in 2:ncmax) {predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
+
+ for (ii in 2:ncmax) {
+
+ sccal2=sccal
+ class(sccal2)="matrix"
+ sccal2=as.data.frame(sccal2)
+ df2=cbind.data.frame(sccal2,y=as.character(classcal))
+
+ mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=10)
+ TEST=predict(mpoly,scval)
+ TEST1=TEST[1:length(scval[,1])]
+ predm[,ii]=TEST1
+
+ }
+
+
+
+# for (ii in 2:ncmax) {predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
  tsm=lapply(as.list(predm), classval, FUN = table)
  diagsm=lapply(tsm, FUN = diag)
  perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
@@ -224,6 +241,25 @@ plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens 
 
 
 #stop()
+
+# ## Validation
+# spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+# scval=spval_c%*%rplsda$projection
+# resval=SIGNE_maha0(sccal[,1:10], classcal, scval[,1:10])$class
+#
+ M=table (predm[,6],classval)
+ M
+ sum(diag(M))/sum(M)
+ M[1,1]/(M[1,1]+M[1,2]+M[1,3])
+ M[2,2]/(M[2,1]+M[2,2]+M[2,3])
+ M[3,3]/(M[3,1]+M[3,2]+M[3,3])
+# cepage
+
+predm[,5]
+
+
+
+
 
 
 
