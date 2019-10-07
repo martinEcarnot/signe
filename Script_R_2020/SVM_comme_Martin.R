@@ -8,6 +8,7 @@ library(dplyr)
 library(prospectr)
 library(sampling)
 library(rnirs)
+library(e1071)
 
  rm(list = ls())
 
@@ -23,69 +24,10 @@ source("Script_R_2020/sp2df.R")
 # brb3="~/Documents/NICOLAS/Stage de fin annee au Grau du roi/globalmatrixN1"
 brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb3)
-globalmatrixN1=globalmatrix
 
 
-# Data Filter
-# Select dates
-dates=list(
-  # "20180619N",
-  # "20180627N",
-  # "20180619P",
-  # "20180619T",
-  "20180627P",
-  # "20180627T",
-  # "20180709N",
-  # "20180709T",
-  "20180709P")
-  # "20180816T",
-  # "20180816P")
- # "20180816N")
 
-  # dates[1]="20180619N",
-  # dates[2]="20180627N",
-  # dates[3]="20180619P",
-  # dates[4]="20180619T",
-  # dates[5]="20180627P",
-  # dates[6]="20180627T",
-  # dates[7]="20180709N",
-  # dates[8]="20180709T",
-  # dates[9]="20180709P",
-  # # dates[10]="20180709N"
-  # # dates[11]="20180710P"
-  # dates[10]="20180816T",
-  # dates[11]="20180816P",
-  # dates[12]="20180816N")
- # ,"20180817N"
-  # "20170524P"
-  # , "20170529P"
-   # ,"20170606P"
- #   ,"20170612P"
-  #   "20170619P"
- #    ,"20170626P"
-  #  "20170703P"
- # ,"20170710P"
- #  ,"20170717P"
- #  ,"20170724P"
- #  ,"20170731P"
-  # "20180823P"
-  # ,"20180823T"
-  # ,"20180823N"
- #  , "20180731P"
-  # ,"20180731T"
-  # ,"20180731N"
- #  ,"20180810P"
-  # ,"20180810T"
-  # ,"20180810N"
- #  ,"20180724P"
-  # ,"20180724T"
-  # ,"20180724N"
- # "20180809T"
- #  , "20180822P"
- #  , "20180730P"
-
-# iok=substr(rownames(globalmatrixN1),1,9) %in% dates
-sp=globalmatrixN1 #[iok,]
+sp=globalmatrix
 
 #aC= substr(rownames(sp),1,4)=="2017"
 #sp =sp[(aC==TRUE),]
@@ -114,30 +56,27 @@ sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=s
 # Le tirage sera fait plus loin dans la boucle
 sp$datclone
 ### FIXATION DES PARAMETRES UTILISES:
-## Nombre de repetitions de la boucle de PLSDA:
+## Nombre de repetitions de la boucle de SVM:
 repet= 2
 ## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
 p=2
 n=11
 m=1
 ## Nombre de VL max autorisees
-ncmax=15
+ncmax=20
 ## Nombre de groupes de CV
 k=2
 
-## PLSDA ##
+## SVM ##
 
 ### Pretraitements
-## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
-#sp_pre=adj_asd(sp$x,c(602,1402))
-sp_pre=sp$x
 ## Reduction des variables (extremites bruitees)
 # sp=sp[,seq(51,ncol(sp)-30,1)]
 ## Coupure du spectre a 1000nm
 #spx=sp[,seq(+1,601,1)]
 #matplot(t(spx),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
 ## SNV
-sp_pre=t(scale(t(sp_pre)))
+sp_pre=t(scale(t(sp$x)))
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
@@ -181,18 +120,8 @@ perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
 perok_final=matrix(nrow = repet, ncol = ncmax)
 
-perok_final_C=matrix(nrow = repet, ncol = ncmax)
-perok_final_G=matrix(nrow = repet, ncol = ncmax)
-perok_final_S=matrix(nrow = repet, ncol = ncmax)
 
-perok_final_C_cep=matrix(nrow = repet, ncol = ncmax)
-perok_final_G_cep=matrix(nrow = repet, ncol = ncmax)
-perok_final_S_cep=matrix(nrow = repet, ncol = ncmax)
-perok_final_F_cep=matrix(nrow = repet, ncol = ncmax)
-
-perok_final_cepages=matrix(nrow = repet, ncol = ncmax)
-
-###s?paration validation calibration PLSDA###
+###s?paration validation calibration SVM###
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
 
@@ -235,11 +164,23 @@ for(j in 1:repet) {
     # ## PLSDA and application to have loadings and scores
    rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
    sccalCV=rplsda$scores
+
    spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
    scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
      for (ii in 2:ncmax) {
     ## Validation
-    predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+
+       sccalCV2=sccalCV
+       class(sccalCV2)="matrix"
+       sccalCV2=as.data.frame(sccalCV2)
+       df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
+
+       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=1000)
+       TEST=predict(mpoly,scvalCV)
+       TEST1=TEST[1:length(scvalCV[,1])]
+#       predm0[idvalCV,ii]=TEST
+      predm0[idvalCV,ii]=TEST1
+#      predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
    }
     ## Package rnirs
 #     for (ii in 2:ncmax) {
@@ -269,6 +210,7 @@ for(j in 1:repet) {
  sccal=rplsda$scores
  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
  for (ii in 2:ncmax) {predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
  tsm=lapply(as.list(predm), classval, FUN = table)
  diagsm=lapply(tsm, FUN = diag)

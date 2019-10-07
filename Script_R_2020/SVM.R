@@ -1,3 +1,6 @@
+### regarder "?knnwda" tunesvm
+
+
 sp5=sp4
 #iout=sample(5210,5100)
 #sp5 <- sp5[-iout,]
@@ -15,24 +18,36 @@ type=as.character(substr(rownames(sp5),9,9))
 #type[which(type=="S")]="A"
 #type[which(type=="G")]="B"
 df=cbind.data.frame(a=rplsda$scores[,1], b=rplsda$scores[,2], c=rplsda$scores[,3], d=rplsda$scores[,4], e=rplsda$scores[,5], f=rplsda$scores[,6], g=rplsda$scores[,7], h=rplsda$scores[,8], i=rplsda$scores[,9], j=rplsda$scores[,10], k=rplsda$scores[,11], l=rplsda$scores[,12], m=rplsda$scores[,13], n=rplsda$scores[,14], o=rplsda$scores[,15], p=rplsda$scores[,16], q=rplsda$scores[,17], r=rplsda$scores[,18], s=rplsda$scores[,19], t=rplsda$scores[,20], y=type)
+df=rplsda$scores[,1]
+for (i in 2:length(rplsda$scores[1,])){
+  df=cbind.data.frame(df,rplsda$scores[,i])
+}
+df=cbind.data.frame(df,y=type)
+
+
 rownames(df)=1:5210
 summary(df)
+summary(rplsda$scores)
 #iout=sample(110,50)
 #df <- df[-iout,]
-df
-
 plot(df$a,df$b,type="n")
 text(df$a,df$b,rownames(df),col=c("blue","red","green")[df$y],cex=0.75)
 
 #charger le packagee1071
 library(e1071)
 
-
 #svm.ovo <- SVM(x=iris[,1:4], y=iris[,5], class.type="one.versus.one", verbosity=0)
 
-mpoly <-svm(y ~ a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t, data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, coef0=1, degree=2)
+#mpoly <-svm(y ~ a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t, data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, coef0=90, degree=4)
+mpoly <-svm(y ~ rplsda$scores, data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, coef0=90, degree=4)
+length(rplsda$scores[1,])
+length(df)
+TEST=predict(mpoly,df)
 print(mpoly)
 
+
+mpoly <-svm(y ~ a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t, data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=1000)
+print(mpoly)
 
 #prédiction sur l’échantillon d’apprentissage, matrice de confusion
 ypoly.df <-predict(mpoly,df)
