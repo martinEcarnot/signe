@@ -30,8 +30,8 @@ summary(df)
 summary(rplsda$scores)
 #iout=sample(110,50)
 #df <- df[-iout,]
-plot(df$a,df$b,type="n")
-text(df$a,df$b,rownames(df),col=c("blue","red","green")[df$y],cex=0.75)
+# plot(df$a,df$b,type="n")
+# text(df$a,df$b,rownames(df),col=c("blue","red","green")[df$y],cex=0.75)
 
 #charger le packagee1071
 library(e1071)
@@ -43,10 +43,9 @@ mpoly <-svm(y ~ rplsda$scores, data=df, class.type="one.versus.one", kernel="pol
 length(rplsda$scores[1,])
 length(df)
 TEST=predict(mpoly,df)
-print(mpoly)
+print(TEST)
 
-
-mpoly <-svm(y ~ a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q+r+s+t, data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=1000)
+mpoly <-svm(y ~ rplsda$scores, data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=-5)
 print(mpoly)
 
 #prédiction sur l’échantillon d’apprentissage, matrice de confusion

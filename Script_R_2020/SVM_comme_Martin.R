@@ -63,7 +63,7 @@ p=2
 n=11
 m=1
 ## Nombre de VL max autorisees
-ncmax=20
+ncmax=13
 ## Nombre de groupes de CV
 k=2
 
@@ -175,22 +175,13 @@ for(j in 1:repet) {
        sccalCV2=as.data.frame(sccalCV2)
        df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
 
-       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=10)
+       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=10, gamma=10)
        TEST=predict(mpoly,scvalCV)
        TEST1=TEST[1:length(scvalCV[,1])]
 #       predm0[idvalCV,ii]=TEST
       predm0[idvalCV,ii]=TEST1
 #      predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
    }
-    ## Package rnirs
-#     for (ii in 2:ncmax) {
-#     rknnwda=knnwda(spcalCV$x, classcalCV,spvalCV$x, classvalCV, ncompdis = ii, diss = "mahalanobis",k=30,h=1)
-#     print(err(rknnwda))
-#     predm0[idvalCV,ii]=rknnwda$fit$y1
-# }
-
-
-
    }
 
  ## Table de contingence CV
@@ -204,13 +195,11 @@ for(j in 1:repet) {
  ##Remplissage de la matrice des perok finale
  perok_finalm0[j,]=perokm0
 
-# browser()
  # ## PLSDA sur le jeu de validation
  rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
  sccal=rplsda$scores
  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-
 
  for (ii in 2:ncmax) {
 
@@ -219,14 +208,11 @@ for(j in 1:repet) {
  sccal2=as.data.frame(sccal2)
  df2=cbind.data.frame(sccal2,y=as.character(classcal))
 
- mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=10)
+ mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="radial", scale=F, cost=10, gamma=10)
  TEST=predict(mpoly,scval)
  TEST1=TEST[1:length(scval[,1])]
  predm[,ii]=TEST1
-
  }
-
-
 
 # for (ii in 2:ncmax) {predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
  tsm=lapply(as.list(predm), classval, FUN = table)
@@ -239,7 +225,7 @@ for(j in 1:repet) {
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
-
+expand.grid(1:3,1:3,1:3)
 #stop()
 
 # ## Validation
