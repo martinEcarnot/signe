@@ -9,6 +9,8 @@ library(prospectr)
 library(sampling)
 library(rnirs)
 
+library(e1071)
+
  rm(list = ls())
 
 source('Script_R_2020/adj_asd.R')
@@ -239,7 +241,19 @@ for(j in 1:repet) {
    scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
      for (ii in 2:ncmax) {
     ## Validation
-    predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+
+       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+
+       sccalCV2=sccalCV
+       class(sccalCV2)="matrix"
+       sccalCV2=as.data.frame(sccalCV2)
+       df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
+
+       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
+       TEST=predict(mpoly,scvalCV)
+       TEST1=TEST[1:length(scvalCV[,1])] #C'est pour régler le pb d'un artefact laissé par la fonction predict
+       #       predm0[idvalCV,ii]=TEST
+       predm0[idvalCV,ii]=TEST1
    }
     ## Package rnirs
 #     for (ii in 2:ncmax) {
@@ -269,7 +283,20 @@ for(j in 1:repet) {
  sccal=rplsda$scores
  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
- for (ii in 2:ncmax) {predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
+ for (ii in 2:ncmax) {
+
+   predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
+
+   sccal2=sccal
+   class(sccal2)="matrix"
+   sccal2=as.data.frame(sccal2)
+   df2=cbind.data.frame(sccal2,y=as.character(classcal))
+   mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
+   TEST=predict(mpoly,scval)
+   TEST1=TEST[1:length(scval[,1])]
+   predm[,ii]=TEST1
+
+   }
  tsm=lapply(as.list(predm), classval, FUN = table)
  diagsm=lapply(tsm, FUN = diag)
  perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
@@ -281,9 +308,65 @@ plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 
+rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
+rplsda=rnirs::plsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, ncomp=25)
+
+length(rplsda$fit$y1)
+length(spval$x[,1])
+#length(rplsda$fit[,1]) / length(spval$x[,1]) = 25
+
+
+Ttsm=lapply(as.list(LI), classval, FUN = table)
+Tdiagsm=lapply(tsm, FUN = diag)
+Tperokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
+Tperok_finalm[j,]=perokm
+
+plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
+LI=rplsda$fit$y1[(1+24*length(spval$x[,1])):length(rplsda$fit[,1])]
+table(LI,classval)
+sum(diag(M))/sum(M)
+names(rplsda)
+head(rplsda$y)
+head(rplsda$fit)
+head(rplsda$r)
+z <- err(rplsda, ~ ncomp)
+plotmse(z, nam = "errp")
+z[z$errp == min(z$errp), ]
+
+
+M2=table(predm[,25],classval)
+sum(diag(M2))/sum(M2)
+?rnirs::plsda
 #stop()
 
 
+
+
+predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+
+  predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
+
+sccalCV2=sccalCV
+class(sccalCV2)="matrix"
+sccalCV2=as.data.frame(sccalCV2)
+df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
+
+  sccal2=sccal
+  class(sccal2)="matrix"
+  sccal2=as.data.frame(sccal2)
+  df2=cbind.data.frame(sccal2,y=as.character(classcal))
+
+mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
+TEST=predict(mpoly,scvalCV)
+TEST1=TEST[1:length(scvalCV[,1])] #C'est pour régler le pb d'un artefact laissé par la fonction predict
+#       predm0[idvalCV,ii]=TEST
+predm0[idvalCV,ii]=TEST1
+
+  mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
+  TEST=predict(mpoly,scval)
+  TEST1=TEST[1:length(scval[,1])]
+  predm[,ii]=TEST1
 
 
 

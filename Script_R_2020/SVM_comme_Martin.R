@@ -116,9 +116,19 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 # colnames(maxi_final)= c("maxi.id","perok max")
 # colnames(mc_final)= c(basename(levels(class)))
 
-perok_finalm0=matrix(nrow = repet, ncol = ncmax)
-perok_finalm=matrix(nrow = repet, ncol = ncmax)
-perok_final=matrix(nrow = repet, ncol = ncmax)
+#L=as.matrix(50*expand.grid(1:10,1:10))
+#L1=5+0.25*(1:10)
+#L2=50+5*(1:10)
+L1=20*(1:5)
+L2=20*(1:5)
+#L1=4.5
+#L2=75
+#L3=(2:4)
+L=expand.grid(L1,L2)
+perok_finalm0=matrix(nrow = repet, ncol = length(L[,1]))
+perok_finalm=matrix(nrow = repet, ncol = length(L[,1]))
+perok_final=matrix(nrow = repet, ncol = length(L[,1]))
+
 
 
 ###s?paration validation calibration SVM###
@@ -138,8 +148,8 @@ for(j in 1:repet) {
  classcal=class[-idval]
 
  # ## Creation des jeux d'apprentissage et validation
- predm=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
- predm0=as.data.frame(matrix(nrow = length(classcal), ncol = ncmax))
+ predm0=as.data.frame(matrix(nrow = length(classcal), ncol = length(L[,1])))
+ predm=as.data.frame(matrix(nrow = length(classval), ncol = length(L[,1])))
  spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
 
   # spcal=sp
@@ -167,7 +177,7 @@ for(j in 1:repet) {
 
    spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
    scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-     for (ii in 2:ncmax) {
+     for (ii in 1:length(L[,1])) {
     ## Validation
 
        sccalCV2=sccalCV
@@ -175,9 +185,9 @@ for(j in 1:repet) {
        sccalCV2=as.data.frame(sccalCV2)
        df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
 
-       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=10, gamma=10)
+       mpoly <-svm(y ~ sccalCV, data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=L[ii,1], gamma=L[ii,2])
        TEST=predict(mpoly,scvalCV)
-       TEST1=TEST[1:length(scvalCV[,1])]
+       TEST1=TEST[1:length(scvalCV[,1])] #C'est pour régler le pb d'un artefact laissé par la fonction predict
 #       predm0[idvalCV,ii]=TEST
       predm0[idvalCV,ii]=TEST1
 #      predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
@@ -201,14 +211,14 @@ for(j in 1:repet) {
  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
- for (ii in 2:ncmax) {
-
+ for (ii in 1:length(L[,1])) {
+   print(ii)
  sccal2=sccal
  class(sccal2)="matrix"
  sccal2=as.data.frame(sccal2)
  df2=cbind.data.frame(sccal2,y=as.character(classcal))
 
- mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="radial", scale=F, cost=10, gamma=10)
+ mpoly <-svm(y ~ sccal, data=df2, class.type="one.versus.one", kernel="polynomial", scale=F, cost=L[ii,1], gamma=L[ii,2])
  TEST=predict(mpoly,scval)
  TEST1=TEST[1:length(scval[,1])]
  predm[,ii]=TEST1
@@ -225,7 +235,26 @@ for(j in 1:repet) {
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
-expand.grid(1:3,1:3,1:3)
+tune.svm(y ~ sccalCV, data=df, class.type="one.versus.one", kernel="radial", scale=F,  cost=L[ii,1], coef0=L[ii,2], degree=L[ii,3])
+
+svm(y ~ sccalCV, data=df, kernel="radial", scale=F, cost=L[ii,1], gamma=L[ii,2])
+
+
+tune.svm(x, y = NULL, data = NULL, degree = NULL, gamma = NULL, coef0 = NULL,
+         cost = NULL, nu = NULL, class.weights = NULL, epsilon = NULL, ...)
+
+svm(x, y = NULL, scale = TRUE, type = NULL, kernel =
+      "radial", degree = 3, gamma = if (is.vector(x)) 1 else 1 / ncol(x),
+    coef0 = 0, cost = 1, nu = 0.5,
+    class.weights = NULL, cachesize = 40, tolerance = 0.001, epsilon = 0.1,
+    shrinking = TRUE, cross = 0, probability = FALSE, fitted = TRUE,
+    ..., subset, na.action = na.omit)
+
+
+
+
+
+
 #stop()
 
 # ## Validation
@@ -233,9 +262,9 @@ expand.grid(1:3,1:3,1:3)
 # scval=spval_c%*%rplsda$projection
 # resval=SIGNE_maha0(sccal[,1:10], classcal, scval[,1:10])$class
 #
- M=table (predm[,6],classval)
+ M=table (predm[,20],classval)
  M
- sum(diag(M))/sum(M)
+ psum(diag(M))/sum(M)
  M[1,1]/(M[1,1]+M[1,2]+M[1,3])
  M[2,2]/(M[2,1]+M[2,2]+M[2,3])
  M[3,3]/(M[3,1]+M[3,2]+M[3,3])
@@ -244,11 +273,11 @@ expand.grid(1:3,1:3,1:3)
 predm[,5]
 
 
+M=table(spval$y,TEST1)
+M
 
-
-
-
-
+M=table(spvalCV$y,S)
+M
 
 
 
@@ -269,7 +298,9 @@ cepage[1,1]/(cepage[1,1]+cepage[1,2]+cepage[1,3])
 cepage[2,2]/(cepage[2,1]+cepage[2,2]+cepage[2,3])
 cepage[3,3]/(cepage[3,1]+cepage[3,2]+cepage[3,3])
 
-
+T=(c(NULL, 20:30))
+T=matrix(NA,3)
+T
 
 ###En fonction des clones
 

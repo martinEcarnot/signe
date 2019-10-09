@@ -281,6 +281,30 @@ plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 
+rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
+
+
+
+
+rplsda=rnirs::plsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, ncomp=25)
+
+
+LI=rplsda$fit$y1[(1+24*length(spval$x[,1])):(25*length(spval$x[,1]))]
+table(LI,classval)
+sum(diag(M))/sum(M)
+names(rplsda)
+head(rplsda$y)
+head(rplsda$fit)
+head(rplsda$r)
+z <- err(rplsda, ~ ncomp)
+plotmse(z, nam = "errp")
+z[z$errp == min(z$errp), ]
+
+
+M2=table(predm[,25],classval)
+M2
+sum(diag(M2))/sum(M2)
+
 #stop()
 
 

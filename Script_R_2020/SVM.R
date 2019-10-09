@@ -45,7 +45,7 @@ length(df)
 TEST=predict(mpoly,df)
 print(TEST)
 
-mpoly <-svm(y ~ rplsda$scores, data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=-5)
+mpoly <-svm(y ~ rplsda$scores, data=df, class.type="one.versus.one", kernel="radial", scale=F, cost=100, gamma=5)
 print(mpoly)
 
 #prédiction sur l’échantillon d’apprentissage, matrice de confusion
