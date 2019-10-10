@@ -198,30 +198,30 @@ perok_final_cepages=matrix(nrow = repet, ncol = ncmax)
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
 
- # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
- m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
- spval=getdata(sp,m)[[2]]
- #
- idval=which(rownames(sp)  %in%  rownames(spval))
- #
- # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
- spval=sp[idval,]
- spcal=sp[-idval,]
- classval=class[idval]
- classcal=class[-idval]
+  # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
+  m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+  spval=getdata(sp,m)[[2]]
+  #
+  idval=which(rownames(sp)  %in%  rownames(spval))
+  #
+  # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
+  spval=sp[idval,]
+  spcal=sp[-idval,]
+  classval=class[idval]
+  classcal=class[-idval]
 
- # ## Creation des jeux d'apprentissage et validation
- predm=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
- predm0=as.data.frame(matrix(nrow = length(classcal), ncol = ncmax))
- spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
+  # ## Creation des jeux d'apprentissage et validation
+  predm=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+  predm0=as.data.frame(matrix(nrow = length(classcal), ncol = ncmax))
+  spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
 
   # spcal=sp
   # spcaldef=spcal
 ## Boucle CV
-   for (i in 1:k) {
-     print(i)
-     m=mstage(spcaldef,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
-     spvalCV=getdata(spcaldef,m)[[2]]
+  for (i in 1:k) {
+    print(i)
+    m=mstage(spcaldef,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+    spvalCV=getdata(spcaldef,m)[[2]]
 
     idvalCV =which(rownames(spcal)  %in%  rownames(spvalCV))
 
@@ -235,26 +235,26 @@ for(j in 1:repet) {
     classcalCV=classcal[-idvalCV] #identifiants des classes du jeu de calibration
 
     # ## PLSDA and application to have loadings and scores
-   rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
-   sccalCV=rplsda$scores
-   spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
-   scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-     for (ii in 2:ncmax) {
+    rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
+    sccalCV=rplsda$scores
+    spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
+    scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    for (ii in 2:ncmax) {
     ## Validation
 
-       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+      predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
 
-       sccalCV2=sccalCV
-       class(sccalCV2)="matrix"
-       sccalCV2=as.data.frame(sccalCV2)
-       df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
+      sccalCV2=sccalCV
+      class(sccalCV2)="matrix"
+      sccalCV2=as.data.frame(sccalCV2)
+      df=cbind.data.frame(sccalCV2,y=as.character(classcalCV))
 
-       mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
-       TEST=predict(mpoly,scvalCV)
-       TEST1=TEST[1:length(scvalCV[,1])] #C'est pour régler le pb d'un artefact laissé par la fonction predict
-       #       predm0[idvalCV,ii]=TEST
-       predm0[idvalCV,ii]=TEST1
-   }
+      mpoly <-svm(y ~ sccalCV[,1:ii], data=df, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
+      TEST=predict(mpoly,scvalCV)
+      TEST1=TEST[1:length(scvalCV[,1])] #C'est pour régler le pb d'un artefact laissé par la fonction predict
+      #       predm0[idvalCV,ii]=TEST
+      predm0[idvalCV,ii]=TEST1
+    }
     ## Package rnirs
 #     for (ii in 2:ncmax) {
 #     rknnwda=knnwda(spcalCV$x, classcalCV,spvalCV$x, classvalCV, ncompdis = ii, diss = "mahalanobis",k=30,h=1)
@@ -263,8 +263,7 @@ for(j in 1:repet) {
 # }
 
 
-
-   }
+  }
 
  ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
@@ -275,32 +274,32 @@ for(j in 1:repet) {
   # perokm0 =100*unlist(lapply(diagsm0, FUN = sum))/length(idvalCV)
  ### Enregistrement des matrices de resultat final CV
  ##Remplissage de la matrice des perok finale
- perok_finalm0[j,]=perokm0
+  perok_finalm0[j,]=perokm0
 
 # browser()
  # ## PLSDA sur le jeu de validation
- rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
- sccal=rplsda$scores
- spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
- scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
- for (ii in 2:ncmax) {
+  rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
+  sccal=rplsda$scores
+  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  for (ii in 2:ncmax) {
 
-   predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
+    predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
 
-   sccal2=sccal
-   class(sccal2)="matrix"
-   sccal2=as.data.frame(sccal2)
-   df2=cbind.data.frame(sccal2,y=as.character(classcal))
-   mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
-   TEST=predict(mpoly,scval)
-   TEST1=TEST[1:length(scval[,1])]
-   predm[,ii]=TEST1
+    sccal2=sccal
+    class(sccal2)="matrix"
+    sccal2=as.data.frame(sccal2)
+    df2=cbind.data.frame(sccal2,y=as.character(classcal))
+    mpoly <-svm(y ~ sccal[,1:ii], data=df2, class.type="one.versus.one", kernel="polynomial", scale=F, cost=100, gamma=100)
+    TEST=predict(mpoly,scval)
+    TEST1=TEST[1:length(scval[,1])]
+    predm[,ii]=TEST1
 
-   }
- tsm=lapply(as.list(predm), classval, FUN = table)
- diagsm=lapply(tsm, FUN = diag)
- perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
- perok_finalm[j,]=perokm
+  }
+  tsm=lapply(as.list(predm), classval, FUN = table)
+  diagsm=lapply(tsm, FUN = diag)
+  perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
+  perok_finalm[j,]=perokm
 
 }
 

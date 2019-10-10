@@ -1,3 +1,5 @@
+##Penser à mettre en place un calcul de certitude
+
 library(MASS)
 # library(mixOmics)
 library(FactoMineR)
@@ -8,6 +10,7 @@ library(dplyr)
 library(prospectr)
 library(sampling)
 library(rnirs)
+library(e1071)
 
  rm(list = ls())
 
@@ -23,69 +26,10 @@ source("Script_R_2020/sp2df.R")
 # brb3="~/Documents/NICOLAS/Stage de fin annee au Grau du roi/globalmatrixN1"
 brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb3)
-globalmatrixN1=globalmatrix
 
 
-# Data Filter
-# Select dates
-dates=list(
-  # "20180619N",
-  # "20180627N",
-  # "20180619P",
-  # "20180619T",
-  "20180627P",
-  # "20180627T",
-  # "20180709N",
-  # "20180709T",
-  "20180709P")
-  # "20180816T",
-  # "20180816P")
- # "20180816N")
 
-  # dates[1]="20180619N",
-  # dates[2]="20180627N",
-  # dates[3]="20180619P",
-  # dates[4]="20180619T",
-  # dates[5]="20180627P",
-  # dates[6]="20180627T",
-  # dates[7]="20180709N",
-  # dates[8]="20180709T",
-  # dates[9]="20180709P",
-  # # dates[10]="20180709N"
-  # # dates[11]="20180710P"
-  # dates[10]="20180816T",
-  # dates[11]="20180816P",
-  # dates[12]="20180816N")
- # ,"20180817N"
-  # "20170524P"
-  # , "20170529P"
-   # ,"20170606P"
- #   ,"20170612P"
-  #   "20170619P"
- #    ,"20170626P"
-  #  "20170703P"
- # ,"20170710P"
- #  ,"20170717P"
- #  ,"20170724P"
- #  ,"20170731P"
-  # "20180823P"
-  # ,"20180823T"
-  # ,"20180823N"
- #  , "20180731P"
-  # ,"20180731T"
-  # ,"20180731N"
- #  ,"20180810P"
-  # ,"20180810T"
-  # ,"20180810N"
- #  ,"20180724P"
-  # ,"20180724T"
-  # ,"20180724N"
- # "20180809T"
- #  , "20180822P"
- #  , "20180730P"
-
-# iok=substr(rownames(globalmatrixN1),1,9) %in% dates
-sp=globalmatrixN1 #[iok,]
+sp=globalmatrix
 
 #aC= substr(rownames(sp),1,4)=="2017"
 #sp =sp[(aC==TRUE),]
@@ -114,30 +58,27 @@ sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=s
 # Le tirage sera fait plus loin dans la boucle
 sp$datclone
 ### FIXATION DES PARAMETRES UTILISES:
-## Nombre de repetitions de la boucle de PLSDA:
+## Nombre de repetitions de la boucle de SVM:
 repet= 2
 ## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
 p=2
 n=11
 m=1
 ## Nombre de VL max autorisees
-ncmax=25
+ncmax=30
 ## Nombre de groupes de CV
 k=2
 
-## PLSDA ##
+## SVM ##
 
 ### Pretraitements
-## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
-#sp_pre=adj_asd(sp$x,c(602,1402))
-sp_pre=sp$x
 ## Reduction des variables (extremites bruitees)
 # sp=sp[,seq(51,ncol(sp)-30,1)]
 ## Coupure du spectre a 1000nm
 #spx=sp[,seq(+1,601,1)]
 #matplot(t(spx),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
 ## SNV
-sp_pre=t(scale(t(sp_pre)))
+sp_pre=t(scale(t(sp$x)))
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
@@ -176,23 +117,30 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 # rownames(t_final)=c(basename(levels(class)))
 # colnames(maxi_final)= c("maxi.id","perok max")
 # colnames(mc_final)= c(basename(levels(class)))
-K=(28:32)
 
-perok_finalm0=matrix(nrow = repet, ncol = length(K))
-perok_finalm=matrix(nrow = repet, ncol = length(K))
-perok_final=matrix(nrow = repet, ncol = length(K))
+#L=as.matrix(50*expand.grid(1:10,1:10))
+#L1=5+0.25*(1:10)
+#L2=50+5*(1:10)
+L=c(600,700,800,900,1000)
+L2=c(1,2)
+L=10*(14:20)
+L=1000
+#L1=4.5
+#L2=75
+#L3=(2:4)
+#L=expand.grid(L1,L2)
+perok_finalm0=matrix(nrow = repet, ncol = length(L))
+perok_finalm=matrix(nrow = repet, ncol = length(L))
+perok_final=matrix(nrow = repet, ncol = length(L))
 
-perok_finalm0n=matrix(nrow = repet, ncol = length(K))
-perok_finalmn=matrix(nrow = repet, ncol = length(K))
-perok_finaln=matrix(nrow = repet, ncol = length(K))
 
 
-###s?paration validation calibration PLSDA###
+###s?paration validation calibration SVM###
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
 
   # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
-   m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+  m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
   spval=getdata(sp,m)[[2]]
   #
   idval=which(rownames(sp)  %in%  rownames(spval))
@@ -204,10 +152,8 @@ for(j in 1:repet) {
   classcal=class[-idval]
 
   # ## Creation des jeux d'apprentissage et validation
-  predm=as.data.frame(matrix(nrow = length(classval), ncol = length(K)))
-  predmn=as.data.frame(matrix(nrow = length(classval), ncol = length(K)))
-  predm0=as.data.frame(matrix(nrow = length(classcal), ncol = length(K)))
-  predm0n=as.data.frame(matrix(nrow = length(classcal), ncol = length(K)))
+  predm0=as.data.frame(matrix(nrow = length(classcal), ncol = length(L)))
+  predm=as.data.frame(matrix(nrow = length(classval), ncol = length(L)))
   spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
 
   # spcal=sp
@@ -232,24 +178,18 @@ for(j in 1:repet) {
     # ## PLSDA and application to have loadings and scores
     rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
     sccalCV=rplsda$scores
+
     spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
     scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-    #rplsda=rnirs::plsda(Xr=spcalCV$x, Yr=as.character(classcalCV), Xu=spvalCV$x, Yu=idvalCV, ncomp=25)
-    for (ii in length(K)) {
+
+    for (ii in 1:length(L)) {
     ## Validation
-      rplsda=knnwda(Xr=spcalCV$x, Yr=as.character(classcalCV), Xu=spvalCV$x, Yu=idvalCV, diss="mahalanobis", ncompdis=ncmax, h=1, k=K[ii], print=FALSE)
-      predm0n[idvalCV,ii]= rplsda$fit$y1
-      predm0[idvalCV,ii]= SIGNE_maha0(sccalCV, classcalCV, scvalCV)$class
+      print(ii)
+      rplsda=knnwda(Xr=spcalCV$x, Yr=as.character(classcalCV), Xu=spvalCV$x, Yu=idvalCV, diss="mahalanobis", ncompdis=ncmax, h=1, k=L[ii], print=FALSE)
+      predm0[idvalCV,ii]= rplsda$fit$y1
+
+#
     }
-    ## Package rnirs
-#     for (ii in 2:ncmax) {
-#     rknnwda=knnwda(spcalCV$x, classcalCV,spvalCV$x, classvalCV, ncompdis = ii, diss = "mahalanobis",k=30,h=1)
-#     print(err(rknnwda))
-#     predm0[idvalCV,ii]=rknnwda$fit$y1
-# }
-
-
-
   }
 
  ## Table de contingence CV
@@ -263,71 +203,76 @@ for(j in 1:repet) {
  ##Remplissage de la matrice des perok finale
   perok_finalm0[j,]=perokm0
 
-  tsm0n=lapply(as.list(predm0n), classcal, FUN = table)
-  diagsm0n=lapply(tsm0n, FUN = diag)
-  perokm0n =100*unlist(lapply(diagsm0n, FUN = sum))/length(classcal)
-  perok_finalm0n[j,]=perokm0n
-
-# browser()
  # ## PLSDA sur le jeu de validation
   rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
   sccal=rplsda$scores
   spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
   scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-  #rplsda=rnirs::plsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, ncomp=25)
-  for (ii in length(K)) {
-    rplsda=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, diss="mahalanobis", ncompdis=ncmax, h=1, k=K[ii], print=FALSE)
+
+  for (ii in 1:length(L)) {
+
+    rplsda=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, diss="mahalanobis", ncompdis=ncmax, h=1, k=L[ii], print=FALSE)
     #LI=rplsda$fit$y1[(1+(ii-1)*length(spval$x[,1])):(ii*length(spval$x[,1]))]
-    predmn[,ii]= rplsda$fit$y1  #SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
-    predm[,ii]= SIGNE_maha0(sccal, classcal, scval)$class
+    predm[,ii]= rplsda$fit$y1
+
+    print(ii)
+#    predm[,ii]=TEST1
   }
+
+# for (ii in 2:ncmax) {predm[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
   tsm=lapply(as.list(predm), classval, FUN = table)
   diagsm=lapply(tsm, FUN = diag)
   perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
   perok_finalm[j,]=perokm
-
-  tsmn=lapply(as.list(predmn), classval, FUN = table)
-  diagsmn=lapply(tsmn, FUN = diag)
-  perokmn =100*unlist(lapply(diagsmn, FUN = sum))/length(idval)
-  perok_finalmn[j,]=perokmn
 
 }
 
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
+tune.svm(y ~ sccalCV, data=df, class.type="one.versus.one", kernel="radial", scale=F,  cost=L[ii,1], coef0=L[ii,2], degree=L[ii,3])
 
-plot(colMeans(perok_finalm0n), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-plot(colMeans(perok_finalmn), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-
-#rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
+svm(y ~ sccalCV, data=df, kernel="radial", scale=F, cost=L[ii,1], gamma=L[ii,2])
 
 
+tune.svm(x, y = NULL, data = NULL, degree = NULL, gamma = NULL, coef0 = NULL,
+         cost = NULL, nu = NULL, class.weights = NULL, epsilon = NULL, ...)
+
+svm(x, y = NULL, scale = TRUE, type = NULL, kernel =
+      "radial", degree = 3, gamma = if (is.vector(x)) 1 else 1 / ncol(x),
+    coef0 = 0, cost = 1, nu = 0.5,
+    class.weights = NULL, cachesize = 40, tolerance = 0.001, epsilon = 0.1,
+    shrinking = TRUE, cross = 0, probability = FALSE, fitted = TRUE,
+    ..., subset, na.action = na.omit)
 
 
-rplsda=rnirs::plsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, diss="mahalanobis", ncompdis=25, h=1, k=30, print=FALSE, ncomp=25)
-
-rplsda=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, diss="mahalanobis", ncompdis=25, h=1, k=30, print=FALSE)
-LI=rplsda$fit$y1[(1+0*length(spval$x[,1])):(1*length(spval$x[,1]))] #Parce que les choses trop simples, c'est un truc de perdant.
-M1=table(rplsda$fit$y1,classval)
-sum(diag(M1))/sum(M1)
-# names(rplsda)
-# head(rplsda$y)
-# head(rplsda$fit)
-# head(rplsda$r)
-# z <- err(rplsda, ~ ncomp)
-# plotmse(z, nam = "errp")
-# z[z$errp == min(z$errp), ]
 
 
-M2=table(predm[,25],classval)
-M2
-sum(diag(M2))/sum(M2)
+
 
 #stop()
 
+# ## Validation
+# spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+# scval=spval_c%*%rplsda$projection
+# resval=SIGNE_maha0(sccal[,1:10], classcal, scval[,1:10])$class
+#
+ M=table (predm[,20],classval)
+ M
+ psum(diag(M))/sum(M)
+ M[1,1]/(M[1,1]+M[1,2]+M[1,3])
+ M[2,2]/(M[2,1]+M[2,2]+M[2,3])
+ M[3,3]/(M[3,1]+M[3,2]+M[3,3])
+# cepage
+
+predm[,5]
 
 
+M=table(spval$y,TEST1)
+M
+
+M=table(spvalCV$y,S)
+M
 
 
 
@@ -348,7 +293,9 @@ cepage[1,1]/(cepage[1,1]+cepage[1,2]+cepage[1,3])
 cepage[2,2]/(cepage[2,1]+cepage[2,2]+cepage[2,3])
 cepage[3,3]/(cepage[3,1]+cepage[3,2]+cepage[3,3])
 
-
+T=(c(NULL, 20:30))
+T=matrix(NA,3)
+T
 
 ###En fonction des clones
 
