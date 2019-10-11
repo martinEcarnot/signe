@@ -1,4 +1,8 @@
-##Penser à mettre en place un calcul de certitude
+##Penser à mettre en place un estimateur de fiabilité
+
+##Clones, faire une prévision cépage, puis pour chaque cépage une prédiction clone.
+
+
 
 library(MASS)
 # library(mixOmics)
@@ -121,10 +125,15 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 #L=as.matrix(50*expand.grid(1:10,1:10))
 #L1=5+0.25*(1:10)
 #L2=50+5*(1:10)
-L=c(600,700,800,900,1000)
+
+
+#400 semble être un bon choix pour k dans le cas homogène/toutes les données/cépage (ca augmente légèrement jusqu'à 1000, mais le calcul est plus long)
+K=400 # nombre de voisins proches dans la fonction de rnirs
+
+L=c(1,1.1,1.2)
 L2=c(1,2)
-L=10*(14:20)
-L=1000
+L=1+0.2*(1:5)
+L=1.1
 #L1=4.5
 #L2=75
 #L3=(2:4)
@@ -185,7 +194,7 @@ for(j in 1:repet) {
     for (ii in 1:length(L)) {
     ## Validation
       print(ii)
-      rplsda=knnwda(Xr=spcalCV$x, Yr=as.character(classcalCV), Xu=spvalCV$x, Yu=idvalCV, diss="mahalanobis", ncompdis=ncmax, h=1, k=L[ii], print=FALSE)
+      rplsda=knnwda(Xr=spcalCV$x, Yr=as.character(classcalCV), Xu=spvalCV$x, Yu=as.character(classvalCV), diss="mahalanobis", ncompdis=ncmax, h=L[ii], k=K, print=FALSE)
       predm0[idvalCV,ii]= rplsda$fit$y1
 
 #
@@ -211,7 +220,7 @@ for(j in 1:repet) {
 
   for (ii in 1:length(L)) {
 
-    rplsda=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=idval, diss="mahalanobis", ncompdis=ncmax, h=1, k=L[ii], print=FALSE)
+    rplsda=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=ncmax, h=L[ii], k=K, print=FALSE)
     #LI=rplsda$fit$y1[(1+(ii-1)*length(spval$x[,1])):(ii*length(spval$x[,1]))]
     predm[,ii]= rplsda$fit$y1
 

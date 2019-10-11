@@ -38,9 +38,11 @@ sp=globalmatrixN1 #[iok,]
 ## Creation de la matrice de classes
 # class=as.factor(substr(rownames(sp),11,13))
 class=as.factor(substr(rownames(sp),9,9))
-rownames(sp)
+classclo=as.factor(substr(rownames(sp),11,13))
+
 ## Variable qui mesure le nombre de classes
 c=length(levels(class))
+cclo=length(levels(classclo))
 
 
 
@@ -54,10 +56,11 @@ ndc=length(unique(datclone))
 # On créé un facteur souche qui groupe les 6 spectres de chaque souche
 numsp=as.numeric(substr(rownames(sp),15,16))
 souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))  # paste(datclone,cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3")))
-sp=sp2df(sp,class)
+
+sp=sp2df(sp,class,classclo)
 sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=substr(souche,15,16))
+
 # Le tirage sera fait plus loin dans la boucle
-sp$datclone
 ### FIXATION DES PARAMETRES UTILISES:
 ## Nombre de repetitions de la boucle de PLSDA:
 repet= 2
@@ -76,6 +79,7 @@ k=2
 ## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
 #sp_pre=adj_asd(sp$x,c(602,1402))
 sp_pre=sp$x
+spclo_pre=spclo$x
 ## Reduction des variables (extremites bruitees)
 # sp=sp[,seq(51,ncol(sp)-30,1)]
 ## Coupure du spectre a 1000nm
@@ -83,8 +87,10 @@ sp_pre=sp$x
 #matplot(t(spx),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
 ## SNV
 sp_pre=t(scale(t(sp_pre)))
+spclo_pre=t(scale(t(spclo_pre)))
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
+spclo$x=savitzkyGolay(spclo_pre, m = m, p = p, w = n)
 
 
 
@@ -92,6 +98,10 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
 perok_final=matrix(nrow = repet, ncol = ncmax)
+
+perok_finalm0clo=matrix(nrow = repet, ncol = ncmax)
+perok_finalmclo=matrix(nrow = repet, ncol = ncmax)
+perok_finalclo=matrix(nrow = repet, ncol = ncmax)
 
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
@@ -142,15 +152,6 @@ for(j in 1:repet) {
       ## Validation
       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
     }
-    ## Package rnirs
-#     for (ii in 2:ncmax) {
-#     rknnwda=knnwda(spcalCV$x, classcalCV,spvalCV$x, classvalCV, ncompdis = ii, diss = "mahalanobis",k=30,h=1)
-#     print(err(rknnwda))
-#     predm0[idvalCV,ii]=rknnwda$fit$y1
-# }
-
-
-
   }
 
   ## Table de contingence CV
@@ -164,7 +165,6 @@ for(j in 1:repet) {
   ##Remplissage de la matrice des perok finale
   perok_finalm0[j,]=perokm0
 
-  # browser()
   # ## PLSDA sur le jeu de validation
   rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
   sccal=rplsda$scores
