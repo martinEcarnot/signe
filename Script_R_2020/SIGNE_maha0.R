@@ -1,7 +1,6 @@
-# From matrix cal matrix, cal classes and val matrix, compute Mahalanobis dist from each group 
+# From matrix cal matrix, cal classes and val matrix, compute Mahalanobis dist from each group
 
 SIGNE_maha0 = function (scal,class_cal,sval) {
-
 ng=nlevels(class_cal)
 nm=levels(class_cal)
 mdist=matrix(nrow = nrow(sval),ncol = ng)
@@ -16,7 +15,5 @@ for (i in 1:ng) {
 
 cl <- factor(nm[max.col(-mdist)],levels = nm)
 pred=list(class=cl,dist=mdist)
-
 return(pred)
 }
-
