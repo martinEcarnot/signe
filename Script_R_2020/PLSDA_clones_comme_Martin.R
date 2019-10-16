@@ -186,8 +186,12 @@ for(j in 1:repet) {
 
     for (ii in 2:ncmax) {
       ## Validation
+      predm0S=predm0
       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
+
+      predm0GS=predm0G
       predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
+      browser()
       #Ca le rempli (Peut-être même pas, en fait), mais pas complètement. Est-ce normal ? Embêtant ? P-ê predm0G est mal fait
 #      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$classclo
       # M1= matrix(nrow= nrow(scvalCV[,1:ii]), ncol= nlevels(classcalCV))
@@ -196,7 +200,7 @@ for(j in 1:repet) {
   }
   ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
-  tsm0G=lapply(as.list(predm0G), classcalclo, FUN = table)
+#  tsm0G=lapply(as.list(predm0G), classcalclo, FUN = table)
   ## Matrice mauvais classements par clone CV
   diagsm0=lapply(tsm0, FUN = diag)
   ## Pourcentage de bien classes CV
