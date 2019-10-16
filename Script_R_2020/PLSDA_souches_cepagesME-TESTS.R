@@ -9,7 +9,7 @@ library(prospectr)
 library(sampling)
 library(rnirs)
 
- rm(list = ls())
+rm(list = ls())
 
 source('Script_R_2020/adj_asd.R')
 source('Script_R_2020/SIGNE_load.R')
@@ -37,12 +37,10 @@ sp=globalmatrixN1 #[iok,]
 
 ## Creation de la matrice de classes
 # class=as.factor(substr(rownames(sp),11,13))
-class=as.factor(substr(rownames(sp),9,9))
-classclo=as.factor(substr(rownames(sp),11,13))
-
+class=as.factor(substr(rownames(sp),9,13))
+rownames(sp)
 ## Variable qui mesure le nombre de classes
 c=length(levels(class))
-cclo=length(levels(classclo))
 
 
 
@@ -56,13 +54,10 @@ ndc=length(unique(datclone))
 # On créé un facteur souche qui groupe les 6 spectres de chaque souche
 numsp=as.numeric(substr(rownames(sp),15,16))
 souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))  # paste(datclone,cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3")))
-
-sp=sp2df(sp,class,classclo)
+sp=sp2df(sp,class)
 sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=substr(souche,15,16))
-
-##Mais... On se sert pas du y ajouté dans le data.frame plus tard, je crois. Bizarre.
-
 # Le tirage sera fait plus loin dans la boucle
+sp$datclone
 ### FIXATION DES PARAMETRES UTILISES:
 ## Nombre de repetitions de la boucle de PLSDA:
 repet= 2
@@ -81,7 +76,6 @@ k=2
 ## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
 #sp_pre=adj_asd(sp$x,c(602,1402))
 sp_pre=sp$x
-
 ## Reduction des variables (extremites bruitees)
 # sp=sp[,seq(51,ncol(sp)-30,1)]
 ## Coupure du spectre a 1000nm
@@ -89,10 +83,8 @@ sp_pre=sp$x
 #matplot(t(spx),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
 ## SNV
 sp_pre=t(scale(t(sp_pre)))
-
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
-
 
 
 
@@ -100,10 +92,6 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
 perok_final=matrix(nrow = repet, ncol = ncmax)
-
-perok_finalm0clo=matrix(nrow = repet, ncol = ncmax)
-perok_finalmclo=matrix(nrow = repet, ncol = ncmax)
-perok_finalclo=matrix(nrow = repet, ncol = ncmax)
 
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
@@ -114,35 +102,17 @@ for(j in 1:repet) {
   spval=getdata(sp,m)[[2]]
   #
   idval=which(rownames(sp)  %in%  rownames(spval))
-  idvalG=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="G"    )
   #
   # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
   spval=sp[idval,]
   spcal=sp[-idval,]
-
   classval=class[idval]
   classcal=class[-idval]
-
-  classcalclo=classclo[-idval]
-
-  spvalG=sp[idvalG,]
-  spcalG1=sp[-idvalG,]
-  spcalG=spcalG1[which(spcalG1$y1=="G"),]
-
-  classvalG=classclo[idvalG]
-  classcalG1=classclo[-idvalG]
-  classcalG=classcalG1[which(classcalG1=="222" | classcalG1=="509" | classcalG1=="787")]
-  classcalG=droplevels(classcalG)
-  #Ca, ca doit être bon
 
   # ## Creation des jeux d'apprentissage et validation
   predm=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
   predm0=as.data.frame(matrix(nrow = length(classcal), ncol = ncmax))
   spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
-
-  predmG=as.data.frame(matrix(nrow = length(classvalG), ncol = ncmax))
-  predm0G=as.data.frame(matrix(nrow = length(classcalG), ncol = ncmax))
-  spcaldefG=spcalG # spcal deflaté du(des) groupe(s) de CV déjà validés
 
   # spcal=sp
   # spcaldef=spcal
@@ -153,7 +123,6 @@ for(j in 1:repet) {
     spvalCV=getdata(spcaldef,m)[[2]]
 
     idvalCV =which(rownames(spcal)  %in%  rownames(spvalCV))
-    idvalCVG =which(rownames(spcal)  %in%  rownames(spvalCV) & spcal$y1=="G")
 
     spcaldef=spcaldef[-(which(rownames(spcaldef)  %in%  rownames(spvalCV))),]
 
@@ -164,43 +133,28 @@ for(j in 1:repet) {
     spcalCV=spcal[-idvalCV,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
     classcalCV=classcal[-idvalCV] #identifiants des classes du jeu de calibration
 
-    spvalCVG=spcal[idvalCVG,]
-    classvalCVG=classcalclo[idvalCVG]  #identifiants des classes du jeu de validation
-
-    spcalCVG1=spcal[-idvalCVG,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    spcalCVG=spcalCVG1[which(spcalCVG1$y1=="G"),]
-    classcalCVG1=classcalclo[-idvalCVG] #identifiants des classes du jeu de calibration
-    classcalCVG=classcalCVG1[which(classcalCVG1=="222" | classcalCVG1=="509" | classcalCVG1=="787")]
-    classcalCVG=droplevels(classcalCVG)
-
     # ## PLSDA and application to have loadings and scores
     rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
     sccalCV=rplsda$scores
     spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
     scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-
-    rplsdaG=caret::plsda(spcalCVG$x, classcalCVG, ncomp=ncmax)
-    sccalCVG=rplsdaG$scores
-    spvalCVG_c=scale(spvalCVG$x,center=rplsdaG$Xmeans,scale = F)
-    scvalCVG=spvalCVG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-
     for (ii in 2:ncmax) {
       ## Validation
-      predm0S=predm0
       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
-
-      predm0GS=predm0G
-      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
-      browser()
-      #Ca le rempli (Peut-être même pas, en fait), mais pas complètement. Est-ce normal ? Embêtant ? P-ê predm0G est mal fait
-#      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$classclo
-      # M1= matrix(nrow= nrow(scvalCV[,1:ii]), ncol= nlevels(classcalCV))
-      # M2= matrix(nrow= nrow(scvalCVG[,1:ii]), ncol= nlevels(classcalCVG))
     }
+    ## Package rnirs
+#     for (ii in 2:ncmax) {
+#     rknnwda=knnwda(spcalCV$x, classcalCV,spvalCV$x, classvalCV, ncompdis = ii, diss = "mahalanobis",k=30,h=1)
+#     print(err(rknnwda))
+#     predm0[idvalCV,ii]=rknnwda$fit$y1
+# }
+
+
+
   }
+
   ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
-#  tsm0G=lapply(as.list(predm0G), classcalclo, FUN = table)
   ## Matrice mauvais classements par clone CV
   diagsm0=lapply(tsm0, FUN = diag)
   ## Pourcentage de bien classes CV
@@ -210,6 +164,7 @@ for(j in 1:repet) {
   ##Remplissage de la matrice des perok finale
   perok_finalm0[j,]=perokm0
 
+  # browser()
   # ## PLSDA sur le jeu de validation
   rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
   sccal=rplsda$scores
