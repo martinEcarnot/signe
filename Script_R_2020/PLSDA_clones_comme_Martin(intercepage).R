@@ -302,12 +302,33 @@ for(j in 1:repet) {
   perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
   perok_finalm[j,]=perokm
 
+  idvalC1T=which(rownames(sp)  %in%  rownames(scval))
+  idvalCT=which(predm[,25]=="C")
 
-  rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
+  spvalCT=sp[idvalCT,]
+  spcalC1T=sp[-idvalCT,]
+  spcalCT=spcalC1T[which(spcalC1T$y1=="C"),]
+
+  classvalCT=classclo[idvalCT]
+#  classvalCT=droplevels(classvalCT)
+
+  classcalC1T=classclo[-idvalCT]
+  classcalCT=classcalC1T[which(classcalC1T=="015" | classcalC1T=="169" | classcalC1T=="685")]
+  #Là ya une erreur logique, parce que je devrais pouvoir laisser les autres (les mal classés en C)
+#  classcalCT=droplevels(classcalCT)
+
+
+
+
+  print("Pass0")
+  rplsdaC=caret::plsda(spcalCT$x, classcalCT, ncomp=ncmax)
+  print("Pass1")
   sccalC=rplsdaC$scores
+  print("Pass2")
   spvalC_c=scale(spvalC$x,center=rplsdaC$Xmeans,scale = F)
+  print("Pass3")
   scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-
+  print("Pass4")
 
   rplsdaG=caret::plsda(spcalG$x, classcalG,ncomp=ncmax)
   sccalG=rplsdaG$scores
@@ -320,17 +341,19 @@ for(j in 1:repet) {
   spvalS_c=scale(spvalS$x,center=rplsdaS$Xmeans,scale = F)
   scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
+  print("Pass5")
   for (ii in 2:ncmax) {
-    predmC[,ii]=SIGNE_maha0(sccalC[,1:ii], classcalC, scvalC[,1:ii])$class
+    print("pass6")
+    predmC[,ii]=SIGNE_maha0(sccalC[,1:ii], classcalCT, scvalC[,1:ii])$class
+    print("Pass6")
     predmG[,ii]=SIGNE_maha0(sccalG[,1:ii], classcalG, scvalG[,1:ii])$class
     predmS[,ii]=SIGNE_maha0(sccalS[,1:ii], classcalS, scvalS[,1:ii])$class
     }
-
+  print("Pass7")
   tsmC=lapply(as.list(predmC), classvalC, FUN = table)
   diagsmC=lapply(tsmC, FUN = diag)
   perokmC =100*unlist(lapply(diagsmC, FUN = sum))/length(idvalC)
   perok_finalmC[j,]=perokmC
-
   tsmG=lapply(as.list(predmG), classvalG, FUN = table)
   diagsmG=lapply(tsmG, FUN = diag)
   perokmG =100*unlist(lapply(diagsmG, FUN = sum))/length(idvalG)
@@ -350,7 +373,7 @@ for(j in 1:repet) {
 }
 
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+cplot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 plot(colMeans(perok_finalm0clo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmclo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
