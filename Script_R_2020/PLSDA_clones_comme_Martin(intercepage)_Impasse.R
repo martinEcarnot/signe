@@ -1,7 +1,3 @@
-library(devtools)
-install_github("mlesnoff/rnirs", dependencies = TRUE)
-
-
 library(MASS)
 # library(mixOmics)
 library(FactoMineR)
@@ -12,6 +8,7 @@ library(dplyr)
 library(prospectr)
 library(sampling)
 library(rnirs)
+library(e1071)
 
 rm(list = ls())
 
@@ -96,7 +93,6 @@ sp_pre=t(scale(t(sp_pre)))
 
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
-
 
 
 
@@ -306,14 +302,45 @@ for(j in 1:repet) {
   perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
   perok_finalm[j,]=perokm
 
+#  idvalC1T=which(rownames(sp)  %in%  rownames(scval))
+  idvalCT=which(predm[,25]=="C")
+  idcalCT=which(predm[,25]=="G" | predm[,25]=="S")
 
-  rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
+  spvalCT=spval[idvalCT,]
+  spcalCT=spcal[idcalCT,] #PB.
+
+  classvalCT=classvalclo[idvalCT]
+  classcalCT=classcalclo[idcalCT]
+
+  print("o")
+  idvalGT=which(predm[,25]=="G")
+  idcalGT=which(predm[,25]=="C" | predm[,25]=="S")
+
+  spvalGT=spval[idvalGT,]
+  spcalGT=spcal[idcalGT,]
+
+  classvalGT=classvalclo[idvalGT]
+  classcalGT=classcalclo[idcalGT]
+
+
+  idvalST=which(predm[,25]=="S")
+  idcalST=which(predm[,25]=="G" | predm[,25]=="C")
+
+  spvalST=spval[idvalST,]
+  spcalST=spval[idcalST,]
+
+  classvalST=classclo[idvalST]
+  classcalST=classclo[idcalST]
+
+  print("o")
+
+  rplsdaC=caret::plsda(spcalCT$x, classcalCT, ncomp=ncmax)
   sccalC=rplsdaC$scores
   spvalC_c=scale(spvalC$x,center=rplsdaC$Xmeans,scale = F)
   scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
 
-  rplsdaG=caret::plsda(spcalG$x, classcalG,ncomp=ncmax)
+  rplsdaG=caret::plsda(spcalGT$x, classcalGT,ncomp=ncmax)
   sccalG=rplsdaG$scores
   spvalG_c=scale(spvalG$x,center=rplsdaG$Xmeans,scale = F)
   scvalG=spvalG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
@@ -323,27 +350,33 @@ for(j in 1:repet) {
   sccalS=rplsdaS$scores
   spvalS_c=scale(spvalS$x,center=rplsdaS$Xmeans,scale = F)
   scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-
+  print("o")
   for (ii in 2:ncmax) {
-    predmC[,ii]=SIGNE_maha0(sccalC[,1:ii], classcalC, scvalC[,1:ii])$class
-    predmG[,ii]=SIGNE_maha0(sccalG[,1:ii], classcalG, scvalG[,1:ii])$class
-    predmS[,ii]=SIGNE_maha0(sccalS[,1:ii], classcalS, scvalS[,1:ii])$class
-    }
+    predmC[,ii]=SIGNE_maha0(sccalC[,1:ii], classcalCT, scvalC[,1:ii])$class
+    predmC[,ii]=relevel(predmC[,ii], "C 685")
+    predmC[,ii]=relevel(predmC[,ii], "C 169")
+    predmC[,ii]=relevel(predmC[,ii], "C 015")
+    # print("oh")
+    # predmG[,ii]=SIGNE_maha0(sccalG[,1:ii], classcalGT, scvalG[,1:ii])$class
+    # print("ah")
+    # predmS[,ii]=SIGNE_maha0(sccalS[,1:ii], classcalST, scvalS[,1:ii])$class
+    # print("ouh")
+  }
 
   tsmC=lapply(as.list(predmC), classvalC, FUN = table)
   diagsmC=lapply(tsmC, FUN = diag)
-  perokmC =100*unlist(lapply(diagsmC, FUN = sum))/length(idvalC)
+  perokmC =100*unlist(lapply(diagsmC, FUN = sum))/length(idvalCT)
   perok_finalmC[j,]=perokmC
-
-  tsmG=lapply(as.list(predmG), classvalG, FUN = table)
-  diagsmG=lapply(tsmG, FUN = diag)
-  perokmG =100*unlist(lapply(diagsmG, FUN = sum))/length(idvalG)
-  perok_finalmG[j,]=perokmG
-
-  tsmS=lapply(as.list(predmS), classvalS, FUN = table)
-  diagsmS=lapply(tsmS, FUN = diag)
-  perokmS =100*unlist(lapply(diagsmS, FUN = sum))/length(idvalS)
-  perok_finalmS[j,]=perokmS
+#
+#   tsmG=lapply(as.list(predmG), classvalG, FUN = table)
+#   diagsmG=lapply(tsmG, FUN = diag)
+#   perokmG =100*unlist(lapply(diagsmG, FUN = sum))/length(idvalG)
+#   perok_finalmG[j,]=perokmG
+#
+#   tsmS=lapply(as.list(predmS), classvalS, FUN = table)
+#   diagsmS=lapply(tsmS, FUN = diag)
+#   perokmS =100*unlist(lapply(diagsmS, FUN = sum))/length(idvalS)
+#   perok_finalmS[j,]=perokmS
 
 
   # tsmclo=lapply(as.list(predmclo), classvalclo, FUN = table)
@@ -354,10 +387,10 @@ for(j in 1:repet) {
 }
 
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+cplot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 plot(colMeans(perok_finalm0clo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-#plot(colMeans(perok_finalmclo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+plot(colMeans(perok_finalmclo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 plot(colMeans(perok_finalmC), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmG), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
@@ -365,197 +398,6 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 
 #stop()
-
-
-
-rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
-sccal=rplsda$scores
-spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
-scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmF=SIGNE_maha0(sccal[,1:25], classcal, scval[,1:25])$class
-tsm=table(predmF, classval)
-diagsm=diag(tsm)
-perokm=100*sum(diagsm)/length(idval)
-perokm
-
-
-idvalCT=which(predmF=="C")
-spvalCT=spval[idvalCT,]
-classvalCT=classvalclo[idvalCT]
-rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
-sccalC=rplsdaC$scores
-spvalC_c=scale(spvalCT$x,center=rplsdaC$Xmeans,scale = F)
-scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmC=SIGNE_maha0(sccalC[,1:25], classcalC, scvalC[,1:25])$class
-tsmC=table(predmC, classvalCT)
-diagsmC=diag(tsmC)
-perokmC =100*sum(diagsmC)/length(idvalCT)
-perokmC
-
-
-idvalGT=which(predmF=="G")
-spvalGT=spval[idvalGT,]
-classvalGT=classvalclo[idvalGT]
-rplsdaG=caret::plsda(spcalG$x, classcalG,ncomp=ncmax)
-sccalG=rplsdaG$scores
-spvalG_c=scale(spvalGT$x,center=rplsdaG$Xmeans,scale = F)
-scvalG=spvalG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmG=SIGNE_maha0(sccalG[,1:25], classcalG, scvalG[,1:25])$class
-classvalGT=relevel(classvalGT, "G 787")
-classvalGT=relevel(classvalGT, "G 509")
-classvalGT=relevel(classvalGT, "G 222")
-tsmG=table(predmG, classvalGT)
-diagsmG=diag(tsmG)
-perokmG =100*sum(diagsmG)/length(idvalGT)
-perokmG
-
-
-idvalST=which(predmF=="S")
-spvalST=spval[idvalST,]
-classvalST=classvalclo[idvalST]
-rplsdaS=caret::plsda(spcalS$x, classcalS,ncomp=ncmax)
-sccalS=rplsdaS$scores
-spvalS_c=scale(spvalST$x,center=rplsdaS$Xmeans,scale = F)
-scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmS=SIGNE_maha0(sccalS[,1:25], classcalS, scvalS[,1:25])$class
-classvalST=relevel(classvalST, "S 877")
-classvalST=relevel(classvalST, "S 747")
-classvalST=relevel(classvalST, "S 525")
-classvalST=relevel(classvalST, "S 471")
-tsmS=table(predmS, classvalST)
-diagsmS=diag(tsmS)
-perokmS =100*sum(diagsmS)/length(idvalST)
-perokmS
-
-
-
-idvalcloT=predmF
-predmclo=c(as.character(predmC),as.character(predmG),as.character(predmS))
-classvalcloT=c(as.character(classvalCT),as.character(classvalGT),as.character(classvalST))
-tsmclo=table(predmclo, classvalcloT)
-diagsmclo=diag(tsmclo)
-perokmclo =100*sum(diagsmclo)/length(idvalcloT)
-perokmclo
-
-
-###### Knn
-
-# knnplsda lwplsda
-rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, h=1.1, k=400, print=F)
-predmFK= rplsdaK$fit$y1
-tsmK=table(predmFK, classval)
-diagsmK=diag(tsmK)
-perokmK=100*sum(diagsmK)/length(idval)
-perokmK
-
-
-idvalCTK=which(predmFK=="C")
-spvalCTK=spval[idvalCTK,]
-classvalCTK=classvalclo[idvalCTK]
-rplsdaCK=knnwda(Xr=spcalC$x, Yr=as.character(classcalC), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="mahalanobis", ncompdis=25, h=1.1, k=400, print=F)
-predmCK= rplsdaCK$fit$y1
-tsmCK=table(predmCK, classvalCTK)
-diagsmCK=diag(tsmCK)
-perokmCK=100*sum(diagsmCK)/length(idvalCTK)
-perokmCK
-
-
-idvalGTK=which(predmFK=="G")
-spvalGTK=spval[idvalGTK,]
-classvalGTK=classvalclo[idvalGTK]
-classvalGTK=relevel(classvalGTK, "G 787")
-classvalGTK=relevel(classvalGTK, "G 509")
-classvalGTK=relevel(classvalGTK, "G 222")
-rplsdaGK=knnwda(Xr=spcalG$x, Yr=as.character(classcalG), Xu=spvalGTK$x, Yu=as.character(classvalGTK), diss="mahalanobis", ncompdis=25, h=1.1, k=400, print=F)
-predmGK= rplsdaGK$fit$y1
-tsmGK=table(predmGK, classvalGTK)
-diagsmGK=diag(tsmGK)
-perokmGK=100*sum(diagsmGK)/length(idvalGTK)
-perokmGK
-
-
-idvalSTK=which(predmFK=="S")
-spvalSTK=spval[idvalSTK,]
-classvalSTK=classvalclo[idvalSTK]
-classvalSTK=relevel(classvalSTK, "S 877")
-classvalSTK=relevel(classvalSTK, "S 747")
-classvalSTK=relevel(classvalSTK, "S 525")
-classvalSTK=relevel(classvalSTK, "S 471")
-rplsdaSK=knnwda(Xr=spcalS$x, Yr=as.character(classcalS), Xu=spvalSTK$x, Yu=as.character(classvalSTK), diss="mahalanobis", ncompdis=25, h=1.1, k=400, print=F)
-predmSK= rplsdaSK$fit$y1
-tsmSK=table(predmSK, classvalSTK)
-diagsmSK=diag(tsmSK)
-perokmSK=100*sum(diagsmSK)/length(idvalSTK)
-perokmSK
-
-
-idvalcloTK=predmFK
-predmcloK=c(as.character(predmCK),as.character(predmGK),as.character(predmSK))
-classvalcloTK=c(as.character(classvalCTK),as.character(classvalGTK),as.character(classvalSTK))
-tsmcloK=table(predmcloK, classvalcloTK)
-diagsmcloK=diag(tsmcloK)
-perokmcloK =100*sum(diagsmcloK)/length(idvalcloTK)
-perokmcloK
-
-##### Lw
-#lwplsdalm
-#rplsdaL=lwplsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, ncomp=25, h=1.1, k=1000, print=F)
-predmFL= rplsdaL$fit$y1[(1+(24*length(classval))):(25*length(classval))]
-tsmL=table(predmFL, classval)
-diagsmL=diag(tsmL)
-perokmL=100*sum(diagsmL)/length(idval)
-perokmL
-
-knnwda(
-  stor = TRUE,
-  print = TRUE
-)
-
-lwplsda(
-  ncomp,
-  stor = TRUE,
-  print = TRUE,
-  ...
-)
-
-lwplsdalm(
-  ncomp,
-  stor = TRUE,
-  print = TRUE
-)
-
-
-
-print(paste0("Precision discrimination cépages : " , perokm))
-print(paste0("Precision discrimination clones Cabernet-Sauvignon : " , perokmC))
-print(paste0("Precision discrimination clones Gamay : " , perokmG))
-print(paste0("Precision discrimination clones Syrah : " , perokmS))
-print(paste0("Precision discrimination clones globale : " , perokmclo))
-
-print(paste0("kkn : Precision discrimination cépages : " , perokmK))
-print(paste0("kkn : Precision discrimination clones Cabernet-Sauvignon : " , perokmCK))
-print(paste0("kkn : Precision discrimination clones Gamay : " , perokmGK))
-print(paste0("kkn : Precision discrimination clones Syrah : " , perokmSK))
-print(paste0("kkn : Precision discrimination clones globale : " , perokmcloK))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
