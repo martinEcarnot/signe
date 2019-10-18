@@ -16,7 +16,7 @@ library(rnirs)
 rm(list = ls())
 
 source('Script_R_2020/adj_asd.R')
-source('Script_R_2020/SIGNE_load.R')
+# source('Script_R_2020/SIGNE_load.R')
 # source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_maha.R')
 source('Script_R_2020/SIGNE_maha0.R')
 source("Script_R_2020/sp2dfclo.R")
@@ -24,7 +24,7 @@ source("Script_R_2020/sp2dfclo.R")
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 #set.seed(1)
 
-# brb3="~/Documents/NICOLAS/Stage de fin annee au Grau du roi/globalmatrixN1"
+# brb3="~/Documents/INRA/Projets/SIGNE/2019/globalmatrix"
 brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb3)
 globalmatrixN1=globalmatrix
@@ -365,7 +365,6 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 
 #stop()
-
 
 
 rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
