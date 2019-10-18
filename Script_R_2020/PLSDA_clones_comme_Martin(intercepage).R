@@ -498,30 +498,12 @@ perokmcloK
 
 ##### Lw
 #lwplsdalm
-#rplsdaL=lwplsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, ncomp=25, h=1.1, k=1000, print=F)
+rplsdaL=lwplsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, ncomp=1, h=1.1, k=1000, print=F)
 predmFL= rplsdaL$fit$y1[(1+(24*length(classval))):(25*length(classval))]
 tsmL=table(predmFL, classval)
 diagsmL=diag(tsmL)
 perokmL=100*sum(diagsmL)/length(idval)
 perokmL
-
-knnwda(
-  stor = TRUE,
-  print = TRUE
-)
-
-lwplsda(
-  ncomp,
-  stor = TRUE,
-  print = TRUE,
-  ...
-)
-
-lwplsdalm(
-  ncomp,
-  stor = TRUE,
-  print = TRUE
-)
 
 
 
