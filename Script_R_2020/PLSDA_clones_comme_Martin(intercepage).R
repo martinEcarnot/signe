@@ -103,14 +103,17 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
 perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
-perok_final=matrix(nrow = repet, ncol = ncmax)
+#perok_final=matrix(nrow = repet, ncol = ncmax)
 
-perok_finalm0clo=matrix(nrow = repet, ncol = ncmax)
-perok_finalmclo=matrix(nrow = repet, ncol = ncmax)
+#perok_finalm0clo=matrix(nrow = repet, ncol = ncmax)
+#perok_finalmclo=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0C=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0G=matrix(nrow = repet, ncol = ncmax)
+perok_finalm0S=matrix(nrow = repet, ncol = ncmax)
 perok_finalmC=matrix(nrow = repet, ncol = ncmax)
 perok_finalmG=matrix(nrow = repet, ncol = ncmax)
 perok_finalmS=matrix(nrow = repet, ncol = ncmax)
-perok_finalclo=matrix(nrow = repet, ncol = ncmax)
+#perok_finalclo=matrix(nrow = repet, ncol = ncmax)
 
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
@@ -192,8 +195,7 @@ for(j in 1:repet) {
   predm0S=as.data.frame(matrix(nrow = length(classcalS), ncol = ncmax))
   spcaldefS=spcalS # spcal deflaté du(des) groupe(s) de CV déjà validés
 
-  predmclo=as.data.frame(matrix(nrow = length(classvalclo), ncol = ncmax))
-  predm0clo=as.data.frame(matrix(nrow = length(classcalclo), ncol = ncmax))
+
   # spcal=sp
   # spcaldef=spcal
 ## Boucle CV
@@ -203,11 +205,14 @@ for(j in 1:repet) {
     spvalCV=getdata(spcaldef,m)[[2]]
 
     idvalCV =which(rownames(spcal)  %in%  rownames(spvalCV))
-    idvalCVC =which(rownames(spcal)  %in%  rownames(spvalCV) & spcal$y1=="C")
-    idvalCVG =which(rownames(spcal)  %in%  rownames(spvalCV) & spcal$y1=="G")
-    idvalCVS =which(rownames(spcal)  %in%  rownames(spvalCV) & spcal$y1=="S")
+    idvalCVC =which(rownames(spcalC)  %in%  rownames(spvalCV))
+    idvalCVG =which(rownames(spcalG)  %in%  rownames(spvalCV))
+    idvalCVS =which(rownames(spcalS)  %in%  rownames(spvalCV))
 
     spcaldef=spcaldef[-(which(rownames(spcaldef)  %in%  rownames(spvalCV))),]
+    spcaldefC=spcaldefC[-(which(rownames(spcaldefC)  %in%  rownames(spvalCV))),]
+    spcaldefG=spcaldefG[-(which(rownames(spcaldefG)  %in%  rownames(spvalCV))),]
+    spcaldefS=spcaldefS[-(which(rownames(spcaldefS)  %in%  rownames(spvalCV))),]
 
     # # En mettant une autre année en validation
     # idvalCV =which(substr(rownames(spcal),1,4)  %in%  '2018')
@@ -217,34 +222,25 @@ for(j in 1:repet) {
     classcalCV=classcal[-idvalCV] #identifiants des classes du jeu de calibration
 
 
-    spvalCVC=spcal[idvalCVC,]
-    classvalCVC=classcalclo[idvalCVC]  #identifiants des classes du jeu de validation
-
-    spcalCVC1=spcal[-idvalCVC,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    spcalCVC=spcalCVC1[which(spcalCVC1$y1=="C"),]
-    classcalCVC1=classcalclo[-idvalCVC] #identifiants des classes du jeu de calibration
-    classcalCVC=classcalCVC1[which(classcalCVC1=="C 015" | classcalCVC1=="C 169" | classcalCVC1=="C 685")]
-    classcalCVC=droplevels(classcalCVC)
+    spvalCVC=spcalC[idvalCVC,]
+    classvalCVC=classcalC[idvalCVC]  #identifiants des classes du jeu de validation
+    spcalCVC=spcalC[-idvalCVC,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
+    classcalCVC=classcalC[-idvalCVC] #identifiants des classes du jeu de calibration
+#    classcalCVC=droplevels(classcalCVC)
 
 
-    spvalCVG=spcal[idvalCVG,]
-    classvalCVG=classcalclo[idvalCVG]  #identifiants des classes du jeu de validation
-
-    spcalCVG1=spcal[-idvalCVG,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    spcalCVG=spcalCVG1[which(spcalCVG1$y1=="G"),]
-    classcalCVG1=classcalclo[-idvalCVG] #identifiants des classes du jeu de calibration
-    classcalCVG=classcalCVG1[which(classcalCVG1=="G 222" | classcalCVG1=="G 509" | classcalCVG1=="G 787")]
-    classcalCVG=droplevels(classcalCVG)
+    spvalCVG=spcalG[idvalCVG,]
+    classvalCVG=classcalG[idvalCVG]  #identifiants des classes du jeu de validation
+    spcalCVG=spcalG[-idvalCVG,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
+    classcalCVG=classcalG[-idvalCVG] #identifiants des classes du jeu de calibration
+#    classcalCVG=droplevels(classcalCVG)
 
 
-    spvalCVS=spcal[idvalCVS,]
-    classvalCVS=classcalclo[idvalCVS]  #identifiants des classes du jeu de validation
-
-    spcalCVS1=spcal[-idvalCVS,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    spcalCVS=spcalCVS1[which(spcalCVS1$y1=="S"),]
-    classcalCVS1=classcalclo[-idvalCVS] #identifiants des classes du jeu de calibration
-    classcalCVS=classcalCVS1[which(classcalCVS1=="S 471" | classcalCVS1=="S 525" | classcalCVS1=="S 747" | classcalCVS1=="S 877")]
-    classcalCVS=droplevels(classcalCVS)
+    spvalCVS=spcalS[idvalCVS,]
+    classvalCVS=classcalS[idvalCVS]  #identifiants des classes du jeu de validation
+    spcalCVS=spcalS[-idvalCVS,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
+    classcalCVS=classcalS[-idvalCVS] #identifiants des classes du jeu de calibration
+#    classcalCVS=droplevels(classcalCVS)
 
 
     # ## PLSDA and application to have loadings and scores
@@ -268,32 +264,46 @@ for(j in 1:repet) {
     spvalCVS_c=scale(spvalCVS$x,center=rplsdaS$Xmeans,scale = F)
     scvalCVS=spvalCVS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
+
+
     for (ii in 2:ncmax) {
       ## Validation
+      print("P1")
       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
-      predm0clo[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], classcalCVC, scvalCVC[,1:ii])$class
-      predm0clo[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
-      predm0clo[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], classcalCVS, scvalCVS[,1:ii])$class
-      #Ca le rempli (Peut-être même pas, en fait), mais pas complètement. Est-ce normal ? Embêtant ? P-ê predm0G est mal fait
+      print("P2")
+      predm0C[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], classcalCVC, scvalCVC[,1:ii])$class
+      print("P3")
+      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
+      predm0S[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], classcalCVS, scvalCVS[,1:ii])$class
 #      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$classclo
       # M1= matrix(nrow= nrow(scvalCV[,1:ii]), ncol= nlevels(classcalCV))
       # M2= matrix(nrow= nrow(scvalCVG[,1:ii]), ncol= nlevels(classcalCVG))
     }
   }
+
+  print("P4")
   ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
-  tsm0clo=lapply(as.list(predm0clo), classcalclo, FUN = table)
+  tsm0C=lapply(as.list(predm0C), classcalC, FUN = table)
+  tsm0G=lapply(as.list(predm0G), classcalG, FUN = table)
+  tsm0S=lapply(as.list(predm0S), classcalS, FUN = table)
   ## Matrice mauvais classements par clone CV
   diagsm0=lapply(tsm0, FUN = diag)
-  diagsm0clo=lapply(tsm0clo, FUN = diag)
+  diagsm0C=lapply(tsm0C, FUN = diag)
+  diagsm0G=lapply(tsm0G, FUN = diag)
+  diagsm0S=lapply(tsm0S, FUN = diag)
   ## Pourcentage de bien classes CV
   perokm0 =100*unlist(lapply(diagsm0, FUN = sum))/length(classcal)
-  perokm0clo =100*unlist(lapply(diagsm0clo, FUN = sum))/length(classcalclo)
+  perokm0C =100*unlist(lapply(diagsm0C, FUN = sum))/length(classcalC)
+  perokm0G =100*unlist(lapply(diagsm0G, FUN = sum))/length(classcalG)
+  perokm0S =100*unlist(lapply(diagsm0S, FUN = sum))/length(classcalS)
   # perokm0 =100*unlist(lapply(diagsm0, FUN = sum))/length(idvalCV)
   ### Enregistrement des matrices de resultat final CV
   ##Remplissage de la matrice des perok finale
   perok_finalm0[j,]=perokm0
-  perok_finalm0clo[j,]=perokm0clo
+  perok_finalm0C[j,]=perokm0C
+  perok_finalm0G[j,]=perokm0G
+  perok_finalm0S[j,]=perokm0S
 
   # ## PLSDA sur le jeu de validation
   rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
@@ -356,11 +366,14 @@ for(j in 1:repet) {
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
-plot(colMeans(perok_finalm0clo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-#plot(colMeans(perok_finalmclo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-
+plot(colMeans(perok_finalm0C), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmC), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
+plot(colMeans(perok_finalm0G), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmG), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
+
+plot(colMeans(perok_finalm0S), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 
@@ -499,7 +512,7 @@ perokmcloK
 
 ##### Lw
 #lwplsdalm
-rplsdaL=lwplsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, ncomp=1, h=1.1, k=1000, print=F)
+rplsdaL=lwplsda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="euclidian", ncompdis=25, ncomp=1, h=1.1, k=1000, print=F)
 predmFL= rplsdaL$fit$y1[(1+(24*length(classval))):(25*length(classval))]
 tsmL=table(predmFL, classval)
 diagsmL=diag(tsmL)
