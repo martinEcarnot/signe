@@ -115,21 +115,26 @@ perok_finalmG=matrix(nrow = repet, ncol = ncmax)
 perok_finalmS=matrix(nrow = repet, ncol = ncmax)
 #perok_finalclo=matrix(nrow = repet, ncol = ncmax)
 
+idval=which(substr(rownames(sp),1,4)=="2019")
+spval=sp[idval,]
+spA=sp
+#sp=sp[-idval,]
+
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
-
   # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
   m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
   spval=getdata(sp,m)[[2]]
   #
+
   idval=which(rownames(sp)  %in%  rownames(spval))
   idvalC=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="C")
   idvalG=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="G")
   idvalS=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="S")
   #
   # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
-  spval=sp[idval,]
+
   spcal=sp[-idval,]
 
   classval=class[idval]
@@ -201,18 +206,24 @@ for(j in 1:repet) {
 ## Boucle CV
   for (i in 1:k) {
     print(i)
+    print('p1')
     m=mstage(spcaldef,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+    print('p2')
     spvalCV=getdata(spcaldef,m)[[2]]
+    print('p')
 
     idvalCV =which(rownames(spcal)  %in%  rownames(spvalCV))
+    print('p')
     idvalCVC =which(rownames(spcalC)  %in%  rownames(spvalCV))
     idvalCVG =which(rownames(spcalG)  %in%  rownames(spvalCV))
     idvalCVS =which(rownames(spcalS)  %in%  rownames(spvalCV))
+    print('p')
 
     spcaldef=spcaldef[-(which(rownames(spcaldef)  %in%  rownames(spvalCV))),]
     spcaldefC=spcaldefC[-(which(rownames(spcaldefC)  %in%  rownames(spvalCV))),]
     spcaldefG=spcaldefG[-(which(rownames(spcaldefG)  %in%  rownames(spvalCV))),]
     spcaldefS=spcaldefS[-(which(rownames(spcaldefS)  %in%  rownames(spvalCV))),]
+    print('p')
 
     # # En mettant une autre année en validation
     # idvalCV =which(substr(rownames(spcal),1,4)  %in%  '2018')
@@ -268,11 +279,8 @@ for(j in 1:repet) {
 
     for (ii in 2:ncmax) {
       ## Validation
-      print("P1")
       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
-      print("P2")
       predm0C[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], classcalCVC, scvalCVC[,1:ii])$class
-      print("P3")
       predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
       predm0S[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], classcalCVS, scvalCVS[,1:ii])$class
 #      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$classclo
@@ -281,7 +289,6 @@ for(j in 1:repet) {
     }
   }
 
-  print("P4")
   ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
   tsm0C=lapply(as.list(predm0C), classcalC, FUN = table)
@@ -379,17 +386,30 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 #stop()
 
+idval=which(substr(rownames(sp),1,4)=="2019")
+spval=sp[idval,]
 
+spcal=sp[-idval,]
+classval=class[idval]
+classcal=class[-idval]
+
+
+predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
 rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
 sccal=rplsda$scores
 spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
 scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmF=SIGNE_maha0(sccal[,1:25], classcal, scval[,1:25])$class
-tsm=table(predmF, classval)
-diagsm=diag(tsm)
-perokm=100*sum(diagsm)/length(idval)
-perokm
+
+for (ii in 2:ncmax) {predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
+tsm=lapply(as.list(predmF), classval, FUN = table)
+diagsm=lapply(tsm, FUN = diag)
+perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
+
+plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
+
+
 
 
 idvalCT=which(predmF=="C")
@@ -453,13 +473,37 @@ perokmclo
 
 ###### Knn
 
+idval=which(substr(rownames(sp),1,4)=="2019")
+spval=sp[idval,]
+
+spcal=sp[-idval,]
+classval=class[idval]
+classcal=class[-idval]
+
+predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+
+
+
 # knnplsda lwplsda
-rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, h=1.1, k=400, print=F)
-predmFK= rplsdaK$fit$y1
-tsmK=table(predmFK, classval)
-diagsmK=diag(tsmK)
-perokmK=100*sum(diagsmK)/length(idval)
-perokmK
+#rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=25, h=1.1, k=400, print=F)
+# predmFK= rplsdaK$fit$y1
+# tsmK=table(predmFK, classval)
+# diagsmK=diag(tsmK)
+# perokmK=100*sum(diagsmK)/length(idval)
+# perokmK
+
+predmFK=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+
+for (ii in 2:ncmax) {
+  rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=ii, h=1.1, k=400, print=F)
+  predmFK[,ii]= rplsdaK$fit$y1
+}
+tsmK=lapply(as.list(predmFK), classval, FUN = table)
+diagsmK=lapply(tsmK, FUN = diag)
+perokmK =100*unlist(lapply(diagsmK, FUN = sum))/length(idval)
+#VL entre 11 et 16. Ici 12.
+plot(perokmK, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
 
 
 idvalCTK=which(predmFK=="C")
