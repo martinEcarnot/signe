@@ -80,7 +80,19 @@ tri=as.factor(substr(rownames(sp4),9,9))
 levels(tri)
 c=which(tri=="S")
 sp5=sp4[c,]
-sp5=sp4
+sp6=sp4
+
+## FILTRE
+date=as.factor(substr(rownames(sp6),5,8))
+parc=as.factor(substr(rownames(sp6),18,18))
+DATE=c("0703","0704","0710","0709","0702")
+#DATE="0702"
+sp3=sp6[which(date  %in%  DATE),]
+parc=as.factor(substr(rownames(sp3),18,18))
+PARC="G"
+sp5=sp3[which(parc %in% PARC),]
+
+
 length(sp5[,1])
 # sp5=sp4
 #iout=sample(5210,4000)
@@ -104,27 +116,35 @@ axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scor
 #Tracer le graphique
 
 colo=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),9,9)))) #cépages
-colo=as.factor(substr(rownames(sp5),9,13))
+colo=as.factor(substr(rownames(sp5),9,9))
+annee=as.factor(substr(rownames(sp5),4,4))
 #forme=as.factor(substr(rownames(sp5),18,18))
 texte=as.factor(substr(rownames(sp5),9,9))
 
 #2D
 
- plot(axeX,axeY,pch=16, col=coloclone[colo], #type="n",
+ plot(axeX,axeY,pch=16, col=coloclone[colo], type="n",
       main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
-#text(axeX,axeY,texte, col=as.numeric(colo))
+text(axeX,axeY,annee, col=coloclone[colo])
 
-legend(x="right", legend=unique(colo), col=unique(coloclone), pch=15, bg="white")
-#legend(x="left", legend=unique(forme), col=1, pch=unique(as.numeric(forme)), bg="white")
+text(axeX,axeY,levels(colo), col=as.numeric(annee))
 
-###Comment sait-on que la légende correspond ? Réponse : on sait pas. Hihi.
-for (i in levels(colo)) {
-  x_ell <- axeX[colo==i] ; y_ell <- axeY[colo==i] ; xy_ell <- data.frame(x_ell,y_ell)
-  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=coloclone[which(levels(colo)==i)])
+#legend(x="right", legend=unique(colo), col=unique(coloclone), pch=15, bg="white")
+
+ #legend(x="left", legend=unique(forme), col=1, pch=unique(as.numeric(forme)), bg="white")
+
+
+# for (i in levels(colo)) {
+#   x_ell <- axeX[colo==i] ; y_ell <- axeY[colo==i] ; xy_ell <- data.frame(x_ell,y_ell)
+#   lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=coloclone[which(levels(colo)==i)])
+# }
+
+for (i in levels(annee)) {
+  x_ell <- axeX[annee==i] ; y_ell <- axeY[annee==i] ; xy_ell <- data.frame(x_ell,y_ell)
+  lines(ellipse(cov(xy_ell),centre=colMeans(xy_ell),level=0.95),type="l", lty=1, col=which(levels(annee)==i))
 }
-
-
+legend(x="right", legend=unique(annee), col=c(1,2,3), pch=15, bg="white")
 
 ###3D
 
@@ -157,12 +177,13 @@ for (i in levels(colo)) {
 
 
 sp6=data.frame(sp=sp5,axeX=rplsda$scores[,axe1],axeY=rplsda$scores[,axe2],jour=substr(rownames(sp5),4,8),annee=substr(rownames(sp5),1,4),cepage=substr(rownames(sp5),9,9),clone=substr(rownames(sp5),9,13),parcelle=substr(rownames(sp5),18,18))
-
+ANNEE="2018"
+sp7=sp6[which(sp6$annee  %in%  ANNEE),]
 # Nuage de points avec estimation de la densité 2d
-sp <- ggplot(sp6, aes(x=axeX, y=axeY,colour=clone)) +
-  geom_point(size=0.5, alpha=1) +
-  scale_color_manual(values = coloclone) +
-  geom_density_2d(data = sp6, size=0.3, bins=3)
+sp <- ggplot(sp7, aes(x=axeX, y=axeY,colour=clone)) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = coloclone) #+
+#  geom_density_2d(data = sp6, size=0.3, bins=3)
 ggplotly(sp)
 
 
