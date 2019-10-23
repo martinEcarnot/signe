@@ -110,19 +110,28 @@ perok_finalclo=matrix(nrow = repet, ncol = ncmax)
 
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
-for(j in 1:repet) {
 
+
+
+
+
+
+
+
+
+for(j in 1:repet) {
   # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
   m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
   spval=getdata(sp,m)[[2]]
   #
+
   idval=which(rownames(sp)  %in%  rownames(spval))
   idvalC=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="C")
   idvalG=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="G")
   idvalS=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="S")
   #
   # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
-  spval=sp[idval,]
+  spval=sp[idval,] #demander à Martin pourquoi.
   spcal=sp[-idval,]
 
   classval=class[idval]
@@ -312,7 +321,7 @@ for(j in 1:repet) {
   classvalCT=classvalclo[idvalCT]
   classcalCT=classcalclo[idcalCT]
 
-  print("o")
+
   idvalGT=which(predm[,25]=="G")
   idcalGT=which(predm[,25]=="C" | predm[,25]=="S")
 
@@ -332,7 +341,7 @@ for(j in 1:repet) {
   classvalST=classclo[idvalST]
   classcalST=classclo[idcalST]
 
-  print("o")
+
 
   rplsdaC=caret::plsda(spcalCT$x, classcalCT, ncomp=ncmax)
   sccalC=rplsdaC$scores
@@ -350,7 +359,7 @@ for(j in 1:repet) {
   sccalS=rplsdaS$scores
   spvalS_c=scale(spvalS$x,center=rplsdaS$Xmeans,scale = F)
   scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-  print("o")
+
   for (ii in 2:ncmax) {
     predmC[,ii]=SIGNE_maha0(sccalC[,1:ii], classcalCT, scvalC[,1:ii])$class
     predmC[,ii]=relevel(predmC[,ii], "C 685")
@@ -387,7 +396,7 @@ for(j in 1:repet) {
 }
 
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-cplot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 plot(colMeans(perok_finalm0clo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmclo), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
