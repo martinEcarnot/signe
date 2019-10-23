@@ -140,7 +140,6 @@ perok_finalmS=matrix(nrow = repet, ncol = ncmax)
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
-
   # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
   m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
   spval=getdata(sp,m)[[2]]
@@ -291,11 +290,8 @@ for(j in 1:repet) {
 
     for (ii in 2:ncmax) {
       ## Validation
-      print("P1")
       predm0[idvalCV,ii]=SIGNE_maha0(sccalCV[,1:ii], classcalCV, scvalCV[,1:ii])$class
-      print("P2")
       predm0C[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], classcalCVC, scvalCVC[,1:ii])$class
-      print("P3")
       predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
       predm0S[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], classcalCVS, scvalCVS[,1:ii])$class
 #      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$classclo
@@ -304,7 +300,7 @@ for(j in 1:repet) {
     }
   }
 
-  print("P4")
+
   ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
   tsm0C=lapply(as.list(predm0C), classcalC, FUN = table)
