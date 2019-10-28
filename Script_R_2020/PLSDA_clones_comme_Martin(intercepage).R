@@ -1,6 +1,4 @@
-# library(devtools)
-# install_github("mlesnoff/rnirs", dependencies = TRUE)
-# install.packages("digest")
+# Fonction ls.str()
 
 
 library(MASS)
@@ -36,16 +34,21 @@ globalmatrixN1=globalmatrix
 
 
 # iok=substr(rownames(globalmatrixN1),1,9) %in% dates
-sp2=globalmatrixN1 #[iok,]
+sp=globalmatrixN1 #[iok,]
+
+
 date=as.factor(substr(rownames(sp2),5,8))
-parc=as.factor(substr(rownames(sp2),18,18))
 DATE=c("0703","0704","0710","0709","0702")
 #DATE="0702"
 sp3=sp2[which(date  %in%  DATE),]
+
 parc=as.factor(substr(rownames(sp3),18,18))
 PARC="G"
-
 sp=sp3[which(parc %in% PARC),]
+
+annee=as.factor(substr(rownames(sp4),1,4))
+ANNEE=c("2017","2018")
+sp=sp4[which(annee  %in%  ANNEE),]
 
 # annee=as.factor(substr(rownames(sp4),1,4))
 # ANNEE="2019"
@@ -269,7 +272,7 @@ for(j in 1:repet) {
     rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
     sccalCV=rplsda$scores
     spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
-    scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    scvalCV=spvalCV_c%*%rplsda$projection    #score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
     rplsdaC=caret::plsda(spcalCVC$x, classcalCVC, ncomp=ncmax)
     sccalCVC=rplsdaC$scores
@@ -398,13 +401,14 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 #stop()
 
 idval=which(substr(rownames(sp),1,4)=="2019")
+which(sp$y1[idval]=="C")
+idval=idval[-c(1,96,466,467,542,1022,1023,1098,1668)]
 spval=sp[idval,]
 
 
-
-# m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
-# spval=getdata(sp,m)[[2]]
-# idval=which(rownames(sp)  %in%  rownames(spval))
+m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+spval=getdata(sp,m)[[2]]
+idval=which(rownames(sp)  %in%  rownames(spval))
 
 
 
@@ -430,6 +434,45 @@ perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
+
+
+
+spval2=sp[idval2,]
+spcal2=sp[-idval2,]
+classval2=class[idval2]
+classcal2=class[-idval2]
+classvalclo2=classclo[idval2]
+classcalclo2=classclo[-idval2]
+
+
+predmF2=as.data.frame(matrix(nrow = length(classval2), ncol = ncmax))
+
+rplsda2=caret::plsda(spcal2$x, classcal2,ncomp=ncmax)
+sccal2=rplsda2$scores
+spval_c2=scale(spval2$x,center=rplsda2$Xmeans,scale = F)
+scval2=spval_c2%*%rplsda2$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
+for (ii in 2:ncmax) {predmF2[,ii]=SIGNE_maha0(sccal2[,1:ii], classcal2, scval2[,1:ii])$class}
+tsm2=lapply(as.list(predmF2), classval2, FUN = table)
+diagsm2=lapply(tsm2, FUN = diag)
+perokm2 =100*unlist(lapply(diagsm2, FUN = sum))/length(idval2)
+
+plot(perokm2, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+perokm2
+
+
+perokm
+perokm2
+tsm[25]
+tsm2[25]
+
+
+# $V25
+# classval2
+# C   G   S
+# C 257  31  75
+# G  42 354  65
+# S 164 168 503
 
 
 
@@ -515,9 +558,9 @@ idval=which(substr(rownames(sp),1,4)=="2019")
 spval=sp[idval,]
 
 
-m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
-spval=getdata(sp,m)[[2]]
-idval=which(rownames(sp)  %in%  rownames(spval))
+# m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+# spval=getdata(sp,m)[[2]]
+# idval=which(rownames(sp)  %in%  rownames(spval))
 
 
 
@@ -531,15 +574,55 @@ classcalclo=classclo[-idval]
 
 #predmFK=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
-# knnplsda lwplsda
-row.names(spcal$x) <- NULL
-row.names(spval$x) <- NULL
+### knnplsda lwplsda  ####
 
-rplsdaL=lwplsdalm(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncomp=15, ncompdis=20, h=1, k=100, print=F)
+rplsdaL=lwplsdalm(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncomp=27, ncompdis=27, h=1.5, k=1300, print=T)
+predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==19&rplsdaL$fit$k==1300&rplsdaL$fit$ncompdis==27&rplsdaL$fit$h==1.5]
+tsmK=table(predmFK, classval)
+diagsmK=diag(tsmK)
+perokmK=100*sum(diagsmK)/length(idval)
+perokmK
+
+erreurs=spval[-which(predmFK==classval),]
+bons=spval[which(predmFK==classval),]
+
+
+rownames(erreurs)
+length(which(substr(rownames(spval),5,8)=="0613"))/length(rownames(spval))
+length(which(substr(rownames(erreurs),5,8)=="0613"))/length(rownames(erreurs))
+length(which(substr(rownames(bons),5,8)=="0613"))/length(rownames(bons))
+
+length(which(substr(rownames(erreurs),18,18)=="g"))/length(which(substr(rownames(spval),18,18)=="g"))
+
+
+unique(substr(rownames(sp[which(substr(rownames(sp),11,13)=="685"),]),1,8))
+
+unique(substr(rownames(erreurs),9,13))
+
+length(which(substr(rownames(sp),18,18)=="B"))
+
+names(rplsdaL)
+head(rplsdaL$y)
+head(rplsdaL$fit)
+head(rplsdaL$r)
+z <- err(rplsdaL, ~ ncomp + k + ncompdis)
+
+u <- z
+u$group <- paste("k=", u$k, ", ncompdis=", u$ncompdis, sep = "")
+#plotmse(u, group = "group")
+
+ggplot(data = u,aes(x=ncomp,y=errp,group = group,color =group))+ geom_line()
+
+z[z$errp == min(z$errp), ]
+plotmse(z, nam = "errp", group =)
+
+
+
+
 rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=16, h=1.1, k=700, print=F)
 predmFK= rplsdaK$fit$y1
 
-predmFK= rplsdaL$fit$y1[(1+14*length(classval)):(15*length(classval))]
+predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==15&rplsdaL$fit$k==100&rplsdaL$fit$ncompdis==20]
 tsmK=table(predmFK, classval)
 diagsmK=diag(tsmK)
 perokmK=100*sum(diagsmK)/length(idval)
@@ -569,7 +652,23 @@ classcalCK=classcalclo[idcalCK]
 
 rplsdaCK=knnwda(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="mahalanobis", ncompdis=20, h=1.1, k=100, print=F)
 
-rplsdaCK=lwplsdalm(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="euclidean", ncomp=15, ncompdis=20, h=1, k=1000, print=F)
+rplsdaCK=lwplsdalm(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="mahalanobis", ncomp=27, ncompdis=c(18,20,22,25,27), h=c(1,1.1,1.5), k=c(500,1000,1300), print=T)
+
+
+z <- err(rplsdaCK, ~ ncomp + k + ncompdis)
+
+u <- z
+u$group <- paste("k=", u$k, ", ncompdis=", u$ncompdis, sep = "")
+#plotmse(u, group = "group")
+
+ggplot(data = u,aes(x=ncomp,y=errp,group = group,color =group))+ geom_line()
+
+z[z$errp == min(z$errp), ]
+plotmse(z, nam = "errp", group =)
+
+
+
+
 
 # rplsdaC=caret::plsda(spcalCK$x, classcalCK,ncomp=ncmax)
 # sccalC=rplsdaC$scores
@@ -577,7 +676,7 @@ rplsdaCK=lwplsdalm(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=
 # scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 # predmCK=SIGNE_maha0(sccalC[,1:25], classcalCK, scvalC[,1:25])$class
 
-predmCK= rplsdaCK$fit$y1[(1+14*length(classvalCTK)):(15*length(classvalCTK))]
+predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==4&rplsdaL$fit$k==1000&rplsdaL$fit$ncompdis==22]
 #predmCK= rplsdaCK$fit$y1
 tsmCK=table(predmCK, classvalCTK)
 tsmCK
