@@ -13,45 +13,30 @@ globalmatrix=matrix(ncol=2072)
 
 #print(globalmatrix)
 setwd("C:/Users/avitvale/Documents/SIGNE")
-for (a in 2017:2019)
-  {
+for (a in 2017:2019){
   setwd("C:/Users/avitvale/Documents/SIGNE")
   setwd(as.character(a))
-  for (n in 1:length(dir()))
-    {
-
-    if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96")
-    {
+  for (n in 1:length(dir())){
+    if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96"){
       lieu=substr(dir()[n],1,1)
       if ((dir()[n])=="GDRautre"){
         lieu='g'
       }
       setwd(as.character(dir()[n]))
-      for (m in 1:length(dir()))
-      {
-        if(substr(dir()[m],9,9)=="P")
-        {
+      for (m in 1:length(dir())){
+        mesure="T"
+        if(substr(dir()[m],9,9)=="S" | substr(dir()[m],9,9)=="T" | substr(dir()[m],9,9)=="P"){
+          if(substr(dir()[m],9,9)=="P"){
+            mesure="P"
+          }
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
-          rownames(w)=paste(dir()[m],rownames(w),lieu)
+          rownames(w)=paste(dir()[m],rownames(w),lieu,mesure)
 #          print(rownames(w))
           globalmatrix=rbind(globalmatrix, w)
         }
       }
       setwd("../")
-    }
-
-
-
-
-
-    else if(substr(dir()[n],9,9)=="P")
-      {
-      em=paste(dir()[n], sep="")
-      w=SIGNE_load(em)
-      rownames(w)=paste(dir()[n],rownames(w),"G")
-#      print(rownames(w))
-      globalmatrix=rbind(globalmatrix, w)
     }
   }
 }
@@ -61,10 +46,16 @@ setwd("C:/Users/avitvale/Documents/signeG")
 
 #print(globalmatrix)
 globalmatrix=globalmatrix[complete.cases(globalmatrix),]
-
+str(globalmatrix)
 
 #Filtrage des noms non standardisés
-iout=which(nchar(rownames(globalmatrix))>18)
+iout=which(nchar(rownames(globalmatrix))>20)
+
+rownames(globalmatrix[iout,])
+unique(rownames(globalmatrix[which(substr(rownames(globalmatrix),1,8)=="20170612"),]))
+
+
+
 globalmatrix <- globalmatrix[-iout,]
 
 ## Filtrage des spectres aberrants
@@ -103,13 +94,14 @@ substr(rownames(spc),9,9)="S"
 #substr(rownames(spc),9,9)="3"
 
 ##Recombine les 3 matrices pour reformer sp
-globalmatrix=rbind(spa,spb,spc)
+globalmatrix3=rbind(spa,spb,spc)
 
 
-print(globalmatrix)
+print(globalmatrix3)
 brb="C:/Users/avitvale/Documents/Test/"
-save(globalmatrix, file=paste(brb,"globalmatrix",sep=""))
-print(length(globalmatrix))
+save(globalmatrix3, file=paste(brb,"globalmatrix3",sep=""))
+print(length(globalmatrix3))
 # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
 
 ### END ###
+
