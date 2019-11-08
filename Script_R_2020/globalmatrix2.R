@@ -24,14 +24,10 @@ for (a in 2017:2019){
       }
       setwd(as.character(dir()[n]))
       for (m in 1:length(dir())){
-        mesure="T"
-        if(substr(dir()[m],9,9)=="S" | substr(dir()[m],9,9)=="T" | substr(dir()[m],9,9)=="P"){
-          if(substr(dir()[m],9,9)=="P"){
-            mesure="P"
-          }
+        if(substr(dir()[m],9,9)=="P"){
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
-          rownames(w)=paste(dir()[m],rownames(w),lieu,mesure)
+          rownames(w)=paste(dir()[m],rownames(w),lieu)
 #          print(rownames(w))
           globalmatrix=rbind(globalmatrix, w)
         }
@@ -49,10 +45,11 @@ globalmatrix=globalmatrix[complete.cases(globalmatrix),]
 str(globalmatrix)
 
 #Filtrage des noms non standardisés
-iout=which(nchar(rownames(globalmatrix))>20)
+iout=which(nchar(rownames(globalmatrix))>18)
 
-rownames(globalmatrix[iout,])
-unique(rownames(globalmatrix[which(substr(rownames(globalmatrix),1,8)=="20170612"),]))
+
+# rownames(globalmatrix[iout,])
+# unique(rownames(globalmatrix[which(substr(rownames(globalmatrix),1,8)=="20170612"),]))
 
 
 
@@ -94,13 +91,13 @@ substr(rownames(spc),9,9)="S"
 #substr(rownames(spc),9,9)="3"
 
 ##Recombine les 3 matrices pour reformer sp
-globalmatrix3=rbind(spa,spb,spc)
+globalmatrix=rbind(spa,spb,spc)
 
 
-print(globalmatrix3)
+print(globalmatrix)
 brb="C:/Users/avitvale/Documents/Test/"
-save(globalmatrix3, file=paste(brb,"globalmatrix3",sep=""))
-print(length(globalmatrix3))
+save(globalmatrix, file=paste(brb,"globalmatrix",sep=""))
+print(length(globalmatrix))
 # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
 
 ### END ###
