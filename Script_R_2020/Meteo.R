@@ -28,23 +28,9 @@ D2=as.data.frame(matrix(nrow=length(D[,1]), ncol=1), row.names=paste(D[,1],D[,2]
 colnames(D2)="DJC"
 
 
-for (i in 2:length(D2[,1])){
-
-  S=
-
-
-  D2[i,1]=D2[i,1]+S
-}
-sum()
-data
-for (i in unique(data[,2:4])){
-  print(i)
-  print('')
-}
-
-length(unique(data[,2:4])[,4])
 
 D2[1,1]=0
+compte=1
 for (an in unique(data$AN)){
   dataan=data[which(data$AN==an),]
   for (mois in unique(dataan$MOIS)){
@@ -53,11 +39,12 @@ for (an in unique(data$AN)){
       datajour=datamois[which(datamois$JOUR==jour),]
       S=0
       for (i in length(datajour[,1])){
-        s=max(0,datajour$T[i]-10)
+        compte=compte+1
+        s=max(0,as.numeric(datajour$T[i])-10)
         S=S+s
       }
       MJour=S/24
-      D2[CHANGER,1]=D2[CHANGER-1,1]+MJour
+      D2[compte,1]=D2[compte-1,1]+MJour
     }
   }
 }
