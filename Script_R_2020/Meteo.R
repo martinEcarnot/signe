@@ -1,3 +1,5 @@
+#NB : J'ai dû remplacer les "," par des "." dans le fichier d'origine.
+
 data<-read.table("C:/Users/avitvale/Documents/Valentin Avit/Meteo_GDR.csv",sep=";",header=TRUE)
 
 T0=10 #Zéro de végétation, caractéristique à chaque espèce. Pour la vigne, 10°C.
@@ -28,7 +30,7 @@ D2=as.data.frame(matrix(nrow=length(D[,1]), ncol=1), row.names=paste(D[,1],D[,2]
 colnames(D2)="DJC"
 
 
-
+#Remarque : les températures sont super élevées, quand même
 D2[1,1]=0
 compte=1
 for (an in unique(data$AN)){
@@ -37,16 +39,31 @@ for (an in unique(data$AN)){
     datamois=dataan[which(dataan$MOIS==mois),]
     for (jour in unique(datamois$JOUR)){
       datajour=datamois[which(datamois$JOUR==jour),]
+#      print(datajour)
       S=0
-      for (i in length(datajour[,1])){
-        compte=compte+1
-        s=max(0,as.numeric(datajour$T[i])-10)
+      compte=compte+1
+      for (i in 1:length(datajour[,1])){
+        s=max(0,as.numeric(as.character(datajour$T[i]))-10)
+        # print(i)
+        # print(datajour$T[i])
+        # print(s)
         S=S+s
+        # if (compte==30 & i ==20){ #pb à 68
+        #   browser()
+        # }
       }
       MJour=S/24
-      D2[compte,1]=D2[compte-1,1]+MJour
+#      print(MJour)
+#      print(compte)
+      D2[compte,1]=as.numeric(D2[compte-1,1])+MJour
+#      print(D2[compte,1])
     }
   }
 }
 mois=4
 data[which(data$MOIS==mois),]
+
+
+
+
+
