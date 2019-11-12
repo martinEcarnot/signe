@@ -27,16 +27,16 @@ D=unique(data[,2:4])
 D2=as.data.frame(matrix(nrow=length(D[,1]), ncol=1), row.names=paste(D[,1],D[,2],D[,3], sep=""))
 colnames(D2)="DJC"
 
-D2[1,1]=0
-for (i in 2:length(D[,1])){
+
+for (i in 2:length(D2[,1])){
 
   S=
 
 
   D2[i,1]=D2[i,1]+S
 }
-
-
+sum()
+data
 for (i in unique(data[,2:4])){
   print(i)
   print('')
@@ -44,13 +44,20 @@ for (i in unique(data[,2:4])){
 
 length(unique(data[,2:4])[,4])
 
-
+D2[1,1]=0
 for (an in unique(data$AN)){
   dataan=data[which(data$AN==an),]
   for (mois in unique(dataan$MOIS)){
     datamois=dataan[which(dataan$MOIS==mois),]
     for (jour in unique(datamois$JOUR)){
       datajour=datamois[which(datamois$JOUR==jour),]
+      S=0
+      for (i in length(datajour[,1])){
+        s=max(0,datajour$T[i]-10)
+        S=S+s
+      }
+      MJour=S/24
+      D2[CHANGER,1]=D2[CHANGER-1,1]+MJour
     }
   }
 }
