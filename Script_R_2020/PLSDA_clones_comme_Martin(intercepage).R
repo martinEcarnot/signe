@@ -1,6 +1,4 @@
-# library(devtools)
-# install_github("mlesnoff/rnirs", dependencies = TRUE)
-# install.packages("digest")
+# Fonction ls.str()
 
 
 library(MASS)
@@ -36,16 +34,24 @@ globalmatrixN1=globalmatrix
 
 
 # iok=substr(rownames(globalmatrixN1),1,9) %in% dates
-sp2=globalmatrixN1 #[iok,]
-date=as.factor(substr(rownames(sp2),5,8))
-parc=as.factor(substr(rownames(sp2),18,18))
-DATE=c("0703","0704","0710","0709","0702")
-#DATE="0702"
-sp3=sp2[which(date  %in%  DATE),]
-parc=as.factor(substr(rownames(sp3),18,18))
-PARC="G"
+sp=globalmatrixN1 #[iok,]
 
-sp=sp3[which(parc %in% PARC),]
+#####sp=sp[which(substr(rownames(sp),18,18)=="G"),]
+
+
+#
+# date=as.factor(substr(rownames(sp2),5,8))
+# DATE=c("0703","0704","0710","0709","0702")
+# #DATE="0702"
+# sp3=sp2[which(date  %in%  DATE),]
+#
+# parc=as.factor(substr(rownames(sp3),18,18))
+# PARC="G"
+# sp=sp3[which(parc %in% PARC),]
+#
+# annee=as.factor(substr(rownames(sp4),1,4))
+# ANNEE=c("2017","2018")
+# sp=sp4[which(annee  %in%  ANNEE),]
 
 # annee=as.factor(substr(rownames(sp4),1,4))
 # ANNEE="2019"
@@ -61,8 +67,17 @@ sp=sp3[which(parc %in% PARC),]
 
 ## Creation de la matrice de classes
 # class=as.factor(substr(rownames(sp),11,13))
-class=as.factor(substr(rownames(sp),9,9))
-classclo=as.factor(substr(rownames(sp),9,13))
+
+##Permet de voir si, avec des trucs aléatoires, ca ferait des prédictions "illusoires"
+L=c("C 015", "C 169", "C 685", "G 222", "G 509", "G 787", "S 471", "S 525", "S 747", "S 877")
+alea=L[sample(1:10,length(sp[,1]),replace = T) ]
+
+rownames(sp)=paste(rownames(sp),alea)
+
+
+
+class=as.factor(substr(rownames(sp),20,20)) #9,9
+classclo=as.factor(substr(rownames(sp),20,24)) #9,13
 
 ## Variable qui mesure le nombre de classes
 c=length(levels(class))
@@ -95,7 +110,7 @@ p=2
 n=11
 m=1
 ## Nombre de VL max autorisees
-ncmax=25
+ncmax=35
 ## Nombre de groupes de CV
 k=2
 
@@ -269,7 +284,7 @@ for(j in 1:repet) {
     rplsda=caret::plsda(spcalCV$x, classcalCV,ncomp=ncmax)
     sccalCV=rplsda$scores
     spvalCV_c=scale(spvalCV$x,center=rplsda$Xmeans,scale = F)
-    scvalCV=spvalCV_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    scvalCV=spvalCV_c%*%rplsda$projection    #score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
     rplsdaC=caret::plsda(spcalCVC$x, classcalCVC, ncomp=ncmax)
     sccalCVC=rplsdaC$scores
@@ -398,23 +413,49 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 #stop()
 
-idval=which(substr(rownames(sp),1,4)=="2019")
-spval=sp[idval,]
+#  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
 
+length(which(substr(rownames(spcal),20,24)=="S 877"))
 
+#unique(substr(rownames(sp[which(substr(rownames(sp),18,18)=="g"),]),1,4))
+# length(which(substr(rownames(sp[which(substr(rownames(sp),18,18)=="G"),]),9,13)=="S 877"))
+
+# "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
+# unique(substr(rownames(sp),1,8))
+idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613")
+#idval=which(substr(rownames(sp),18,18)!="G")
+
+#which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
+
+# idval=idval[-c(1, 96, 466, 467, 542, 1022, 1023, 1098, 1668)]
+# idval=idval[-L]
+# spval=sp[idval,]
+# rownames(spval[c(73, 91, 109, 519, 537, 555, 1167, 1185, 1203, 1221),])
+#
+# which(rownames(sp %in% rownames(spval[c(73, 91, 109, 519, 537, 555, 1167, 1185, 1203, 1221),])))
 
 # m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
 # spval=getdata(sp,m)[[2]]
 # idval=which(rownames(sp)  %in%  rownames(spval))
 
+#
+# L=c(73, 91, 109, 519, 537, 555, 1167, 1185, 1203, 1221)
+# L2=c(L, (2+L), (2+L),(3+L),(4+L),(5+L))
+# L2
+idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G")
 
-
+ncmax=300
 spval=sp[idval,]
 spcal=sp[-idval,]
 classval=class[idval]
 classcal=class[-idval]
 classvalclo=classclo[idval]
 classcalclo=classclo[-idval]
+
+idcal=which(substr(rownames(sp),18,18)=="G")
+classcal=classcal[which(substr(rownames(spcal),18,18)=="G")]
+classcalclo=classcalclo[which(substr(rownames(spcal),18,18)=="G")]
+spcal=spcal[which(substr(rownames(spcal),18,18)=="G"),]
 
 
 predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
@@ -431,33 +472,45 @@ perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
+tsm[25]
 
 
 
 
-idvalCT=which(predmF[,19]=="C")
-spvalCT=spval[idvalCT,]
-classvalCT=classvalclo[idvalCT]
+
 
 idcalC=which(spcal$y1=="C")
 spcalC=spcal[idcalC,]
 classcalC=classcalclo[idcalC]
 
-
 rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
 sccalC=rplsdaC$scores
-spvalC_c=scale(spvalCT$x,center=rplsdaC$Xmeans,scale = F)
-scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmC=SIGNE_maha0(sccalC[,1:25], classcalC, scvalC[,1:25])$class
-tsmC=table(predmC, classvalCT)
-diagsmC=diag(tsmC)
-perokmC =100*sum(diagsmC)/length(idvalCT)
+
+## On pourrait considérer qu'il y a en réalité deux grandeurs à faire varier, en n'utilisant pas le même nb de VL pour la PLSDA sur cépages et pour la PLSDA sur clones
+perokmC=0
+for (ii in 2:ncmax){        #NB : On met tout dans la boucle, contrairement à ce qu'on fait pour former perokm parce qu'ici length(classvalCT) est variable en f° de ii
+  idvalCT=which(predmF[,25]=="C")
+  spvalCT=spval[idvalCT,]
+  classvalCT=classvalclo[idvalCT]
+
+  spvalC_c=scale(spvalCT$x,center=rplsdaC$Xmeans,scale = F)
+  scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  predmC=SIGNE_maha0(sccalC[,1:ii], classcalC, scvalC[,1:ii])$class
+  tsmC=table(predmC, classvalCT)
+  # print(ii)
+  # print(tsmC)
+  # print("")
+  diagsmC=diag(tsmC)
+  perokmC[ii] =100*sum(diagsmC)/length(idvalCT)
+}
+plot(perokmC, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
 perokmC
+tsmC
 
 
-idvalGT=which(predmF[,19]=="G")
-spvalGT=spval[idvalGT,]
-classvalGT=classvalclo[idvalGT]
+
+
 
 idcalG=which(spcal$y1=="G")
 spcalG=spcal[idcalG,]
@@ -465,21 +518,33 @@ classcalG=classcalclo[idcalG]
 
 rplsdaG=caret::plsda(spcalG$x, classcalG,ncomp=ncmax)
 sccalG=rplsdaG$scores
-spvalG_c=scale(spvalGT$x,center=rplsdaG$Xmeans,scale = F)
-scvalG=spvalG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmG=SIGNE_maha0(sccalG[,1:25], classcalG, scvalG[,1:25])$class
-classvalGT=relevel(classvalGT, "G 787")
-classvalGT=relevel(classvalGT, "G 509")
-classvalGT=relevel(classvalGT, "G 222")
-tsmG=table(predmG, classvalGT)
-diagsmG=diag(tsmG)
-perokmG =100*sum(diagsmG)/length(idvalGT)
+
+perokmG=0
+for (ii in 2:ncmax){        #NB : On met tout dans la boucle, contrairement à ce qu'on fait pour former perokm parce qu'ici length(classvalCT) est variable en f° de ii
+  idvalGT=which(predmF[,25]=="G")
+  spvalGT=spval[idvalGT,]
+  classvalGT=classvalclo[idvalGT]
+
+  spvalG_c=scale(spvalGT$x,center=rplsdaG$Xmeans,scale = F)
+  scvalG=spvalG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  predmG=SIGNE_maha0(sccalG[,1:ii], classcalG, scvalG[,1:ii])$class
+  classvalGT=relevel(classvalGT, "G 787")
+  classvalGT=relevel(classvalGT, "G 509")
+  classvalGT=relevel(classvalGT, "G 222")
+  tsmG=table(predmG, classvalGT)
+  # print(ii)
+  # print(tsmG)
+  # print("")
+  diagsmG=diag(tsmG)
+  perokmG[ii] =100*sum(diagsmG)/length(idvalGT)
+}
+plot(perokmG, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
 perokmG
+tsmG
 
 
-idvalST=which(predmF[,19]=="S")
-spvalST=spval[idvalST,]
-classvalST=classvalclo[idvalST]
+
 
 idcalS=which(spcal$y1=="S")
 spcalS=spcal[idcalS,]
@@ -487,38 +552,68 @@ classcalS=classcalclo[idcalS]
 
 rplsdaS=caret::plsda(spcalS$x, classcalS,ncomp=ncmax)
 sccalS=rplsdaS$scores
-spvalS_c=scale(spvalST$x,center=rplsdaS$Xmeans,scale = F)
-scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-predmS=SIGNE_maha0(sccalS[,1:25], classcalS, scvalS[,1:25])$class
-classvalST=relevel(classvalST, "S 877")
-classvalST=relevel(classvalST, "S 747")
-classvalST=relevel(classvalST, "S 525")
-classvalST=relevel(classvalST, "S 471")
-tsmS=table(predmS, classvalST)
-diagsmS=diag(tsmS)
-perokmS =100*sum(diagsmS)/length(idvalST)
+
+perokmS=0
+for (ii in 2:ncmax){        #NB : On met tout dans la boucle, contrairement à ce qu'on fait pour former perokm parce qu'ici length(classvalCT) est variable en f° de ii
+  idvalST=which(predmF[,25]=="S")
+  spvalST=spval[idvalST,]
+  classvalST=classvalclo[idvalST]
+
+  spvalS_c=scale(spvalST$x,center=rplsdaS$Xmeans,scale = F)
+  scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  predmS=SIGNE_maha0(sccalS[,1:ii], classcalS, scvalS[,1:ii])$class
+  classvalST=relevel(classvalST, "S 877")
+  classvalST=relevel(classvalST, "S 747")
+  classvalST=relevel(classvalST, "S 525")
+  classvalST=relevel(classvalST, "S 471")
+  tsmS=table(predmS, classvalST)
+  diagsmS=diag(tsmS)
+  perokmS[ii] =100*sum(diagsmS)/length(idvalST)
+}
+plot(perokmS, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
 perokmS
+tsmS
 
 
 
-idvalcloT=predmF[,19]
 predmclo=c(as.character(predmC),as.character(predmG),as.character(predmS))
 classvalcloT=c(as.character(classvalCT),as.character(classvalGT),as.character(classvalST))
 tsmclo=table(predmclo, classvalcloT)
 diagsmclo=diag(tsmclo)
-perokmclo =100*sum(diagsmclo)/length(idvalcloT)
+perokmclo =100*sum(diagsmclo)/length(idval)
 perokmclo
+tsmclo
+
+
+
+##Clones direct
+predmcloD=as.data.frame(matrix(nrow = length(classvalclo), ncol = ncmax))
+
+rplsdaD=caret::plsda(spcal$x, classcalclo,ncomp=ncmax)
+sccalD=rplsdaD$scores
+spval_cD=scale(spval$x,center=rplsdaD$Xmeans,scale = F)
+scvalD=spval_cD%*%rplsdaD$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
+for (ii in 2:ncmax) {predmcloD[,ii]=SIGNE_maha0(sccalD[,1:ii], classcalclo, scvalD[,1:ii])$class}
+tsmD=lapply(as.list(predmcloD), classvalclo, FUN = table)
+diagsmD=lapply(tsmD, FUN = diag)
+perokmD =100*unlist(lapply(diagsmD, FUN = sum))/length(idval)
+
+plot(perokmD, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+perokmD
+tsmD[25]
 
 
 ###### Knn
 
-idval=which(substr(rownames(sp),1,4)=="2019")
+idval=which(substr(rownames(sp),1,4)=="2017")
 spval=sp[idval,]
 
 
-m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
-spval=getdata(sp,m)[[2]]
-idval=which(rownames(sp)  %in%  rownames(spval))
+# m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+# spval=getdata(sp,m)[[2]]
+# idval=which(rownames(sp)  %in%  rownames(spval))
 
 
 
@@ -532,32 +627,91 @@ classcalclo=classclo[-idval]
 
 #predmFK=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
-# knnplsda lwplsda
-row.names(spcal$x) <- NULL
-row.names(spval$x) <- NULL
+### knnplsda lwplsda  ####
+predmFK=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
-rplsdaL=lwplsdalm(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncomp=15, ncompdis=20, h=1, k=100, print=F)
-rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=16, h=1.1, k=700, print=F)
-predmFK= rplsdaK$fit$y1
+rplsdaL=lwplsdalm(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncomp=27, ncompdis=27, h=1.5, k=1300, print=T)
+# predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==25&rplsdaL$fit$k==400&rplsdaL$fit$ncompdis==27&rplsdaL$fit$h==1.5]
+# tsmK=table(predmFK, classval)
+# diagsmK=diag(tsmK)
+# perokmK=100*sum(diagsmK)/length(idval)
+# perokmK
+# tsmK
+for (ii in 2:ncmax) {predmFK[,ii]=rplsdaL$fit$y1[rplsdaL$fit$ncomp==ii&rplsdaL$fit$k==1300&rplsdaL$fit$ncompdis==27&rplsdaL$fit$h==1.5]}
+tsm=lapply(as.list(predmFK), classval, FUN = table)
+diagsm=lapply(tsm, FUN = diag)
+perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
-predmFK= rplsdaL$fit$y1[(1+14*length(classval)):(15*length(classval))]
-tsmK=table(predmFK, classval)
-diagsmK=diag(tsmK)
-perokmK=100*sum(diagsmK)/length(idval)
-perokmK
+plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+perokm
+tsm[25]
 
-TEST=c(10,20,25,30,35,40)
-predmFK=as.data.frame(matrix(nrow = length(classval), ncol = length(TEST)))
-for (ii in 1:length(TEST)) {
-  print(ii)
-  rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=23, h=1.1, k=TEST[ii], print=F)
-  predmFK[,ii]= rplsdaK$fit$y1
-}
-tsmK=lapply(as.list(predmFK), classval, FUN = table)
-diagsmK=lapply(tsmK, FUN = diag)
-perokmK =100*unlist(lapply(diagsmK, FUN = sum))/length(idval)
-#VL entre 11 et 16. Ici 12.
-plot(perokmK, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+
+erreurs=spval[-which(predmFK==classval),]
+bons=spval[which(predmFK==classval),]
+
+
+
+
+rownames(erreurs)
+length(which(substr(rownames(spval),9,9)=="S"))/length(rownames(spval))
+length(which(substr(rownames(erreurs),9,9)=="S"))/length(rownames(erreurs))
+length(which(substr(rownames(bons),9,9)=="S"))/length(rownames(bons))
+
+length(which(substr(rownames(erreurs),9,9)=="C"))/length(which(substr(rownames(spval),9,9)=="C"))
+
+
+unique(rownames(sp[which(substr(rownames(sp),1,8)=="20170612"),]))
+
+rownames(sp[which(substr(rownames(sp),1,4)=="2017"),])
+unique(substr(rownames(sp),1,8))
+
+unique(substr(rownames(erreurs),9,13))
+
+length(which(substr(rownames(sp),1,8)=="20180724"))
+rownames(sp[which(substr(rownames(sp),18,18)=="g"),])
+
+length(which(substr(rownames(sp),1,4)=="2017"))
+
+names(rplsdaL)
+head(rplsdaL$y)
+head(rplsdaL$fit)
+head(rplsdaL$r)
+z <- err(rplsdaL, ~ ncomp + k + ncompdis)
+
+u <- z
+u$group <- paste("k=", u$k, ", ncompdis=", u$ncompdis, sep = "")
+#plotmse(u, group = "group")
+
+ggplot(data = u,aes(x=ncomp,y=errp,group = group,color =group))+ geom_line()
+
+z[z$errp == min(z$errp), ]
+plotmse(z, nam = "errp", group =)
+
+
+
+
+# rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=16, h=1.1, k=700, print=F)
+# predmFK= rplsdaK$fit$y1
+#
+# predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==15&rplsdaL$fit$k==100&rplsdaL$fit$ncompdis==20]
+# tsmK=table(predmFK, classval)
+# diagsmK=diag(tsmK)
+# perokmK=100*sum(diagsmK)/length(idval)
+# perokmK
+#
+# TEST=c(10,20,25,30,35,40)
+# predmFK=as.data.frame(matrix(nrow = length(classval), ncol = length(TEST)))
+# for (ii in 1:length(TEST)) {
+#   print(ii)
+#   rplsdaK=knnwda(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncompdis=23, h=1.1, k=TEST[ii], print=F)
+#   predmFK[,ii]= rplsdaK$fit$y1
+# }
+# tsmK=lapply(as.list(predmFK), classval, FUN = table)
+# diagsmK=lapply(tsmK, FUN = diag)
+# perokmK =100*unlist(lapply(diagsmK, FUN = sum))/length(idval)
+# #VL entre 11 et 16. Ici 12.
+# plot(perokmK, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 
 
 idvalCTK=which(predmFK=="C")
@@ -570,7 +724,23 @@ classcalCK=classcalclo[idcalCK]
 
 rplsdaCK=knnwda(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="mahalanobis", ncompdis=20, h=1.1, k=100, print=F)
 
-rplsdaCK=lwplsdalm(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="euclidean", ncomp=15, ncompdis=20, h=1, k=1000, print=F)
+rplsdaCK=lwplsdalm(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=as.character(classvalCTK), diss="mahalanobis", ncomp=27, ncompdis=c(18,20,22,25,27), h=c(1,1.1,1.5), k=c(500,1000,1300), print=T)
+
+
+z <- err(rplsdaCK, ~ ncomp + k + ncompdis)
+
+u <- z
+u$group <- paste("k=", u$k, ", ncompdis=", u$ncompdis, sep = "")
+#plotmse(u, group = "group")
+
+ggplot(data = u,aes(x=ncomp,y=errp,group = group,color =group))+ geom_line()
+
+z[z$errp == min(z$errp), ]
+plotmse(z, nam = "errp", group =)
+
+
+
+
 
 # rplsdaC=caret::plsda(spcalCK$x, classcalCK,ncomp=ncmax)
 # sccalC=rplsdaC$scores
@@ -578,7 +748,7 @@ rplsdaCK=lwplsdalm(Xr=spcalCK$x, Yr=as.character(classcalCK), Xu=spvalCTK$x, Yu=
 # scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 # predmCK=SIGNE_maha0(sccalC[,1:25], classcalCK, scvalC[,1:25])$class
 
-predmCK= rplsdaCK$fit$y1[(1+14*length(classvalCTK)):(15*length(classvalCTK))]
+predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==4&rplsdaL$fit$k==1000&rplsdaL$fit$ncompdis==22]
 #predmCK= rplsdaCK$fit$y1
 tsmCK=table(predmCK, classvalCTK)
 tsmCK
@@ -667,502 +837,5 @@ print(paste0("kkn : Precision discrimination clones globale : " , perokmcloK))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###PLSDA on Maha scores
-## Calibration
-rplsda=caret::plsda(spcal$x, classcal,ncomp=10)
-sccal=rplsda$scores
-
-## Validation
-spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
-scval=spval_c%*%rplsda$projection
-resval=SIGNE_maha0(sccal[,1:10], classcal, scval[,1:10])$class
-
-cepage=table (resval,classval)
-cepage
-cepage[1,1]/(cepage[1,1]+cepage[1,2]+cepage[1,3])
-cepage[2,2]/(cepage[2,1]+cepage[2,2]+cepage[2,3])
-cepage[3,3]/(cepage[3,1]+cepage[3,2]+cepage[3,3])
-
-
-
-###En fonction des clones
-
-## Creation de la matrice de classes clones
-class_clones=as.factor(substr(rownames(sp),11,13))
-## Variable qui mesure le nombre de classes
-c=length(levels(class_clones))
-
-## Separation de sp_cal en 3 jeux de calibration par cepage
-aC= substr(rownames(spcal),9,9)=="C"
-aG= substr(rownames(spcal),9,9)=="G"
-aS= substr(rownames(spcal),9,9)=="S"
-#aF= substr(rownames(spcal),9,9)=="F"
-
-spcal_C =spcal[(aC==TRUE),]
-spcal_G =spcal[(aG==TRUE),]
-spcal_S =spcal[(aS==TRUE),]
-#spcal_F =spcal[(aF==TRUE),]
-
-###Identifiants des matrices de calibration
-##Cabernet
-idcal_C=which(rownames(sp)  %in%  rownames(spcal_C))
-classcal_C=droplevels(class_clones[idcal_C])
-
-##Gamay
-idcal_G=which(rownames(sp)  %in%  rownames(spcal_G))
-classcal_G=droplevels(class_clones[idcal_G])
-# #CF
-# idcal_F=which(rownames(sp)  %in%  rownames(spcal_F))
-# classcal_F=droplevels(class_clones[idcal_F])
-
-##Syrah
-idcal_S=which(rownames(sp)  %in%  rownames(spcal_S))
-classcal_S=droplevels(class_clones[idcal_S])
-
-
-
-
-# ###CV sur clones
-# ##Formation de idcalC (Cabernet)
-#   c1=idcal[1,1]
-#   c2=idcal[1,2]
-#   c3=idcal[1,3]
-#   c4=idcal[2,1]
-#   c5=idcal[2,2]
-#   c6=idcal[2,3]
-#
-# idcalC=c(c1,c2,c3,c4,c5,c6)
-# dim(idcalC)=c(3,2)
-# idcalC=t(idcalC)
-#
-# idcal2C=matrix( ,nrow=2, ncol=3)
-#
-# for (i in 1:3) {
-#   idcal2C[,i]=idcalC[sample(1:2),i]
-# }
-#
-# ## Boucle CV (Cabernet)
-# for (i in 1:k) {
-#   commdC=paste("spvalCVC=rbind(sp",idcal2C[i,1],",sp",idcal2C[i,2],",sp",idcal2C[i,3],")",sep="")
-#   eval(parse(text=commdC))
-#
-#   idvalCVC=which(rownames(sp_cal_C)  %in%  rownames(spvalCVC))
-#
-#   spvalCVC=sp_cal_C[idvalCVC,]       # matrice du jeu de validation
-#   class_valCVC=droplevels(class_cal_C[idvalCVC])  #identifiants des classes du jeu de validation
-#   spcalCVC=sp_cal_C[-idvalCVC,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-#   class_calCVC=droplevels(class_cal_C[-idvalCVC]) #identifiants des classes du jeu de calibration
-#
-#   ## PLSDA and application to have loadings and scores (Cabernet)
-#   rplsdaCVC=caret::plsda(spcalCVC, class_calCVC,ncomp=ncmax)
-#   sccalCVC=rplsdaCVC$scores
-#   spvalCVC_c=scale(spvalCVC,center=rplsdaCVC$Xmeans,scale = F)
-#   scvalCVC=spvalCVC_c%*%rplsdaCVC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-#
-#   ## Creation des jeux d'apprentissage et validation
-#   iok3=substr(rownames(sp_cal_C),1,9) %in% dates
-#   predm0C=as.data.frame(matrix(nrow = sum(iok3), ncol = ncmax))
-#
-#
-#   for (ii in 2:ncmax) {
-#
-#     ## Validation
-#     predm0C[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], class_calCVC, scvalCVC[,1:ii])$class
-#   }
-# }
-#
-#
-# ## Table de contingence CV
-# tsm0C=lapply(as.list(predm0C), class_cal_C, FUN = table)
-#
-#
-# ## Matrice mauvais classements par clone CV
-# diagsm0C=lapply(tsm0C, FUN = diag)
-#
-# ## Pourcentage de bien classes CV
-# perokm0C=100*unlist(lapply(diagsm0C, FUN = sum))/length(class_valCVC)
-#
-# ## Pourcentage de bien classes CV
-# maxiC=max(perokm0C)
-# maxi.idC=which.max(perokm0C)
-#
-# ### Enregistrement des matrices de resultat final
-# ##Remplissage de la matrice des perok finale
-# perok_finalm0C[j,]=perokm0C
-#
-# ## Remplissage de la VL max et de son % de bons classements globaux
-# maxi_finalC[j,1]=maxi.idC
-# maxi_finalC[j,2]=maxiC
-#
-# ##Formation de idcalG (Gamay)
-#   g1=idcal[1,4]
-#   g2=idcal[1,5]
-#   g3=idcal[1,6]
-#   g4=idcal[2,4]
-#   g5=idcal[2,5]
-#   g6=idcal[2,6]
-#
-# idcalG=c(g1,g2,g3,g4,g5,g6)
-# dim(idcalG)=c(3,2)
-# idcalG=t(idcalG)
-#
-# idcal2G=matrix( ,nrow=2, ncol=3)
-#
-# for (i in 1:3) {
-#   idcal2G[,i]=idcalG[sample(1:2),i]
-# }
-#
-# ## Boucle CV (Gamay)
-# for (i in 1:k) {
-#   commdG=paste("spvalCVG=rbind(sp",idcal2G[i,1],",sp",idcal2G[i,2],",sp",idcal2G[i,3],")",sep="")
-#   eval(parse(text=commdG))
-#
-#   idvalCVG=which(rownames(sp_cal_G)  %in%  rownames(spvalCVG))
-#
-#   spvalCVG=sp_cal_G[idvalCVG,]       # matrice du jeu de validation
-#   class_valCVG=droplevels(class_cal_G[idvalCVG])  #identifiants des classes du jeu de validation
-#   spcalCVG=sp_cal_G[-idvalCVG,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-#   class_calCVG=droplevels(class_cal_G[-idvalCVG]) #identifiants des classes du jeu de calibration
-#
-#   ## PLSDA and application to have loadings and scores (Gamay)
-#   rplsdaCVG=caret::plsda(spcalCVG, class_calCVG,ncomp=ncmax)
-#   sccalCVG=rplsdaCVG$scores
-#   spvalCVG_c=scale(spvalCVG,center=rplsdaCVG$Xmeans,scale = F)
-#   scvalCVG=spvalCVG_c%*%rplsdaCVG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-#
-#   ## Creation des jeux d'apprentissage et validation
-#   iok4=substr(rownames(sp_cal_G),1,9) %in% dates
-#   predm0G=as.data.frame(matrix(nrow = sum(iok4), ncol = ncmax))
-#
-#   for (ii in 2:ncmax) {
-#
-#     ## Validation
-#     predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], class_calCVG, scvalCVG[,1:ii])$class
-#   }
-# }
-#
-# ## Table de contingence CV
-# tsm0G=lapply(as.list(predm0G), class_cal_G, FUN = table)
-#
-# ## Matrice mauvais classements par clone CV
-# diagsm0G=lapply(tsm0G, FUN = diag)
-#
-# ## Pourcentage de bien classes CV
-# perokm0G=100*unlist(lapply(diagsm0G, FUN = sum))/length(class_valCVG)
-#
-# ## Pourcentage de bien classes CV
-# maxiG=max(perokm0G)
-# maxi.idG=which.max(perokm0G)
-#
-# ### Enregistrement des matrices de resultat final
-# ##Remplissage de la matrice des perok finale
-# perok_finalm0G[j,]=perokm0G
-#
-# ## Remplissage de la VL max et de son % de bons classements globaux
-# maxi_finalG[j,1]=maxi.idG
-# maxi_finalG[j,2]=maxiG
-
-# ##Formation de idcalS (Syrah)
-#   s1=idcal[1,7]
-#   s2=idcal[1,8]
-# #  s3=idcal[1,9]
-# #  s4=idcal[1,10]
-#   s5=idcal[2,7]
-#   s6=idcal[2,8]
-# #  s7=idcal[2,9]
-# #  s8=idcal[2,10]
-#
-# idcalS= c(s1,s2,s5,s6)#c(s1,s2,s3,s4,s5,s6,s7,s8)
-# dim(idcalS)=c(2,2)
-# idcalS=t(idcalS)
-#
-# idcal2S=matrix( ,nrow=2, ncol=2)
-#
-# for (i in 1:2) {
-#   idcal2S[,i]=idcalS[sample(1:2),i]
-# }
-
-# ## Boucle CV  (Syrah)
-# for (i in 1:k) {
-#   #commdS=paste("spvalCVS=rbind(sp",idcal2S[i,1],",sp",idcal2S[i,2],",sp",idcal2S[i,3],",sp",idcal2S[i,4],")",sep="")
-#   commdS=paste("spvalCVS=rbind(sp",idcal2S[i,1],",sp",idcal2S[i,2],")",sep="")
-#   eval(parse(text=commdS))
-#
-#   idvalCVS=which(rownames(sp_cal_S)  %in%  rownames(spvalCVS))
-#
-#   spvalCVS=sp_cal_S[idvalCVS,]       # matrice du jeu de validation
-#   class_valCVS=droplevels(class_cal_S[idvalCVS])  #identifiants des classes du jeu de validation
-#   spcalCVS=sp_cal_S[-idvalCVS,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-#   class_calCVS=droplevels(class_cal_S[-idvalCVS]) #identifiants des classes du jeu de calibration
-#
-#   ## PLSDA and application to have loadings and scores (Syrah)
-#   rplsdaCVS=caret::plsda(spcalCVS, class_calCVS,ncomp=ncmax)
-#   sccalCVS=rplsdaCVS$scores
-#   spvalCVS_c=scale(spvalCVS,center=rplsdaCVS$Xmeans,scale = F)
-#   scvalCVS=spvalCVS_c%*%rplsdaCVS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
-#
-#   ## Creation des jeux d'apprentissage et validation
-#    iok5=substr(rownames(sp_cal_S),1,9) %in% dates
-#    predm0S=as.data.frame(matrix(nrow = sum(iok5), ncol = ncmax))
-#
-#   for (ii in 2:ncmax) {
-#
-#     ## Validation
-#     predm0S[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], class_calCVS, scvalCVS[,1:ii])$class
-#   }
-# }
-
-# ## Table de contingence CV
-# tsm0S=lapply(as.list(predm0S), class_cal_S, FUN = table)
-#
-# ## Matrice mauvais classements par clone CV
-# diagsm0S=lapply(tsm0S, FUN = diag)
-#
-# ## Pourcentage de bien classes CV
-# perokm0S=100*unlist(lapply(diagsm0S, FUN = sum))/length(class_valCVS)
-#
-# ## Pourcentage de bien classes CV
-# maxiS=max(perokm0S)
-# maxi.idS=which.max(perokm0S)
-#
-# ### Enregistrement des matrices de resultat final
-# ##Remplissage de la matrice des perok finale
-# perok_finalm0S[j,]=perokm0S
-#
-# ## Remplissage de la VL max et de son % de bons classements globaux
-# maxi_finalS[j,1]=maxi.idS
-# maxi_finalS[j,2]=maxiS
-
-###PLSDA sur clones sans CV
-## Separation de sp_val en 3 jeux de validation par cepage
-## Seulement avec les biens classes en cepages
-test=cbind(resval,classval)
-rownames(test)=rownames(sp[idval,])
-
-z1=(substr(rownames(test),9,9))=="C"
-z2=(substr(rownames(test), 9, 9))=="G"
-z3=(substr(rownames(test),9,9))=="S"
-#z4=(substr(rownames(test),9,9))=="F"
-
-test1 =test[(z1==TRUE),]
-test2 =test[(z2==TRUE),]
-test3 =test[(z3==TRUE),]
-#test4 =test[(z4==TRUE),]
-
-test1a = test1[test1[,1]==1,]
-test2a = test2[test2[,1]==2,]
-test3a = test3[test3[,1]==3,]
-#test4a = test4[test4[,1]==2,]
-
-spval_C =spval[rownames(test1a),]
-spval_G =spval[rownames(test2a),]
-spval_S =spval[rownames(test3a),]
-#spval_F =spval[rownames(test4a),]
-
-##Avec tous
-# bC= substr(rownames(sp_val),9,9)=="C"
-# bG= substr(rownames(sp_val),9,9)=="G"
-# bS= substr(rownames(sp_val),9,9)=="S"
-#
-# sp_val_C =sp_val[(bC==TRUE),]
-# sp_val_G =sp_val[(bG==TRUE),]
-# sp_val_S =sp_val[(bS==TRUE),]
-
-###Selection des spectres
-##Cabernet Sauvignon
-idval_C=which(rownames(sp)  %in%  rownames(spval_C))
-classval_C=droplevels(class_clones[idval_C])
-
-##Gamay
-idval_G=which(rownames(sp)  %in%  rownames(spval_G))
-classval_G=droplevels(class_clones[idval_G])
-
-# ##Cabernet franc
-# idval_F=which(rownames(sp)  %in%  rownames(spval_F))
-# classval_F= droplevels(class_clones[idval_F])
-
-##Syrah
-idval_S=which(rownames(sp)  %in%  rownames(spval_S))
-classval_S=droplevels(class_clones[idval_S])
-
-
-
-####PLSDA on Maha scores
-### Calibration
-## Cabernet Sauvignon
-rplsdaC=caret::plsda(spcal_C$x, classcal_C,ncomp= 8)# Modifier ncmax en fonction des resultats de CV_2
-sccal_C=rplsdaC$scores
-
-##Gamay
-rplsdaG=caret::plsda(spcal_G$x, classcal_G,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
-sccal_G=rplsdaG$scores
-
-##Syrah
-rplsdaS=caret::plsda(spcal_S$x, classcal_S,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
-sccal_S=rplsdaS$scores
-
-##Cabernet franc
-#rplsdaF=caret::plsda(spcal_F$x, classcal_F,ncomp=8)# Modifier ncmax en fonction des resultats de CV_2
-#sccal_F=rplsdaF$scores
-
-### Validation
-## Cabernet Sauvignon
-spval_c_C=scale(spval_C$x,center=rplsdaC$Xmeans,scale = F)
-scval_C=spval_c_C%*%rplsdaC$projection
-resval_C=SIGNE_maha0(sccal_C[,1:8], classcal_C, scval_C[,1:8])$class
-
-Cabernet=table (resval_C,classval_C)
-print (Cabernet)
-
-##Gamay
-spval_c_G=scale(spval_G$x,center=rplsdaG$Xmeans,scale = F)
-scval_G=spval_c_G%*%rplsdaG$projection
-resval_G=SIGNE_maha0(sccal_G[,1:8], classcal_G, scval_G[,1:8])$class
-
-Gamay=table (resval_G,classval_G)
-print (Gamay)
-
-##Syrah
-spval_c_S=scale(spval_S$x,center=rplsdaS$Xmeans,scale = F)
-scval_S=spval_c_S%*%rplsdaS$projection
-resval_S=SIGNE_maha0(sccal_S[,1:8], classcal_S, scval_S[,1:8])$class
-
-Syrah=table (resval_S,classval_S)
-print (Syrah)
-
-# ##Cabernet franc
-# spval_c_F=scale(sp_val_F,center=rplsdaF$Xmeans,scale = F)
-# scval_F=spval_c_F%*%rplsdaF$projection
-# resval_F=SIGNE_maha0(sccal_F[,1:8], classcal_F, scval_F[,1:8])$class
-#
-# CF=table (res_val_F,class_val_F)
-# #print (CF)
-
-###Calcul des pourcentages de bons classements en fonction du tirage
-##Somme des clones biens classes
-clones_bc= sum(diag(Cabernet))+sum(diag(Gamay))+sum(diag(Syrah))
-#clones_bc= sum(diag(Cabernet))+sum(diag(Syrah))+sum(diag(CF))
-#print(clones_bc)
-
-#Somme colonne table contingence cepages
-sumcolcep=apply(cepage,2,sum)
-
-##Nombre total de clones
-total=clones_bc+(sum(cepage)-sum(diag(cepage)))+(sum(Cabernet)-sum(diag(Cabernet)))+(sum(Gamay)-sum(diag(Gamay)))+(sum(Syrah)-sum(diag(Syrah)))
-#total=clones_bc+(sum(cepage)-sum(diag(cepage)))+(sum(Cabernet)-sum(diag(Cabernet)))+(sum(Syrah)-sum(diag(Syrah)))+(sum(CF)-sum(diag(CF)))
-total_C=sum(Cabernet)
-total_G=sum(Gamay)
-total_S=sum(Syrah)
-#total_F=sum(CF)
-
-total_C_cep=sum(diag(Cabernet))+(sum(Cabernet)-sum(diag(Cabernet)))+(sumcolcep[1]-cepage[1,1])
-total_G_cep=sum(diag(Gamay))+(sum(Gamay)-sum(diag(Gamay)))+(sumcolcep[2]-cepage[2,2])
-total_S_cep=sum(diag(Syrah))+(sum(Syrah)-sum(diag(Syrah)))+(sumcolcep[3]-cepage[3,3])
-#total_F_cep=sum(diag(CF))+(sum(CF)-sum(diag(CF)))+(sumcolcep[2]-cepage[2,2])
-#print(total)
-
-
-
-## Pourcentage total de clones biens classes(prise en compte erreur cepages)
-perok=100*(clones_bc/total)
-#print(perok)
-perok_final=perok
-
-## Pourcentage de clones biens classes
-perok_C=100*(sum(diag(Cabernet))/total_C)
-perok_G=100*(sum(diag(Gamay))/total_G)
-perok_S=100*(sum(diag(Syrah))/total_S)
-#perok_F=100*(sum(diag(CF))/total_F)
-
-perok_final_C[j,]=perok_C
-perok_final_G[j,]=perok_G
-perok_final_S[j,]=perok_S
-#perok_final_F[j,]=perok_F
-
-## Pourcentage de clones biens classes (prise en compte erreur cepages)
-perok_C_cep=100*(sum(diag(Cabernet))/total_C_cep)
-perok_G_cep=100*(sum(diag(Gamay))/total_G_cep)
-perok_S_cep=100*(sum(diag(Syrah))/total_S_cep)
-#perok_F_cep=100*(sum(diag(CF))/total_F_cep)
-
-perok_final_C_cep[j,]=perok_C_cep
-perok_final_G_cep[j,]=perok_G_cep
-perok_final_S_cep[j,]=perok_S_cep
-#perok_final_F_cep[j,]=perok_F_cep
-
-##Pourcentage de cepages biens classes
-perok_cepages=100*(sum(diag(cepage))/sum(cepage))
-#print(perok_cepages)
-perok_final_cepages[j,]=perok_cepages
-
-
-
-#print(perok_final)
-#print(perok_final_cepages)
-print(perok_cepages)
-#print(mean(perok_final))
-print(perok_final)
-#print(mean(perok_final_cepages))
-#print(mean(perok_final_C))
-print(perok_C)
-#print(mean(perok_final_G))
-print(perok_G)
-#print(mean(perok_final_S))
-print(perok_S)
-#print(mean(perok_final_F))
-#print(mean(perok_final_C_cep))
-print(perok_C_cep)
-#print(mean(perok_final_G_cep))
-print(perok_G_cep)
-#print(mean(perok_final_S_cep))
-print(perok_S_cep)
-#print(mean(perok_final_F_cep))
-
-###Sorties graphiques
-## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (cepages)
-plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
-       col=c("black"), lty=1, cex=0.8)
-
-# ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (Cabernet)
-# plot(colMeans(perok_finalm0C), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-# legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
-#        col=c("black"), lty=1, cex=0.8)
-#
-# ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (Gamay)
-# plot(colMeans(perok_finalm0G), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-# legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
-#        col=c("black"), lty=1, cex=0.8)
-#
-# ## Tracage de l'evolution des perok en fonction du nombre de VL utilisees (Syrah)
-# plot(colMeans(perok_finalm0S), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-# legend(ncmax*2/3,15,legend=c("Maha on PLSDA scores"),
-#        col=c("black"), lty=1, cex=0.8)
-
-## Clones
-
-
-plot(perok_final, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de clones biens class?s",pch=19, cex=2)
-
-##Cepages
-plot(perok_final_cepages, type="o",xlab= "Nombre de tirages", ylab = "Pourcentage de c?pages biens class?s",pch=21, cex=2,bg="blue")
 
 

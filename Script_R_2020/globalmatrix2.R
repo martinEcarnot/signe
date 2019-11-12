@@ -13,24 +13,18 @@ globalmatrix=matrix(ncol=2072)
 
 #print(globalmatrix)
 setwd("C:/Users/avitvale/Documents/SIGNE")
-for (a in 2017:2019)
-  {
+for (a in 2017:2019){
   setwd("C:/Users/avitvale/Documents/SIGNE")
   setwd(as.character(a))
-  for (n in 1:length(dir()))
-    {
-
-    if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96")
-    {
+  for (n in 1:length(dir())){
+    if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96"){
       lieu=substr(dir()[n],1,1)
       if ((dir()[n])=="GDRautre"){
         lieu='g'
       }
       setwd(as.character(dir()[n]))
-      for (m in 1:length(dir()))
-      {
-        if(substr(dir()[m],9,9)=="P")
-        {
+      for (m in 1:length(dir())){
+        if(substr(dir()[m],9,9)=="P"){
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
           rownames(w)=paste(dir()[m],rownames(w),lieu)
@@ -40,19 +34,6 @@ for (a in 2017:2019)
       }
       setwd("../")
     }
-
-
-
-
-
-    else if(substr(dir()[n],9,9)=="P")
-      {
-      em=paste(dir()[n], sep="")
-      w=SIGNE_load(em)
-      rownames(w)=paste(dir()[n],rownames(w),"G")
-#      print(rownames(w))
-      globalmatrix=rbind(globalmatrix, w)
-    }
   }
 }
 
@@ -61,10 +42,17 @@ setwd("C:/Users/avitvale/Documents/signeG")
 
 #print(globalmatrix)
 globalmatrix=globalmatrix[complete.cases(globalmatrix),]
-
+str(globalmatrix)
 
 #Filtrage des noms non standardisés
 iout=which(nchar(rownames(globalmatrix))>18)
+
+
+# rownames(globalmatrix[iout,])
+# unique(rownames(globalmatrix[which(substr(rownames(globalmatrix),1,8)=="20170612"),]))
+
+
+
 globalmatrix <- globalmatrix[-iout,]
 
 ## Filtrage des spectres aberrants
@@ -113,3 +101,4 @@ print(length(globalmatrix))
 # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
 
 ### END ###
+
