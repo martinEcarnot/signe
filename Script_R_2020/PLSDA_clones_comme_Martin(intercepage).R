@@ -11,6 +11,8 @@ library(dplyr)
 library(prospectr)
 library(sampling)
 library(rnirs)
+library(ggplot2)
+library(plotly)
 
 rm(list = ls())
 
@@ -76,8 +78,8 @@ rownames(sp)=paste(rownames(sp),alea)
 
 
 
-class=as.factor(substr(rownames(sp),20,20)) #9,9
-classclo=as.factor(substr(rownames(sp),20,24)) #9,13
+class=as.factor(substr(rownames(sp),9,9)) #9,9
+classclo=as.factor(substr(rownames(sp),9,13)) #9,13
 
 ## Variable qui mesure le nombre de classes
 c=length(levels(class))
@@ -414,7 +416,7 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 #  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
 
-length(which(substr(rownames(spcal),20,24)=="S 877"))
+#length(which(substr(rownames(spcal),20,24)=="S 877"))
 
 #unique(substr(rownames(sp[which(substr(rownames(sp),18,18)=="g"),]),1,4))
 # length(which(substr(rownames(sp[which(substr(rownames(sp),18,18)=="G"),]),9,13)=="S 877"))
@@ -435,15 +437,15 @@ idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" &
 
 # m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
 # spval=getdata(sp,m)[[2]]
-# idval=which(rownames(sp)  %in%  rownames(spval))
+# idval=which(rownames(sp)  %in%  rownames(spval) & substr(rownames(sp),18,18)=="G")
 
 #
 # L=c(73, 91, 109, 519, 537, 555, 1167, 1185, 1203, 1221)
 # L2=c(L, (2+L), (2+L),(3+L),(4+L),(5+L))
 # L2
-idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G")
+#idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G")
 
-ncmax=300
+#ncmax=300
 spval=sp[idval,]
 spcal=sp[-idval,]
 classval=class[idval]
@@ -458,13 +460,17 @@ spcal=spcal[which(substr(rownames(spcal),18,18)=="G"),]
 
 
 predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+distances=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
 rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
 sccal=rplsda$scores
 spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
 scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
-for (ii in 2:ncmax) {predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class}
+for (ii in 2:ncmax) {
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
+  distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$dist
+}
 tsm=lapply(as.list(predmF), classval, FUN = table)
 diagsm=lapply(tsm, FUN = diag)
 perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
@@ -473,6 +479,51 @@ plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19,
 perokm
 tsm[25]
 
+
+
+#Pour l'étude des distances on se place, un peu arbitrairement, à 8VL.
+#132B4C ou #11274A
+#4CB4FF ou #4FB2FC
+bleus=c("#132B4C","#4CB4FF")
+Ldist=as.data.frame(matrix(nrow = length(scval[,1]), ncol = 8))
+VL=18
+l1=c(1,2,3,7,8,9,13,14,15)
+l2=c(4,5,6,10,11,12,16,17,18)
+substr(rownames(scval),15,16)
+for (i in 1:length(scval[,1])){
+  S=distances[VL][i,][1]+distances[VL][i,][2]+distances[VL][i,][3]
+  Ldist[i,1]=min(distances[VL][i,][1]/S,distances[VL][i,][2]/S,distances[VL][i,][3]/S)
+  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
+  Ldist[i,3]=substr(rownames(scval)[i],9,9)
+  Ldist[i,4]=as.character(predmF[VL][i,])
+  Ldist[i,5]="Mal classé"
+  if (Ldist[i,3]==Ldist[i,4]){
+    Ldist[i,5]="Bien classé"
+  }
+  Ldist[i,6]=i
+  Ldist[i,7]=substr(rownames(scval)[i],5,8)
+  Ldist[i,8]="J"
+  if (substr(rownames(scval)[i],15,16) %in% l2){
+    Ldist[i,8]="V"
+  }
+}
+
+bleu=rgb(0.09,0.63,1)
+bleu2=rgb(0,0.43,0.8)
+bleu3=rgb(0.59,0.83,1)
+vert=rgb(0.10,0.94,0.36)
+vert2=rgb(0.12,0.75,0.10)
+vert3=rgb(0.50,0.94,0.36)
+vert4=rgb(0.50,0.75,0.36)
+rouge=rgb(1,0.35,0.13)
+rouge2=rgb(0.8,0.35,0.13)
+rouge3=rgb(1,0.55,0.33)
+colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
+
+aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,8]),date=Ldist[,7],cepage=Ldist[,3])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = colo)
+ggplotly(aff)
 
 
 
