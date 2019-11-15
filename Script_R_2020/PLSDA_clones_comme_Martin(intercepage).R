@@ -38,6 +38,26 @@ globalmatrixN1=globalmatrix
 # iok=substr(rownames(globalmatrixN1),1,9) %in% dates
 sp=globalmatrixN1 #[iok,]
 
+
+L=unique(substr(rownames(sp),9,13))
+L2=sort(L)
+
+# sp2=as.data.frame(matrix(ncol = 5))
+# names(sp2)=names(sp)
+sp2=sp
+
+for (i in 1:length(L2)){
+  N=which(substr(rownames(sp),9,13)==L2[i])
+  sp2=rbind(sp2,sp[N,])
+}
+
+sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+rownames(sp3)=substr(rownames(sp3),1,18)
+
+sp=sp3
+
+
+
 #####sp=sp[which(substr(rownames(sp),18,18)=="G"),]
 
 
@@ -71,10 +91,10 @@ sp=globalmatrixN1 #[iok,]
 # class=as.factor(substr(rownames(sp),11,13))
 
 ##Permet de voir si, avec des trucs aléatoires, ca ferait des prédictions "illusoires"
-L=c("C 015", "C 169", "C 685", "G 222", "G 509", "G 787", "S 471", "S 525", "S 747", "S 877")
-alea=L[sample(1:10,length(sp[,1]),replace = T) ]
-
-rownames(sp)=paste(rownames(sp),alea)
+# L=c("C 015", "C 169", "C 685", "G 222", "G 509", "G 787", "S 471", "S 525", "S 747", "S 877")
+# alea=L[sample(1:10,length(sp[,1]),replace = T) ]
+#
+# rownames(sp)=paste(rownames(sp),alea)
 
 
 
@@ -133,8 +153,6 @@ sp_pre=t(scale(t(sp_pre)))
 
 ## Derivation Savitsky Golay
 sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
-
-
 
 
 
@@ -493,8 +511,13 @@ substr(rownames(scval),15,16)
 for (i in 1:length(scval[,1])){
   S=distances[VL][i,][1]+distances[VL][i,][2]+distances[VL][i,][3]
   Ldist[i,1]=min(distances[VL][i,][1]/S,distances[VL][i,][2]/S,distances[VL][i,][3]/S)
-  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
+
   Ldist[i,3]=substr(rownames(scval)[i],9,9)
+
+  n=which(c("C","G","S")==Ldist[i,3])
+  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
+  #Ldist[i,2]=distances[VL][i,][n]
+
   Ldist[i,4]=as.character(predmF[VL][i,])
   Ldist[i,5]="Mal classé"
   if (Ldist[i,3]==Ldist[i,4]){
@@ -508,6 +531,12 @@ for (i in 1:length(scval[,1])){
   }
 }
 
+
+
+
+
+
+
 bleu=rgb(0.09,0.63,1)
 bleu2=rgb(0,0.43,0.8)
 bleu3=rgb(0.59,0.83,1)
@@ -520,7 +549,8 @@ rouge2=rgb(0.8,0.35,0.13)
 rouge3=rgb(1,0.55,0.33)
 colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
 
-aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,8]),date=Ldist[,7],cepage=Ldist[,3])) +
+
+aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,5]),date=Ldist[,7],cepage=Ldist[,3])) +
   geom_point(size=2, alpha=1) +
   scale_color_manual(values = colo)
 ggplotly(aff)
