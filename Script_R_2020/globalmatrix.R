@@ -3,15 +3,15 @@
 # nettoyage des variables de l'espace de travail
 rm(list = ls())
 
-source('C:/Users/avitvale/Documents/Script_R/SIGNE_load.R')
-source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
-source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
+
+source('Script_R_2020/adj_asd.R')
+source('Script_R_2020/SIGNE_load.R')
 
 
 # #création de la matrice qui rassemble tous les dossiers:
 globalmatrix=matrix(ncol=2072)
 
-#print(globalmatrix)
+
 setwd("C:/Users/avitvale/Documents/SIGNE")
 for (a in 2017:2019){
   setwd("C:/Users/avitvale/Documents/SIGNE")
@@ -28,7 +28,6 @@ for (a in 2017:2019){
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
           rownames(w)=paste(dir()[m],rownames(w),lieu)
-#          print(rownames(w))
           globalmatrix=rbind(globalmatrix, w)
         }
       }
@@ -40,28 +39,22 @@ for (a in 2017:2019){
 setwd("C:/Users/avitvale/Documents/signeG")
 
 
-#print(globalmatrix)
 globalmatrix=globalmatrix[complete.cases(globalmatrix),]
-str(globalmatrix)
+#str(globalmatrix)
 
 #Filtrage des noms non standardisés
 iout=which(nchar(rownames(globalmatrix))>18)
-
-
 # rownames(globalmatrix[iout,])
 # unique(rownames(globalmatrix[which(substr(rownames(globalmatrix),1,8)=="20170612"),]))
-
-
-
 globalmatrix <- globalmatrix[-iout,]
 
-## Filtrage des spectres aberrants
+## Filtrage des spectres aberrants        #Tous les spectres aberrants sont-ils filtrés par ce moyen ?
 globalmatrix=globalmatrix[globalmatrix[,500]>0.6,]
 globalmatrix=globalmatrix[globalmatrix[,1]<0.2,]
 globalmatrix=globalmatrix[globalmatrix[,2000]<0.25,]
 
 
-## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
+## Ajustement des sauts de detecteur (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
 globalmatrix=adj_asd(globalmatrix,c(602,1402))
 
 ## Reduction des variables (extremites bruitees)
@@ -69,7 +62,7 @@ globalmatrix=globalmatrix[,seq(51,ncol(globalmatrix)-30,1)]
 
 
 
-# ###Ajout du cepage au nom de la ligne. Retire aussi les cépages/clones qui sont pas les 3/10 notres.
+# ###Ajout du cepage au nom de la ligne. Retire aussi les cépages/clones qui ne sont pas les 3/10 notres.
 # ##Filtre en fonction du cepage
 # titre=rownames(globalmatrix)
 #
@@ -115,6 +108,8 @@ globalmatrix=globalmatrix[,seq(51,ncol(globalmatrix)-30,1)]
 # ##Recombine les 3 matrices pour reformer sp
 # globalmatrix=rbind(spa,spb,spc,spd,spe,spf,spg,sph,spi,spj)
 
+
+#Cette méthode est équivalente à ce qui précède, simplement les spectres dans la globalmatrix ne sont pas dans le même ordre.
 for (i in 1:length(globalmatrix[,1])){
   if (substr(rownames(globalmatrix)[i],11,13)=="015" | substr(rownames(globalmatrix)[i],11,13)=="169" | substr(rownames(globalmatrix)[i],11,13)=="685"){
     substr(rownames(globalmatrix)[i],9,9)="C"

@@ -38,7 +38,6 @@ globalmatrixN1=globalmatrix
 # iok=substr(rownames(globalmatrixN1),1,9) %in% dates
 sp=globalmatrixN1 #[iok,]
 
-
 L=unique(substr(rownames(sp),9,13))
 L2=sort(L)
 
@@ -55,6 +54,7 @@ sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
 rownames(sp3)=substr(rownames(sp3),1,18)
 
 sp=sp3
+
 
 
 
@@ -156,6 +156,9 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
 
 
+
+
+
 perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
 #perok_final=matrix(nrow = repet, ncol = ncmax)
@@ -189,21 +192,21 @@ for(j in 1:repet) {
   spval=sp[idval,]
   spcal=sp[-idval,]
 
-  classval=class[idval]
-  classcal=class[-idval]
+  classval=sp$y1[idval]
+  classcal=sp$y1[-idval]
 
-  classvalclo=classclo[idval]
-  classcalclo=classclo[-idval]
+  classvalclo=sp$y2[idval]
+  classcalclo=sp$y2[-idval]
 
 
   spvalC=sp[idvalC,]
   spcalC1=sp[-idvalC,]
   spcalC=spcalC1[which(spcalC1$y1=="C"),]
 
-  classvalC=classclo[idvalC]
+  classvalC=sp$y2[idvalC]
   classvalC=droplevels(classvalC)
 
-  classcalC1=classclo[-idvalC]
+  classcalC1=sp$y2[-idvalC]
   classcalC=classcalC1[which(classcalC1=="C 015" | classcalC1=="C 169" | classcalC1=="C 685")]
   classcalC=droplevels(classcalC)
 
@@ -213,10 +216,10 @@ for(j in 1:repet) {
   spcalG1=sp[-idvalG,]
   spcalG=spcalG1[which(spcalG1$y1=="G"),]
 
-  classvalG=classclo[idvalG]
+  classvalG=sp$y2[idvalG]
   classvalG=droplevels(classvalG)
 
-  classcalG1=classclo[-idvalG]
+  classcalG1=sp$y2[-idvalG]
   classcalG=classcalG1[which(classcalG1=="G 222" | classcalG1=="G 509" | classcalG1=="G 787")]
   classcalG=droplevels(classcalG)
 
@@ -226,10 +229,10 @@ for(j in 1:repet) {
   spcalS1=sp[-idvalS,]
   spcalS=spcalS1[which(spcalS1$y1=="S"),]
 
-  classvalS=classclo[idvalS]
+  classvalS=sp$y2[idvalS]
   classvalS=droplevels(classvalS)
 
-  classcalS1=classclo[-idvalS]
+  classcalS1=sp$y2[-idvalS]
   classcalS=classcalS1[which(classcalS1=="S 471" | classcalS1=="S 525" | classcalS1=="S 747" | classcalS1=="S 877")]
   classcalS=droplevels(classcalS)
 
@@ -418,6 +421,7 @@ for(j in 1:repet) {
 
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalm), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+perok_finalm
 
 plot(colMeans(perok_finalm0C), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmC), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
@@ -432,6 +436,19 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 #stop()
 
+
+bleu=rgb(0.09,0.63,1)
+bleu2=rgb(0,0.43,0.8)
+bleu3=rgb(0.59,0.83,1)
+vert=rgb(0.10,0.94,0.36)
+vert2=rgb(0.12,0.75,0.10)
+vert3=rgb(0.50,0.94,0.36)
+vert4=rgb(0.50,0.75,0.36)
+rouge=rgb(1,0.35,0.13)
+rouge2=rgb(0.8,0.35,0.13)
+rouge3=rgb(1,0.55,0.33)
+colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
+
 #  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
 
 #length(which(substr(rownames(spcal),20,24)=="S 877"))
@@ -441,7 +458,7 @@ plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 # "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
 # unique(substr(rownames(sp),1,8))
-idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613")
+idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" & substr(rownames(sp),5,8)!="0702")
 #idval=which(substr(rownames(sp),18,18)!="G")
 
 #which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
@@ -466,10 +483,10 @@ idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" &
 #ncmax=300
 spval=sp[idval,]
 spcal=sp[-idval,]
-classval=class[idval]
-classcal=class[-idval]
-classvalclo=classclo[idval]
-classcalclo=classclo[-idval]
+classval=sp$y1[idval]
+classcal=sp$y1[-idval]
+classvalclo=sp$y2[idval]
+classcalclo=sp$y2[-idval]
 
 idcal=which(substr(rownames(sp),18,18)=="G")
 classcal=classcal[which(substr(rownames(spcal),18,18)=="G")]
@@ -495,7 +512,7 @@ perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-tsm[25]
+tsm[22]
 
 
 
@@ -504,10 +521,10 @@ tsm[25]
 #4CB4FF ou #4FB2FC
 bleus=c("#132B4C","#4CB4FF")
 Ldist=as.data.frame(matrix(nrow = length(scval[,1]), ncol = 8))
-VL=18
+VL=22
 l1=c(1,2,3,7,8,9,13,14,15)
 l2=c(4,5,6,10,11,12,16,17,18)
-substr(rownames(scval),15,16)
+
 for (i in 1:length(scval[,1])){
   S=distances[VL][i,][1]+distances[VL][i,][2]+distances[VL][i,][3]
   Ldist[i,1]=min(distances[VL][i,][1]/S,distances[VL][i,][2]/S,distances[VL][i,][3]/S)
@@ -515,8 +532,8 @@ for (i in 1:length(scval[,1])){
   Ldist[i,3]=substr(rownames(scval)[i],9,9)
 
   n=which(c("C","G","S")==Ldist[i,3])
-  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
-  #Ldist[i,2]=distances[VL][i,][n]
+#  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
+  Ldist[i,2]=distances[VL][i,][n]
 
   Ldist[i,4]=as.character(predmF[VL][i,])
   Ldist[i,5]="Mal classé"
@@ -534,23 +551,7 @@ for (i in 1:length(scval[,1])){
 
 
 
-
-
-
-bleu=rgb(0.09,0.63,1)
-bleu2=rgb(0,0.43,0.8)
-bleu3=rgb(0.59,0.83,1)
-vert=rgb(0.10,0.94,0.36)
-vert2=rgb(0.12,0.75,0.10)
-vert3=rgb(0.50,0.94,0.36)
-vert4=rgb(0.50,0.75,0.36)
-rouge=rgb(1,0.35,0.13)
-rouge2=rgb(0.8,0.35,0.13)
-rouge3=rgb(1,0.55,0.33)
-colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
-
-
-aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,5]),date=Ldist[,7],cepage=Ldist[,3])) +
+aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,5]),date=Ldist[,7],cepage=Ldist[,3],predit=Ldist[,4])) +
   geom_point(size=2, alpha=1) +
   scale_color_manual(values = colo)
 ggplotly(aff)

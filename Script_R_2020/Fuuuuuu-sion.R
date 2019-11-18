@@ -1,13 +1,13 @@
+#package esquisse
+
 library(FactoMineR)
 library(factoextra)
 library(pls)
 library(MASS)
-#library(mixOmics)
 library(signal)
 library(plyr)
 library(caret)
 library(dplyr)
-#library(nirs)
 library("ellipse")
 library(rgl)
 library(ade4)
@@ -18,9 +18,9 @@ library(plotly)
 
 rm(list = ls())
 
-source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
+#source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
 
-brb4="C:/Users/avitvale/Documents/Test/globalmatrix"
+brb4="C:/Users/avitvale/Documents/Test/globalmatrix" #Déplacer globalmatrix
 load(file=brb4)
 #dates=list("20180809T","20180724N","20170710P")
 
@@ -45,7 +45,7 @@ rouge2=rgb(0.8,0.35,0.13)
 rouge3=rgb(1,0.55,0.33)
 
 coloclone=c(rouge, rouge2, rouge3, bleu, bleu2, bleu3, vert, vert2, vert3, vert4)
-
+colocepage=c(rouge,bleu,vert)
 
 
 sp=globalmatrix
@@ -126,7 +126,7 @@ texte=as.factor(substr(rownames(sp5),9,9))
  plot(axeX,axeY,pch=16, col=coloclone[colo], type="n",
       main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
-text(axeX,axeY,annee, col=coloclone[colo])
+text(axeX,axeY,annee, col=colocepage[colo])
 
 text(axeX,axeY,levels(colo), col=as.numeric(annee))
 
@@ -152,10 +152,10 @@ legend(x="right", legend=unique(annee), col=c(1,2,3), pch=15, bg="white")
 
 plot3d(axeX[colo==levels(colo)[1]],axeY[colo==levels(colo)[1]],axeZ[colo==levels(colo)[1]],
 
-       col=coloclone[which(levels(colo)==levels(colo)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+       col=colocepage[which(levels(colo)==levels(colo)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
 
 for (i in levels(colo)) {
-  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=coloclone[which(levels(colo)==i)],radius=0.2)
+  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=colocepage[which(levels(colo)==i)],radius=0.2)
 }
 
 
@@ -165,7 +165,7 @@ for (i in levels(colo)) {
 
   ellipse <- ellipse3d(cov(cbind(x,y,z)), centre=c(mean(x), mean(y), mean(z)), level = 0.95)
 
-  plot3d(ellipse, col=coloclone[which(levels(colo)==i)], alpha = 0.05, add = TRUE, type="shade")
+  plot3d(ellipse, col=colocepage[which(levels(colo)==i)], alpha = 0.05, add = TRUE, type="shade")
 }
 
 
@@ -185,79 +185,3 @@ sp <- ggplot(sp7, aes(x=axeX, y=axeY,colour=clone)) +
   scale_color_manual(values = coloclone) #+
 #  geom_density_2d(data = sp6, size=0.3, bins=3)
 ggplotly(sp)
-
-
-
-#text(axeX,axeY,rownames(x)) #Afficher un texte au dessus des points, par ex leur nom ou leur c?page...
-
-#plot(acp$li[,2])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#plot(acp,choix="ind",habillage=1993)
-#dimdesc(acp, axes = 1:2)
-
-
-## Fonction pareto
-#
-# pareto = function(x, bar.col="cyan", line.col="red", pch=16, h=80, h.lty=3,main="",xlab="D?fauts",ylab="Fr?quence (%)", names.arg=c(), ylab2="Cumul",mar=c(5,4,3,4)) {
-#
-#   if (length(names.arg)>0) {names.arg=names.arg[order(x, decreasing = TRUE)]}
-#
-#   x = sort(x,decreasing=T); x = x*100/sum(x);
-#
-#   cumul = (cumsum(x)/sum(x))*100
-#
-#   simulation = barplot(x,col=bar.col) ; simulation
-#
-#   plot.new()
-#
-#   par(mar=mar)
-#
-#   barplot(x,col=bar.col,axes=F,ylim=c(0,100),main=main,xlab=xlab,ylab="",names.arg=names.arg)
-#
-#   #par(new=TRUE)
-#
-#   points(simulation,cumul,pch=pch,col=line.col,xlab="",ylab="",type="o")
-#
-#   abline(h=h,lty=h.lty) ; box()
-#
-#   axis(2) ; axis(4,c(0,20,40,60,80,100),col.axis=line.col,col=line.col)
-#
-#   mtext(ylab,side=2,line=2,cex=1.2) ; mtext(ylab2,side=4,col="red",line=2,cex=1.2)
-#
-#   result = c(x , cumul) ; result = matrix(result,nc=length(x), byrow=T)
-#
-#   if (length(names.arg)>0) {colnames(result) = names.arg }
-#
-#   rownames(result) = c("frequency","cumul")
-#
-#   return(result)}
-
-####
-
-#pareto(acp$eig[,2], h=95)
-#acp
-
-
-
