@@ -3,31 +3,30 @@
 # nettoyage des variables de l'espace de travail
 rm(list = ls())
 
-
-source('Script_R_2020/adj_asd.R')
-source('Script_R_2020/SIGNE_load.R')
+source('C:/Users/avitvale/Documents/Script_R/SIGNE_load.R')       ##### N'arrive pas à trouver le chemin "normal (dans signeG), comprends pas pourquoi
+source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
+source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
 
 
 # #création de la matrice qui rassemble tous les dossiers:
 globalmatrix=matrix(ncol=2072)
 
-
 setwd("C:/Users/avitvale/Documents/SIGNE")
 for (a in 2017:2019){
-  setwd("C:/Users/avitvale/Documents/SIGNE")
-  setwd(as.character(a))
+  setwd("C:/Users/avitvale/Documents/SIGNE")                                     #Mettre ici le chemin d'accès au dossier contenant les spectres
+  setwd(as.character(a)) #On balaie les trois dossiers année
   for (n in 1:length(dir())){
     if ((dir()[n])=="Aude" | (dir()[n])=="Beaujolais" | (dir()[n])=="GDRautre" |(dir()[n])=="GDR96"){
-      lieu=substr(dir()[n],1,1)
+      lieu=substr(dir()[n],1,1) #On attribue au spectre un identifiant lieu selon sa parcelle d'origine : A, B, G ou g
       if ((dir()[n])=="GDRautre"){
         lieu='g'
       }
-      setwd(as.character(dir()[n]))
+      setwd(as.character(dir()[n])) #On entre dans le sous-dossier.
       for (m in 1:length(dir())){
-        if(substr(dir()[m],9,9)=="P"){
+        if(substr(dir()[m],9,9)=="P"){ #on ne s'intéresse qu'au mesures effectuées en suivant la modalité P
           em=paste(dir()[m], sep="")
           w=SIGNE_load(em)
-          rownames(w)=paste(dir()[m],rownames(w),lieu)
+          rownames(w)=paste(dir()[m],rownames(w),lieu) #On ajoute l'identifiant lieu au nom de chaque spectre
           globalmatrix=rbind(globalmatrix, w)
         }
       }
@@ -36,7 +35,6 @@ for (a in 2017:2019){
   }
 }
 
-setwd("C:/Users/avitvale/Documents/signeG")
 
 
 globalmatrix=globalmatrix[complete.cases(globalmatrix),]
@@ -49,7 +47,7 @@ iout=which(nchar(rownames(globalmatrix))>18)
 globalmatrix <- globalmatrix[-iout,]
 
 ## Filtrage des spectres aberrants        #Tous les spectres aberrants sont-ils filtrés par ce moyen ?
-globalmatrix=globalmatrix[globalmatrix[,500]>0.6,]
+globalmatrix=globalmatrix[globalmatrix[,500]>0.6,] #Actuellement, 33 spectres jugés aberrants filtrés ici. (Dont 5 qui ne font pas partie de nos 10 clones étudiés..?)
 globalmatrix=globalmatrix[globalmatrix[,1]<0.2,]
 globalmatrix=globalmatrix[globalmatrix[,2000]<0.25,]
 
@@ -129,11 +127,161 @@ iout=which(substr(rownames(globalmatrix),9,9)=="A")
 globalmatrix <- globalmatrix[-iout,]
 
 
+
+
+str(globalmatrix)
+a=matrix(ncol=1992)
+b=matrix(ncol=1992)
+c=matrix(ncol=1992)
+d=matrix(ncol=1992)
+e=matrix(ncol=1992)
+f=matrix(ncol=1992)
+g=matrix(ncol=1992)
+h=matrix(ncol=1992)
+i=matrix(ncol=1992)
+j=matrix(ncol=1992)
+k=matrix(ncol=1992)
+l=matrix(ncol=1992)
+m=matrix(ncol=1992)
+n=matrix(ncol=1992)
+o=matrix(ncol=1992)
+p=matrix(ncol=1992)
+q=matrix(ncol=1992)
+r=matrix(ncol=1992)
+
+colnames(a)=449:2440
+
+interm=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[1])),])
+if (length(interm[,1])==18){
+  a=rbind(a,interm[1,])
+  rownames(a)[length(a[,1])]=paste(substr(rownames(interm)[length(a[,1])],1,13),"-00 ", substr(rownames(interm)[length(a[,1])],18,18),1, sep="")
+  # b=rbind(b,interm[2,])
+  # c=rbind(c,interm[3,])
+  # d=rbind(d,interm[4,])
+  # e=rbind(e,interm[5,])
+  # f=rbind(f,interm[6,])
+  # g=rbind(g,interm[7,])
+  # h=rbind(h,interm[8,])
+  # i=rbind(i,interm[9,])
+  # j=rbind(j,interm[10,])
+  # k=rbind(k,interm[11,])
+  # l=rbind(l,interm[12,])
+  # m=rbind(m,interm[13,])
+  # n=rbind(n,interm[14,])
+  # o=rbind(o,interm[15,])
+  # p=rbind(p,interm[16,])
+  # q=rbind(q,interm[17,])
+  # r=rbind(r,interm[18,])
+}
+
+
+
+for (i in 2:length(unique(substr(rownames(globalmatrix),1,13)))) {
+  interm=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[i])),]
+  print(paste(i, "avant"))
+  if (length(interm[,1])==18){
+    print(paste(i, "apres"))
+    a=rbind(a,interm[1,])
+    #rownames(a)[length(a[,1])]=paste(substr(rownames(interm)[length(a[,1])],1,13),"-00 ", substr(rownames(interm)[length(a[,1])],18,18),1, sep="")
+    # b=rbind(b,interm[2,])
+    # c=rbind(c,interm[3,])
+    # d=rbind(d,interm[4,])
+    # e=rbind(e,interm[5,])
+    # f=rbind(f,interm[6,])
+    # g=rbind(g,interm[7,])
+    # h=rbind(h,interm[8,])
+    # i=rbind(i,interm[9,])
+    # j=rbind(j,interm[10,])
+    # k=rbind(k,interm[11,])
+    # l=rbind(l,interm[12,])
+    # m=rbind(m,interm[13,])
+    # n=rbind(n,interm[14,])
+    # o=rbind(o,interm[15,])
+    # p=rbind(p,interm[16,])
+    # q=rbind(q,interm[17,])
+    # r=rbind(r,interm[18,])
+  }
+}
+
+
+rownames(a)=paste(substr(rownames(a),1,13),"-00 ", substr(rownames(a),18,18),0, sep="")
+rownames(b)=paste(substr(rownames(b),1,13),"-00 ", substr(rownames(b),18,18),0, sep="")
+rownames(c)=paste(substr(rownames(c),1,13),"-00 ", substr(rownames(c),18,18),0, sep="")
+rownames(d)=paste(substr(rownames(d),1,13),"-00 ", substr(rownames(d),18,18),0, sep="")
+rownames(e)=paste(substr(rownames(e),1,13),"-00 ", substr(rownames(e),18,18),0, sep="")
+rownames(f)=paste(substr(rownames(f),1,13),"-00 ", substr(rownames(f),18,18),0, sep="")
+
+colnames(b)=(max(as.numeric(colnames(a)))+1):((max(as.numeric(colnames(a)))+1)+length(b)-1)
+colnames(c)=(max(as.numeric(colnames(b)))+1):((max(as.numeric(colnames(b)))+1)+length(c)-1)
+colnames(d)=(max(as.numeric(colnames(c)))+1):((max(as.numeric(colnames(c)))+1)+length(d)-1)
+colnames(e)=(max(as.numeric(colnames(d)))+1):((max(as.numeric(colnames(d)))+1)+length(e)-1)
+colnames(f)=(max(as.numeric(colnames(e)))+1):((max(as.numeric(colnames(e)))+1)+length(f)-1)
+
+
+
+
+
+
+
+
+
+
+interm=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[1])   &   as.numeric(substr(rownames(globalmatrix),15,16)) %in% ((6*0)+1):(6*(0+1))     ),])
+if (length(interm[,1])==6){
+  #    I=interm[1,] #cbind(a=interm[1,], b=interm[2,], c=interm[3,], d=interm[4,], e=interm[5,], f=interm[6,])
+  #    for(k in 1:6){
+  #    rownames(interm)[1]=paste(substr(rownames(interm)[1],1,13),substr(rownames(interm)[1],18,18),j, sep="")
+  I=cbind(interm[1,], interm[2,], interm[3,], interm[4,], interm[5,], interm[6,])
+  spb=I
+}
+
+
+for (j in 1:2){
+  interm=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[1])   &   as.numeric(substr(rownames(globalmatrix),15,16)) %in% ((6*j)+1):(6*(j+1))     ),])
+  if (length(interm[,1])==6){
+#    I=interm[1,] #cbind(a=interm[1,], b=interm[2,], c=interm[3,], d=interm[4,], e=interm[5,], f=interm[6,])
+#    for(k in 1:6){
+#    rownames(interm)[1]=paste(substr(rownames(interm)[1],1,13),substr(rownames(interm)[1],18,18),j, sep="")
+    I=cbind(interm[1,], interm[2,], interm[3,], interm[4,], interm[5,], interm[6,])
+    spb=rbind(spb,I)
+  }
+}
+
+
+
+
+
+for (i in 2:length(unique(substr(rownames(globalmatrix),1,13)))) {
+  for (j in 0:2){
+    interm=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[i])   &   as.numeric(substr(rownames(globalmatrix),15,16)) %in% ((6*j)+1):(6*(j+1))     ),])
+    print(length(interm[,1]))
+    if (length(interm[,1])==6){           #6
+      I=cbind(interm[1,], interm[2,], interm[3,], interm[4,], interm[5,], interm[6,])
+      spb=rbind(spb,I)
+    }
+  }
+}
+str(spb) #Trop de lignes, non ?
+# L[which(L!=6)]
+# which(L!=6)
+
+
+interm=sp[which(paste(substr(rownames(sp),1,13),sp$souche)==unique(paste(substr(rownames(sp),1,13),sp$souche))[10]),]
+
+length(interm[,1])
+
+
+
+
+
+
+
+
 print(globalmatrix)
 brb="C:/Users/avitvale/Documents/Test/"
 save(globalmatrix, file=paste(brb,"globalmatrix",sep=""))
 print(length(globalmatrix))
 # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
-
+setwd("C:/Users/avitvale/Documents/signeG")
 ### END ###
 

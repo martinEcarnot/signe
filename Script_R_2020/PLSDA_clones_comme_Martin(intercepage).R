@@ -2,7 +2,6 @@
 
 
 library(MASS)
-# library(mixOmics)
 library(FactoMineR)
 library(signal)
 library(plyr)
@@ -16,16 +15,15 @@ library(plotly)
 
 rm(list = ls())
 
+
 source('Script_R_2020/adj_asd.R')
 source('Script_R_2020/SIGNE_load.R')
-# source('C:/Users/No?mie/Desktop/SFE/Script_R/SIGNE_maha.R')
 source('Script_R_2020/SIGNE_maha0.R')
 source("Script_R_2020/sp2dfclo.R")
 
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 #set.seed(1)
 
-# brb3="~/Documents/NICOLAS/Stage de fin annee au Grau du roi/globalmatrixN1"
 brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb3)
 globalmatrixN1=globalmatrix
@@ -34,15 +32,11 @@ globalmatrixN1=globalmatrix
 # Data Filter
 
 
-
-# iok=substr(rownames(globalmatrixN1),1,9) %in% dates
-sp=globalmatrixN1 #[iok,]
+#Permet de changer l'ordre des spectres, par exemple en les classant par date/par cépage/par clone... Classement fin en en faisant plusieurs à la suite
+sp=globalmatrixN1
 
 L=unique(substr(rownames(sp),9,13))
 L2=sort(L)
-
-# sp2=as.data.frame(matrix(ncol = 5))
-# names(sp2)=names(sp)
 sp2=sp
 
 for (i in 1:length(L2)){
@@ -87,8 +81,10 @@ sp=sp3
 #aC= substr(rownames(sp),1,4)=="2017"
 #sp =sp[(aC==TRUE),]
 
-## Creation de la matrice de classes
-# class=as.factor(substr(rownames(sp),11,13))
+
+
+
+
 
 ##Permet de voir si, avec des trucs aléatoires, ca ferait des prédictions "illusoires"
 # L=c("C 015", "C 169", "C 685", "G 222", "G 509", "G 787", "S 471", "S 525", "S 747", "S 877")
@@ -107,23 +103,34 @@ cclo=length(levels(classclo))
 
 
 
-
-
-
-# Création des jeux de calibration/ validation
+# Création des jeux de calibration/ validation      (Enjeu d'éviter que des spectres trop semblables soient en calibration et en validation)
 # On créé un facteur datclone qui groupe un clone à 1 date
 datclone=substr(rownames(sp),1,13)
 ndc=length(unique(datclone))
 # On créé un facteur souche qui groupe les 6 spectres de chaque souche
 numsp=as.numeric(substr(rownames(sp),15,16))
-souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))  # paste(datclone,cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3")))
+souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))
 
 sp=sp2dfclo(sp,class,classclo)
-sp=cbind(sp,datclone,souche)   # mutate(sp,datclone=substr(titre,1,13), souche=substr(souche,15,16))
+sp=cbind(sp,datclone,souche)
 
-##Mais... On se sert pas du y ajouté dans le data.frame plus tard, je crois. Bizarre.
+#sp=sp[-which(is.na(sp$souche)),]
 
-# Le tirage sera fait plus loin dans la boucle
+# 20180816C 015 le 10
+# 20180710C 015 le 11
+#rownames(sp)[which(substr(rownames(sp),1,13)=="20180710C 015")]
+str(sp)
+#L=c()
+#unique(paste(substr(rownames(sp),1,13),sp$souche))[709]
+
+
+
+
+
+
+
+
+
 ### FIXATION DES PARAMETRES UTILISES:
 ## Nombre de repetitions de la boucle de PLSDA:
 repet= 2
@@ -143,11 +150,11 @@ k=2
 #sp_pre=adj_asd(sp$x,c(602,1402))
 sp_pre=sp$x
 
-## Reduction des variables (extremites bruitees)
+## Reduction des variables (extremités bruitées)
 # sp=sp[,seq(51,ncol(sp)-30,1)]
 ## Coupure du spectre a 1000nm
 #spx=sp[,seq(+1,601,1)]
-#matplot(t(spx),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
+#matplot(t(spx),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")  ######Utile, je crois
 ## SNV
 sp_pre=t(scale(t(sp_pre)))
 
@@ -161,19 +168,15 @@ sp$x=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
 perok_finalm0=matrix(nrow = repet, ncol = ncmax)
 perok_finalm=matrix(nrow = repet, ncol = ncmax)
-#perok_final=matrix(nrow = repet, ncol = ncmax)
 
-#perok_finalm0clo=matrix(nrow = repet, ncol = ncmax)
-#perok_finalmclo=matrix(nrow = repet, ncol = ncmax)
 perok_finalm0C=matrix(nrow = repet, ncol = ncmax)
 perok_finalm0G=matrix(nrow = repet, ncol = ncmax)
 perok_finalm0S=matrix(nrow = repet, ncol = ncmax)
 perok_finalmC=matrix(nrow = repet, ncol = ncmax)
 perok_finalmG=matrix(nrow = repet, ncol = ncmax)
 perok_finalmS=matrix(nrow = repet, ncol = ncmax)
-#perok_finalclo=matrix(nrow = repet, ncol = ncmax)
 
-#sp=sp[-idval,]
+
 
 ###s?paration validation calibration PLSDA###
 #set.seed(1) # fixe le tirage aleatoire
@@ -188,7 +191,7 @@ for(j in 1:repet) {
   idvalG=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="G")
   idvalS=which((rownames(sp)  %in%  rownames(spval)) & sp$y1=="S")
   #
-  # ##On selectionne les spectres ayant ces num?ros dans le jeu de validation, les autres vont dans le jeu de calibration
+  # ##On selectionne les spectres ayant ces numeros dans le jeu de validation, les autres vont dans le jeu de calibration
   spval=sp[idval,]
   spcal=sp[-idval,]
 
@@ -236,28 +239,23 @@ for(j in 1:repet) {
   classcalS=classcalS1[which(classcalS1=="S 471" | classcalS1=="S 525" | classcalS1=="S 747" | classcalS1=="S 877")]
   classcalS=droplevels(classcalS)
 
-  #Ca, ca doit être bon
-
-  # ## Creation des jeux d'apprentissage et validation
+  ### Creation des jeux d'apprentissage et validation
   predm=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
   predm0=as.data.frame(matrix(nrow = length(classcal), ncol = ncmax))
   spcaldef=spcal # spcal deflaté du(des) groupe(s) de CV déjà validés
 
   predmC=as.data.frame(matrix(nrow = length(classvalC), ncol = ncmax))
   predm0C=as.data.frame(matrix(nrow = length(classcalC), ncol = ncmax))
-  spcaldefC=spcalC # spcal deflaté du(des) groupe(s) de CV déjà validés
+  spcaldefC=spcalC
 
   predmG=as.data.frame(matrix(nrow = length(classvalG), ncol = ncmax))
   predm0G=as.data.frame(matrix(nrow = length(classcalG), ncol = ncmax))
-  spcaldefG=spcalG # spcal deflaté du(des) groupe(s) de CV déjà validés
+  spcaldefG=spcalG
 
   predmS=as.data.frame(matrix(nrow = length(classvalS), ncol = ncmax))
   predm0S=as.data.frame(matrix(nrow = length(classcalS), ncol = ncmax))
-  spcaldefS=spcalS # spcal deflaté du(des) groupe(s) de CV déjà validés
+  spcaldefS=spcalS
 
-
-  # spcal=sp
-  # spcaldef=spcal
 ## Boucle CV
   for (i in 1:k) {
     print(i)
@@ -274,8 +272,6 @@ for(j in 1:repet) {
     spcaldefG=spcaldefG[-(which(rownames(spcaldefG)  %in%  rownames(spvalCV))),]
     spcaldefS=spcaldefS[-(which(rownames(spcaldefS)  %in%  rownames(spvalCV))),]
 
-    # # En mettant une autre année en validation
-    # idvalCV =which(substr(rownames(spcal),1,4)  %in%  '2018')
     spvalCV=spcal[idvalCV,]
     classvalCV=classcal[idvalCV]  #identifiants des classes du jeu de validation
     spcalCV=spcal[-idvalCV,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
@@ -283,24 +279,21 @@ for(j in 1:repet) {
 
 
     spvalCVC=spcalC[idvalCVC,]
-    classvalCVC=classcalC[idvalCVC]  #identifiants des classes du jeu de validation
-    spcalCVC=spcalC[-idvalCVC,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    classcalCVC=classcalC[-idvalCVC] #identifiants des classes du jeu de calibration
-#    classcalCVC=droplevels(classcalCVC)
+    classvalCVC=classcalC[idvalCVC]
+    spcalCVC=spcalC[-idvalCVC,]
+    classcalCVC=classcalC[-idvalCVC]
 
 
     spvalCVG=spcalG[idvalCVG,]
-    classvalCVG=classcalG[idvalCVG]  #identifiants des classes du jeu de validation
-    spcalCVG=spcalG[-idvalCVG,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    classcalCVG=classcalG[-idvalCVG] #identifiants des classes du jeu de calibration
-#    classcalCVG=droplevels(classcalCVG)
+    classvalCVG=classcalG[idvalCVG]
+    spcalCVG=spcalG[-idvalCVG,]
+    classcalCVG=classcalG[-idvalCVG]
 
 
     spvalCVS=spcalS[idvalCVS,]
-    classvalCVS=classcalS[idvalCVS]  #identifiants des classes du jeu de validation
-    spcalCVS=spcalS[-idvalCVS,]      #matrice du jeu de calibration compos?e de tout ce qui n'est pas en validation
-    classcalCVS=classcalS[-idvalCVS] #identifiants des classes du jeu de calibration
-#    classcalCVS=droplevels(classcalCVS)
+    classvalCVS=classcalS[idvalCVS]
+    spcalCVS=spcalS[-idvalCVS,]
+    classcalCVS=classcalS[-idvalCVS]
 
 
     # ## PLSDA and application to have loadings and scores
@@ -312,17 +305,17 @@ for(j in 1:repet) {
     rplsdaC=caret::plsda(spcalCVC$x, classcalCVC, ncomp=ncmax)
     sccalCVC=rplsdaC$scores
     spvalCVC_c=scale(spvalCVC$x,center=rplsdaC$Xmeans,scale = F)
-    scvalCVC=spvalCVC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    scvalCVC=spvalCVC_c%*%rplsdaC$projection
 
     rplsdaG=caret::plsda(spcalCVG$x, classcalCVG, ncomp=ncmax)
     sccalCVG=rplsdaG$scores
     spvalCVG_c=scale(spvalCVG$x,center=rplsdaG$Xmeans,scale = F)
-    scvalCVG=spvalCVG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    scvalCVG=spvalCVG_c%*%rplsdaG$projection
 
     rplsdaS=caret::plsda(spcalCVS$x, classcalCVS, ncomp=ncmax)
     sccalCVS=rplsdaS$scores
     spvalCVS_c=scale(spvalCVS$x,center=rplsdaS$Xmeans,scale = F)
-    scvalCVS=spvalCVS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    scvalCVS=spvalCVS_c%*%rplsdaS$projection
 
 
 
@@ -332,9 +325,6 @@ for(j in 1:repet) {
       predm0C[idvalCVC,ii]=SIGNE_maha0(sccalCVC[,1:ii], classcalCVC, scvalCVC[,1:ii])$class
       predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$class
       predm0S[idvalCVS,ii]=SIGNE_maha0(sccalCVS[,1:ii], classcalCVS, scvalCVS[,1:ii])$class
-#      predm0G[idvalCVG,ii]=SIGNE_maha0(sccalCVG[,1:ii], classcalCVG, scvalCVG[,1:ii])$classclo
-      # M1= matrix(nrow= nrow(scvalCV[,1:ii]), ncol= nlevels(classcalCV))
-      # M2= matrix(nrow= nrow(scvalCVG[,1:ii]), ncol= nlevels(classcalCVG))
     }
   }
 
@@ -353,7 +343,6 @@ for(j in 1:repet) {
   perokm0C =100*unlist(lapply(diagsm0C, FUN = sum))/length(classcalC)
   perokm0G =100*unlist(lapply(diagsm0G, FUN = sum))/length(classcalG)
   perokm0S =100*unlist(lapply(diagsm0S, FUN = sum))/length(classcalS)
-  # perokm0 =100*unlist(lapply(diagsm0, FUN = sum))/length(idvalCV)
   ### Enregistrement des matrices de resultat final CV
   ##Remplissage de la matrice des perok finale
   perok_finalm0[j,]=perokm0
@@ -376,19 +365,19 @@ for(j in 1:repet) {
   rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
   sccalC=rplsdaC$scores
   spvalC_c=scale(spvalC$x,center=rplsdaC$Xmeans,scale = F)
-  scvalC=spvalC_c%*%rplsdaC$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  scvalC=spvalC_c%*%rplsdaC$projection
 
 
   rplsdaG=caret::plsda(spcalG$x, classcalG,ncomp=ncmax)
   sccalG=rplsdaG$scores
   spvalG_c=scale(spvalG$x,center=rplsdaG$Xmeans,scale = F)
-  scvalG=spvalG_c%*%rplsdaG$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  scvalG=spvalG_c%*%rplsdaG$projection
 
 
   rplsdaS=caret::plsda(spcalS$x, classcalS,ncomp=ncmax)
   sccalS=rplsdaS$scores
   spvalS_c=scale(spvalS$x,center=rplsdaS$Xmeans,scale = F)
-  scvalS=spvalS_c%*%rplsdaS$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+  scvalS=spvalS_c%*%rplsdaS$projection
 
   for (ii in 2:ncmax) {
     predmC[,ii]=SIGNE_maha0(sccalC[,1:ii], classcalC, scvalC[,1:ii])$class
@@ -410,13 +399,6 @@ for(j in 1:repet) {
   diagsmS=lapply(tsmS, FUN = diag)
   perokmS =100*unlist(lapply(diagsmS, FUN = sum))/length(idvalS)
   perok_finalmS[j,]=perokmS
-
-
-  # tsmclo=lapply(as.list(predmclo), classvalclo, FUN = table)
-  # diagsmclo=lapply(tsmclo, FUN = diag)
-  # perokmclo =100*unlist(lapply(diagsmclo, FUN = sum))/length(idvalclo)
-  # perok_finalmclo[j,]=perokmclo
-
 }
 
 plot(colMeans(perok_finalm0), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
@@ -428,7 +410,6 @@ plot(colMeans(perok_finalmC), xlab= "Nombre de VL", ylab = "Pourcentage de biens
 
 plot(colMeans(perok_finalm0G), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmG), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-
 
 plot(colMeans(perok_finalm0S), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 plot(colMeans(perok_finalmS), xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
@@ -567,7 +548,7 @@ classcalC=classcalclo[idcalC]
 rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
 sccalC=rplsdaC$scores
 
-## On pourrait considérer qu'il y a en réalité deux grandeurs à faire varier, en n'utilisant pas le même nb de VL pour la PLSDA sur cépages et pour la PLSDA sur clones
+## Il y a en réalité deux grandeurs à faire varier, en n'utilisant pas le même nb de VL pour la PLSDA sur cépages et pour la PLSDA sur clones
 perokmC=0
 for (ii in 2:ncmax){        #NB : On met tout dans la boucle, contrairement à ce qu'on fait pour former perokm parce qu'ici length(classvalCT) est variable en f° de ii
   idvalCT=which(predmF[,25]=="C")

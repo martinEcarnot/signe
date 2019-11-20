@@ -18,8 +18,6 @@ library(plotly)
 
 rm(list = ls())
 
-#source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
-
 brb4="C:/Users/avitvale/Documents/Test/globalmatrix" #Déplacer globalmatrix
 load(file=brb4)
 #dates=list("20180809T","20180724N","20170710P")
@@ -61,20 +59,8 @@ sp4=t(apply(sp3,1,sgolayfilt,p=p,n=n,m=m))
 
 
 
-#### Chamanisme <- Ca change la couleur d'affichage. POur des raisons mystérieuses.
-
- data = read.table("cancers.txt",sep="\t",header=T)
-
- colnames(data)
-
- rownames(data) = data[,1] # On donne ? chaque ligne le nom de son cancer (Cancer 1, Cancer 2)
-
- x = data[1:7,-1] # On exclue la colonne 1 qui contenait les noms des cancers.
-
-
- acp3 = PCA(x, scale.unit=F, ncp=5, graph=T, axes=c(1,2))
-
 ####
+## FILTRE
 rownames(sp4)[1]
 tri=as.factor(substr(rownames(sp4),9,9))
 levels(tri)
@@ -82,7 +68,7 @@ c=which(tri=="S")
 sp5=sp4[c,]
 sp6=sp4
 
-## FILTRE
+
 date=as.factor(substr(rownames(sp6),5,8))
 parc=as.factor(substr(rownames(sp6),18,18))
 DATE=c("0703","0704","0710","0709","0702")
@@ -90,9 +76,9 @@ DATE=c("0703","0704","0710","0709","0702")
 sp3=sp6[which(date  %in%  DATE),]
 parc=as.factor(substr(rownames(sp3),18,18))
 PARC="G"
-sp5=sp3[which(parc %in% PARC),]
+sp5=sp4[which(parc %in% PARC),]
 
-
+sp5=sp4
 length(sp5[,1])
 # sp5=sp4
 #iout=sample(5210,4000)
@@ -116,21 +102,21 @@ axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scor
 #Tracer le graphique
 
 colo=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),9,9)))) #cépages
-colo=as.factor(substr(rownames(sp5),9,9))
+cepage=as.factor(substr(rownames(sp5),9,9))
 annee=as.factor(substr(rownames(sp5),4,4))
 #forme=as.factor(substr(rownames(sp5),18,18))
 texte=as.factor(substr(rownames(sp5),9,9))
 
 #2D
 
- plot(axeX,axeY,pch=16, col=coloclone[colo], type="n",
+plot(axeX,axeY,pch=16, col=coloclone[cepage], type="n",
       main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
-text(axeX,axeY,annee, col=colocepage[colo])
+text(axeX,axeY,annee, col=colocepage[cepage])
 
-text(axeX,axeY,levels(colo), col=as.numeric(annee))
+text(axeX,axeY,levels(cepage), col=as.numeric(annee))
 
-#legend(x="right", legend=unique(colo), col=unique(coloclone), pch=15, bg="white")
+legend(x="right", legend=unique(cepage), col=unique(colocepage), pch=15, bg="white")
 
  #legend(x="left", legend=unique(forme), col=1, pch=unique(as.numeric(forme)), bg="white")
 
@@ -150,22 +136,22 @@ legend(x="right", legend=unique(annee), col=c(1,2,3), pch=15, bg="white")
 
 
 
-plot3d(axeX[colo==levels(colo)[1]],axeY[colo==levels(colo)[1]],axeZ[colo==levels(colo)[1]],
+plot3d(axeX[colo==levels(cepage)[1]],axeY[colo==levels(cepage)[1]],axeZ[colo==levels(cepage)[1]],
 
-       col=colocepage[which(levels(colo)==levels(colo)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+       col=colocepage[which(levels(cepage)==levels(cepage)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
 
-for (i in levels(colo)) {
-  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=colocepage[which(levels(colo)==i)],radius=0.2)
+for (i in levels(cepage)) {
+  points3d(axeX[cepage==i],axeY[cepage==i],axeZ[cepage==i], col=colocepage[which(levels(cepage)==i)],radius=0.2)
 }
 
 
 
-for (i in levels(colo)) {
-  x = rplsda$scores[,axe1][colo==i] ; y = rplsda$scores[,axe2][colo==i] ; z = rplsda$scores[,axe3][colo==i]
+for (i in levels(cepage)) {
+  x = rplsda$scores[,axe1][cepage==i] ; y = rplsda$scores[,axe2][cepage==i] ; z = rplsda$scores[,axe3][cepage==i]
 
   ellipse <- ellipse3d(cov(cbind(x,y,z)), centre=c(mean(x), mean(y), mean(z)), level = 0.95)
 
-  plot3d(ellipse, col=colocepage[which(levels(colo)==i)], alpha = 0.05, add = TRUE, type="shade")
+  plot3d(ellipse, col=colocepage[which(levels(cepage)==i)], alpha = 0.05, add = TRUE, type="shade")
 }
 
 
