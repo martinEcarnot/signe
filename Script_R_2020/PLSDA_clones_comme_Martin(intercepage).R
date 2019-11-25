@@ -68,164 +68,164 @@ sp_pre=t(scale(t(sp_pre)))
 ## Derivation Savitsky Golay
 sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
-
-globalmatrix=sp
-
-
-a=matrix(ncol=1982)
-b=matrix(ncol=1982)
-c=matrix(ncol=1982)
-d=matrix(ncol=1982)
-e=matrix(ncol=1982)
-f=matrix(ncol=1982)
-g=matrix(ncol=1982)
-h=matrix(ncol=1982)
-i=matrix(ncol=1982)
-j=matrix(ncol=1982)
-k=matrix(ncol=1982)
-l=matrix(ncol=1982)
-m=matrix(ncol=1982)
-n=matrix(ncol=1982)
-o=matrix(ncol=1982)
-p=matrix(ncol=1982)
-q=matrix(ncol=1982)
-r=matrix(ncol=1982)
-
-colnames(a)=449:2430
-colnames(b)=449:2430
-colnames(c)=449:2430
-colnames(d)=449:2430
-colnames(e)=449:2430
-colnames(f)=449:2430
-colnames(g)=449:2430
-colnames(h)=449:2430
-colnames(i)=449:2430
-colnames(j)=449:2430
-colnames(k)=449:2430
-colnames(l)=449:2430
-colnames(m)=449:2430
-colnames(n)=449:2430
-colnames(o)=449:2430
-colnames(p)=449:2430
-colnames(q)=449:2430
-colnames(r)=449:2430
-
-
-for (z in 1:length(unique(substr(rownames(globalmatrix),1,13)))) {
-  interm=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[z]),]
-
-  #  truc1=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),])
-  #  truc2=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),]
-  if (length(interm[,1])==18){
-#    print(i)
-    a=rbind(a,interm[1,])
-    K=as.character(paste(substr(rownames(interm)[1],1,13),"-01 ", substr(rownames(interm)[1],18,18), sep=""))
-    rownames(a)[length(a[,1])]=K
-
-    b=rbind(b,interm[2,])
-    K=as.character(paste(substr(rownames(interm)[2],1,13),"-01 ", substr(rownames(interm)[2],18,18), sep=""))
-    rownames(b)[length(b[,1])]=K
-
-    c=rbind(c,interm[3,])
-    K=as.character(paste(substr(rownames(interm)[3],1,13),"-01 ", substr(rownames(interm)[3],18,18), sep=""))
-    rownames(c)[length(c[,1])]=K
-
-    d=rbind(d,interm[4,])
-    K=as.character(paste(substr(rownames(interm)[4],1,13),"-01 ", substr(rownames(interm)[4],18,18), sep=""))
-    rownames(d)[length(d[,1])]=K
-
-    e=rbind(e,interm[5,])
-    K=as.character(paste(substr(rownames(interm)[5],1,13),"-01 ", substr(rownames(interm)[5],18,18), sep=""))
-    rownames(e)[length(e[,1])]=K
-
-    f=rbind(f,interm[6,])
-    K=as.character(paste(substr(rownames(interm)[6],1,13),"-01 ", substr(rownames(interm)[6],18,18), sep=""))
-    rownames(f)[length(f[,1])]=K
-
-    g=rbind(g,interm[7,])
-    K=as.character(paste(substr(rownames(interm)[7],1,13),"-07 ", substr(rownames(interm)[7],18,18), sep=""))
-    rownames(g)[length(g[,1])]=K
-
-    h=rbind(h,interm[8,])
-    K=as.character(paste(substr(rownames(interm)[8],1,13),"-07 ", substr(rownames(interm)[8],18,18), sep=""))
-    rownames(h)[length(h[,1])]=K
-
-    i=rbind(i,interm[9,])
-    K=as.character(paste(substr(rownames(interm)[9],1,13),"-07 ", substr(rownames(interm)[9],18,18), sep=""))
-    rownames(i)[length(i[,1])]=K
-
-    j=rbind(j,interm[10,])
-    K=as.character(paste(substr(rownames(interm)[10],1,13),"-07 ", substr(rownames(interm)[10],18,18), sep=""))
-    rownames(j)[length(j[,1])]=K
-
-    k=rbind(k,interm[11,])
-    K=as.character(paste(substr(rownames(interm)[11],1,13),"-07 ", substr(rownames(interm)[11],18,18), sep=""))
-    rownames(k)[length(k[,1])]=K
-
-    l=rbind(l,interm[12,])
-    K=as.character(paste(substr(rownames(interm)[12],1,13),"-07 ", substr(rownames(interm)[12],18,18), sep=""))
-    rownames(l)[length(l[,1])]=K
-
-    m=rbind(m,interm[13,])
-    K=as.character(paste(substr(rownames(interm)[13],1,13),"-13 ", substr(rownames(interm)[13],18,18), sep=""))
-    rownames(m)[length(m[,1])]=K
-
-    n=rbind(n,interm[14,])
-    K=as.character(paste(substr(rownames(interm)[14],1,13),"-13 ", substr(rownames(interm)[14],18,18), sep=""))
-    rownames(n)[length(n[,1])]=K
-
-    o=rbind(o,interm[15,])
-    K=as.character(paste(substr(rownames(interm)[15],1,13),"-13 ", substr(rownames(interm)[15],18,18), sep=""))
-    rownames(o)[length(o[,1])]=K
-
-    p=rbind(p,interm[16,])
-    K=as.character(paste(substr(rownames(interm)[16],1,13),"-13 ", substr(rownames(interm)[16],18,18), sep=""))
-    rownames(p)[length(p[,1])]=K
-
-    q=rbind(q,interm[17,])
-    K=as.character(paste(substr(rownames(interm)[17],1,13),"-13 ", substr(rownames(interm)[17],18,18), sep=""))
-    rownames(q)[length(q[,1])]=K
-
-    r=rbind(r,interm[18,])
-    K=as.character(paste(substr(rownames(interm)[18],1,13),"-13 ", substr(rownames(interm)[18],18,18), sep=""))
-    rownames(r)[length(r[,1])]=K
-  }
-}
-
-
-
-
-
-colnames(b)=(max(as.numeric(colnames(a)))+1):((max(as.numeric(colnames(a)))+1)+length(b[1,])-1)
-colnames(c)=(max(as.numeric(colnames(b)))+1):((max(as.numeric(colnames(b)))+1)+length(c[1,])-1)
-colnames(d)=(max(as.numeric(colnames(c)))+1):((max(as.numeric(colnames(c)))+1)+length(d[1,])-1)
-colnames(e)=(max(as.numeric(colnames(d)))+1):((max(as.numeric(colnames(d)))+1)+length(e[1,])-1)
-colnames(f)=(max(as.numeric(colnames(e)))+1):((max(as.numeric(colnames(e)))+1)+length(f[1,])-1)
-
-#colnames(g)=(max(as.numeric(colnames(f)))+1):((max(as.numeric(colnames(f)))+1)+length(g[1,])-1)
-colnames(h)=(max(as.numeric(colnames(g)))+1):((max(as.numeric(colnames(g)))+1)+length(h[1,])-1)
-colnames(i)=(max(as.numeric(colnames(h)))+1):((max(as.numeric(colnames(h)))+1)+length(i[1,])-1)
-colnames(j)=(max(as.numeric(colnames(i)))+1):((max(as.numeric(colnames(i)))+1)+length(j[1,])-1)
-colnames(k)=(max(as.numeric(colnames(j)))+1):((max(as.numeric(colnames(j)))+1)+length(k[1,])-1)
-colnames(l)=(max(as.numeric(colnames(k)))+1):((max(as.numeric(colnames(k)))+1)+length(l[1,])-1)
-
-#colnames(m)=(max(as.numeric(colnames(l)))+1):((max(as.numeric(colnames(l)))+1)+length(m[1,])-1)
-colnames(n)=(max(as.numeric(colnames(m)))+1):((max(as.numeric(colnames(m)))+1)+length(n[1,])-1)
-colnames(o)=(max(as.numeric(colnames(n)))+1):((max(as.numeric(colnames(n)))+1)+length(o[1,])-1)
-colnames(p)=(max(as.numeric(colnames(o)))+1):((max(as.numeric(colnames(o)))+1)+length(p[1,])-1)
-colnames(q)=(max(as.numeric(colnames(p)))+1):((max(as.numeric(colnames(p)))+1)+length(q[1,])-1)
-colnames(r)=(max(as.numeric(colnames(q)))+1):((max(as.numeric(colnames(q)))+1)+length(r[1,])-1)
-
-
-sptesta=cbind(a,b,c,d,e,f)
-sptestb=cbind(g,h,i,j,k,l)
-sptestc=cbind(m,n,o,p,q,r)
-
-sptest=rbind(sptesta,sptestb,sptestc)
-sptest=sptest[complete.cases(sptest),]
-
-
-sp=sptest
+#
+# globalmatrix=sp
+#
+#
+# a=matrix(ncol=1982)
+# b=matrix(ncol=1982)
+# c=matrix(ncol=1982)
+# d=matrix(ncol=1982)
+# e=matrix(ncol=1982)
+# f=matrix(ncol=1982)
+# g=matrix(ncol=1982)
+# h=matrix(ncol=1982)
+# i=matrix(ncol=1982)
+# j=matrix(ncol=1982)
+# k=matrix(ncol=1982)
+# l=matrix(ncol=1982)
+# m=matrix(ncol=1982)
+# n=matrix(ncol=1982)
+# o=matrix(ncol=1982)
+# p=matrix(ncol=1982)
+# q=matrix(ncol=1982)
+# r=matrix(ncol=1982)
+#
+# colnames(a)=449:2430
+# colnames(b)=449:2430
+# colnames(c)=449:2430
+# colnames(d)=449:2430
+# colnames(e)=449:2430
+# colnames(f)=449:2430
+# colnames(g)=449:2430
+# colnames(h)=449:2430
+# colnames(i)=449:2430
+# colnames(j)=449:2430
+# colnames(k)=449:2430
+# colnames(l)=449:2430
+# colnames(m)=449:2430
+# colnames(n)=449:2430
+# colnames(o)=449:2430
+# colnames(p)=449:2430
+# colnames(q)=449:2430
+# colnames(r)=449:2430
+#
+#
+# for (z in 1:length(unique(substr(rownames(globalmatrix),1,13)))) {
+#   interm=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[z]),]
+#
+#   #  truc1=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),])
+#   #  truc2=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),]
+#   if (length(interm[,1])==18){
+# #    print(i)
+#     a=rbind(a,interm[1,])
+#     K=as.character(paste(substr(rownames(interm)[1],1,13),"-01 ", substr(rownames(interm)[1],18,18), sep=""))
+#     rownames(a)[length(a[,1])]=K
+#
+#     b=rbind(b,interm[2,])
+#     K=as.character(paste(substr(rownames(interm)[2],1,13),"-01 ", substr(rownames(interm)[2],18,18), sep=""))
+#     rownames(b)[length(b[,1])]=K
+#
+#     c=rbind(c,interm[3,])
+#     K=as.character(paste(substr(rownames(interm)[3],1,13),"-01 ", substr(rownames(interm)[3],18,18), sep=""))
+#     rownames(c)[length(c[,1])]=K
+#
+#     d=rbind(d,interm[4,])
+#     K=as.character(paste(substr(rownames(interm)[4],1,13),"-01 ", substr(rownames(interm)[4],18,18), sep=""))
+#     rownames(d)[length(d[,1])]=K
+#
+#     e=rbind(e,interm[5,])
+#     K=as.character(paste(substr(rownames(interm)[5],1,13),"-01 ", substr(rownames(interm)[5],18,18), sep=""))
+#     rownames(e)[length(e[,1])]=K
+#
+#     f=rbind(f,interm[6,])
+#     K=as.character(paste(substr(rownames(interm)[6],1,13),"-01 ", substr(rownames(interm)[6],18,18), sep=""))
+#     rownames(f)[length(f[,1])]=K
+#
+#     g=rbind(g,interm[7,])
+#     K=as.character(paste(substr(rownames(interm)[7],1,13),"-07 ", substr(rownames(interm)[7],18,18), sep=""))
+#     rownames(g)[length(g[,1])]=K
+#
+#     h=rbind(h,interm[8,])
+#     K=as.character(paste(substr(rownames(interm)[8],1,13),"-07 ", substr(rownames(interm)[8],18,18), sep=""))
+#     rownames(h)[length(h[,1])]=K
+#
+#     i=rbind(i,interm[9,])
+#     K=as.character(paste(substr(rownames(interm)[9],1,13),"-07 ", substr(rownames(interm)[9],18,18), sep=""))
+#     rownames(i)[length(i[,1])]=K
+#
+#     j=rbind(j,interm[10,])
+#     K=as.character(paste(substr(rownames(interm)[10],1,13),"-07 ", substr(rownames(interm)[10],18,18), sep=""))
+#     rownames(j)[length(j[,1])]=K
+#
+#     k=rbind(k,interm[11,])
+#     K=as.character(paste(substr(rownames(interm)[11],1,13),"-07 ", substr(rownames(interm)[11],18,18), sep=""))
+#     rownames(k)[length(k[,1])]=K
+#
+#     l=rbind(l,interm[12,])
+#     K=as.character(paste(substr(rownames(interm)[12],1,13),"-07 ", substr(rownames(interm)[12],18,18), sep=""))
+#     rownames(l)[length(l[,1])]=K
+#
+#     m=rbind(m,interm[13,])
+#     K=as.character(paste(substr(rownames(interm)[13],1,13),"-13 ", substr(rownames(interm)[13],18,18), sep=""))
+#     rownames(m)[length(m[,1])]=K
+#
+#     n=rbind(n,interm[14,])
+#     K=as.character(paste(substr(rownames(interm)[14],1,13),"-13 ", substr(rownames(interm)[14],18,18), sep=""))
+#     rownames(n)[length(n[,1])]=K
+#
+#     o=rbind(o,interm[15,])
+#     K=as.character(paste(substr(rownames(interm)[15],1,13),"-13 ", substr(rownames(interm)[15],18,18), sep=""))
+#     rownames(o)[length(o[,1])]=K
+#
+#     p=rbind(p,interm[16,])
+#     K=as.character(paste(substr(rownames(interm)[16],1,13),"-13 ", substr(rownames(interm)[16],18,18), sep=""))
+#     rownames(p)[length(p[,1])]=K
+#
+#     q=rbind(q,interm[17,])
+#     K=as.character(paste(substr(rownames(interm)[17],1,13),"-13 ", substr(rownames(interm)[17],18,18), sep=""))
+#     rownames(q)[length(q[,1])]=K
+#
+#     r=rbind(r,interm[18,])
+#     K=as.character(paste(substr(rownames(interm)[18],1,13),"-13 ", substr(rownames(interm)[18],18,18), sep=""))
+#     rownames(r)[length(r[,1])]=K
+#   }
+# }
+#
+#
+#
+#
+#
+# colnames(b)=(max(as.numeric(colnames(a)))+1):((max(as.numeric(colnames(a)))+1)+length(b[1,])-1)
+# colnames(c)=(max(as.numeric(colnames(b)))+1):((max(as.numeric(colnames(b)))+1)+length(c[1,])-1)
+# colnames(d)=(max(as.numeric(colnames(c)))+1):((max(as.numeric(colnames(c)))+1)+length(d[1,])-1)
+# colnames(e)=(max(as.numeric(colnames(d)))+1):((max(as.numeric(colnames(d)))+1)+length(e[1,])-1)
+# colnames(f)=(max(as.numeric(colnames(e)))+1):((max(as.numeric(colnames(e)))+1)+length(f[1,])-1)
+#
+# #colnames(g)=(max(as.numeric(colnames(f)))+1):((max(as.numeric(colnames(f)))+1)+length(g[1,])-1)
+# colnames(h)=(max(as.numeric(colnames(g)))+1):((max(as.numeric(colnames(g)))+1)+length(h[1,])-1)
+# colnames(i)=(max(as.numeric(colnames(h)))+1):((max(as.numeric(colnames(h)))+1)+length(i[1,])-1)
+# colnames(j)=(max(as.numeric(colnames(i)))+1):((max(as.numeric(colnames(i)))+1)+length(j[1,])-1)
+# colnames(k)=(max(as.numeric(colnames(j)))+1):((max(as.numeric(colnames(j)))+1)+length(k[1,])-1)
+# colnames(l)=(max(as.numeric(colnames(k)))+1):((max(as.numeric(colnames(k)))+1)+length(l[1,])-1)
+#
+# #colnames(m)=(max(as.numeric(colnames(l)))+1):((max(as.numeric(colnames(l)))+1)+length(m[1,])-1)
+# colnames(n)=(max(as.numeric(colnames(m)))+1):((max(as.numeric(colnames(m)))+1)+length(n[1,])-1)
+# colnames(o)=(max(as.numeric(colnames(n)))+1):((max(as.numeric(colnames(n)))+1)+length(o[1,])-1)
+# colnames(p)=(max(as.numeric(colnames(o)))+1):((max(as.numeric(colnames(o)))+1)+length(p[1,])-1)
+# colnames(q)=(max(as.numeric(colnames(p)))+1):((max(as.numeric(colnames(p)))+1)+length(q[1,])-1)
+# colnames(r)=(max(as.numeric(colnames(q)))+1):((max(as.numeric(colnames(q)))+1)+length(r[1,])-1)
+#
+#
+# sptesta=cbind(a,b,c,d,e,f)
+# sptestb=cbind(g,h,i,j,k,l)
+# sptestc=cbind(m,n,o,p,q,r)
+#
+# sptest=rbind(sptesta,sptestb,sptestc)
+# sptest=sptest[complete.cases(sptest),]
+#
+#
+# sp=sptest
 
 
 
@@ -625,6 +625,25 @@ colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
 
 #  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
 
+# 20170524G 20170529G 20170606G 20170612G 	20170619G 20170626G 20170703G 20170710G 20170711g 20170717G 20170724G 20170731G
+# 20180619G 20180627G 20180704G 20180709G 20180710g 20180724B 20180731A 20180810B 20180816G 20180817g 20180823A
+# 20190613G 20190617G 20190624G 20190628g 20190702G 20190703A 20190710G 20190718G 20190723A 20190726G 20190730G 20190822B
+
+# "20170524", "20170529", "20170606", (. "20170612", .	"20170619", "20170626", "20170703", .. "20170710", "20170717", "20170724", "20170731",
+# .. "20180619", "20180627", "20180704", .. "20180709", ) "20180816",
+# "20190613", "20190617", (. "20190624", . "20190702", "20190710", ..) "20190718", "20190726", "20190730",
+
+#dates= c( "20170612",	"20170619", "20170626", "20170703",           "20180619", "20180627", "20180704",           "20190624",  "20190702", "20190710"      )
+#dates= c("20170524", "20170529", "20170606", "20170612", "20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731", "20180619", "20180627", "20180704", "20180709", "20180816", "20190613", "20190617", "20190624", "20190702", "20190710", "20190718", "20190726", "20190730")
+dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731",
+  "20180619", "20180627", "20180704", "20180709", "20180816",
+         "20190613", "20190617", "20190624", "20190702", "20190710", "20190718", "20190726", "20190730",
+         "20170711", "20180710", "20180817", "20190628")
+
+
+
+
+
 #length(which(substr(rownames(spcal),20,24)=="S 877"))
 
 #unique(substr(rownames(sp[which(substr(rownames(sp),18,18)=="g"),]),1,4))
@@ -632,8 +651,9 @@ colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
 
 # "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
 # unique(substr(rownames(sp),1,8))
-idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" )#& substr(rownames(sp),5,8)!="0702")
-#idval=which(substr(rownames(sp),18,18)!="G")
+#idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="07101" & substr(rownames(sp),1,8)=="20170710" )#& substr(rownames(sp),5,8)!="0702")
+
 
 #which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
 
@@ -662,15 +682,19 @@ classcal=sp$y1[-idval]
 classvalclo=sp$y2[idval]
 classcalclo=sp$y2[-idval]
 
-# idcal=which(substr(rownames(sp),18,18)=="G" & substr(rownames(sp),1,3)=="201")
-# classcal=classcal[which(substr(rownames(spcal),18,18)=="G" & substr(rownames(spcal),1,3)=="201")]
-# classcalclo=classcalclo[which(substr(rownames(spcal),18,18)=="G" & substr(rownames(spcal),1,3)=="201")]
-# spcal=spcal[which(substr(rownames(spcal),18,18)=="G" & substr(rownames(spcal),1,3)=="201"),]
+idcal=which(((substr(rownames(sp),18,18)=="G" | substr(rownames(sp),18,18)=="g"
+             ) & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates) | substr(rownames(sp),1,8)=="20170711" )
+classcal=classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="g"
+                          ) & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)=="20170711" )]
+classcalclo=classcalclo[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="g"
+                                ) & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)=="20170711" )]
+spcal=spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="g"
+                    ) & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)=="20170711" ),]
 
-idcal=which(substr(rownames(sp),1,4)=="2018" | substr(rownames(sp),1,4)=="2019")
-classcal=classcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
-classcalclo=classcalclo[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
-spcal=spcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019"),]
+# idcal=which(substr(rownames(sp),1,4)=="2018" | substr(rownames(sp),1,4)=="2019")
+# classcal=classcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
+# classcalclo=classcalclo[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
+# spcal=spcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019"),]
 
 
 predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
@@ -695,7 +719,9 @@ for (ii in 2:ncmax) {
 # predmF[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$class
 # distances[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$dist
 #
-#
+# predmF[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$class
+# distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
+
 
 
 tsm=lapply(as.list(predmF), classval, FUN = table)
