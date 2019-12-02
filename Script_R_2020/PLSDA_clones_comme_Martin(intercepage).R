@@ -12,6 +12,8 @@ library(sampling)
 library(rnirs)
 library(ggplot2)
 library(plotly)
+library("cowplot")
+library("gridGraphics")
 
 rm(list = ls())
 
@@ -243,6 +245,41 @@ rownames(sp3)=substr(rownames(sp3),1,18)
 
 sp=sp3
 
+
+
+
+# L=unique(substr(rownames(sp),1,8))
+# L2=sort(L)
+# sp2=sp
+#
+# for (i in 1:length(L2)){
+#   N=which(substr(rownames(sp),1,8)==L2[i])
+#   sp2=rbind(sp2,sp[N,])
+# }
+#
+# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+# rownames(sp3)=substr(rownames(sp3),1,18)
+#
+# sp=sp3
+#
+#
+#
+#
+#
+#
+# L=unique(substr(rownames(sp),9,9))
+# L2=sort(L)
+# sp2=sp
+#
+# for (i in 1:length(L2)){
+#   N=which(substr(rownames(sp),9,9)==L2[i])
+#   sp2=rbind(sp2,sp[N,])
+# }
+#
+# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+# rownames(sp3)=substr(rownames(sp3),1,18)
+#
+# sp=sp3
 
 
 
@@ -623,6 +660,11 @@ rouge2=rgb(0.8,0.35,0.13)
 rouge3=rgb(1,0.55,0.33)
 colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
 
+
+gamay=c("#4D0080", "#9684F0", "#00037D", "#2C77FC", "#006172", "#0EBAB6")
+#cabernet=c("#A41300", "#FF1A08", "#F34307", "#F7830F", "#940114", "#D50B47")
+cabernet=c("#A41300", "#F0373C", "#F34307", "#F7830F", "#6E0900", "#D50B47")
+syrah=c("#17371B", "#02894F", "#237709", "#34C625", "#6B8D1F", "#9DFD37", "#B77829","#F5C73B")    #"#4D3D25", "#8C5B1B")
 #  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
 
 # 20170524G 20170529G 20170606G 20170612G 	20170619G 20170626G 20170703G 20170710G 20170711g 20170717G 20170724G 20170731G
@@ -636,7 +678,10 @@ colo=c(rouge, rouge3, bleu, bleu3, vert, vert4)
 #dates= c( "20170612",	"20170619", "20170626", "20170703",           "20180619", "20180627", "20180704",           "20190624",  "20190702", "20190710"      )
 #dates= c("20170524", "20170529", "20170606", "20170612", "20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731", "20180619", "20180627", "20180704", "20180709", "20180816", "20190613", "20190617", "20190624", "20190702", "20190710", "20190718", "20190726", "20190730")
 dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731",
-  "20180619", "20180627", "20180704", "20180709", "20180816",
+"20180619",
+"20180627",
+"20180704",
+"20180709", "20180816",
          "20190613", "20190617", "20190624", "20190702", "20190710", "20190718", "20190726", "20190730",
          "20170711", "20180710", "20180817", "20190628")
 
@@ -652,7 +697,7 @@ dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626",
 # "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
 # unique(substr(rownames(sp),1,8))
 #idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" )#& substr(rownames(sp),5,8)!="0702")
-idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="07101" & substr(rownames(sp),1,8)=="20170710" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="07091" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 #which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
@@ -682,14 +727,14 @@ classcal=sp$y1[-idval]
 classvalclo=sp$y2[idval]
 classcalclo=sp$y2[-idval]
 
-idcal=which(((substr(rownames(sp),18,18)=="G" | substr(rownames(sp),18,18)=="g"
-             ) & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates) | substr(rownames(sp),1,8)=="20170711" )
-classcal=classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="g"
-                          ) & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)=="20170711" )]
-classcalclo=classcalclo[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="g"
-                                ) & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)=="20170711" )]
-spcal=spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="g"
-                    ) & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)=="20170711" ),]
+idcal=                     which(((substr(rownames(sp),18,18)=="G" #   | substr(rownames(sp),18,18)=="g"
+                ) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2017"    )) #& substr(rownames(sp),1,8) %in% dates) |    substr(rownames(sp),1,9)=="20180709C1" )
+classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
+             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" ))]#& substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180709C1" )]
+classcalclo=classcalclo[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
+             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" ))]#& substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180709C1" )]
+spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
+             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" )),]#& substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180709C1" ),]
 
 # idcal=which(substr(rownames(sp),1,4)=="2018" | substr(rownames(sp),1,4)=="2019")
 # classcal=classcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
@@ -697,17 +742,17 @@ spcal=spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),
 # spcal=spcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019"),]
 
 
-predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
-distances=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+predmF=as.data.frame(matrix(nrow = length(classvalclo), ncol = ncmax))
+distances=as.data.frame(matrix(nrow = length(classvalclo), ncol = ncmax))
 
-rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
+rplsda=caret::plsda(spcal$x, classcalclo,ncomp=ncmax)
 sccal=rplsda$scores
 spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
 scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
 for (ii in 2:ncmax) {
-  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
-  distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$dist
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcalclo, scval[,1:ii])$class
+  distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcalclo, scval[,1:ii])$dist
 }
 
 
@@ -723,61 +768,201 @@ for (ii in 2:ncmax) {
 # distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
 
 
+classvalclo=relevel(classvalclo, "G 787")
+classvalclo=relevel(classvalclo, "G 509")
+classvalclo=relevel(classvalclo, "G 222")
 
-tsm=lapply(as.list(predmF), classval, FUN = table)
+# classvalclo=relevel(classvalclo, "S 877")
+# classvalclo=relevel(classvalclo, "S 747")
+# classvalclo=relevel(classvalclo, "S 525")
+# classvalclo=relevel(classvalclo, "S 471")
+
+tsm=lapply(as.list(predmF), classvalclo, FUN = table)
 diagsm=lapply(tsm, FUN = diag)
 perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-tsm[25]
+VL=18
+tsm[VL]
 
 
 
-analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
-analyse
-substr(rownames(scval),9,9)
+#analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
+#analyse
 
 
 #Pour l'étude des distances on se place, un peu arbitrairement, à 8VL.
 #132B4C ou #11274A
 #4CB4FF ou #4FB2FC
-bleus=c("#132B4C","#4CB4FF")
 Ldist=as.data.frame(matrix(nrow = length(scval[,1]), ncol = 8))
-VL=22
+#Ldist2=as.data.frame(cbind(Premier=matrix(nrow = length(scval[,1]), ncol = 4),Second=matrix(nrow = length(scval[,1]), ncol = 4),Troisieme=as.data.frame(matrix(nrow = length(scval[,1]), ncol = 8))))
+
 l1=c(1,2,3,7,8,9,13,14,15)
 l2=c(4,5,6,10,11,12,16,17,18)
+###REREGARDER JEUNE/VIEUX, ET AJOUTER SELON LE POINT SUR LA FEUILLE (ET SELON LA SOUCHE ?)
+
+# for (i in 1:length(scval[,1])){
+#   S=distances[VL][i,][1]+distances[VL][i,][2]+distances[VL][i,][3]
+#   Ldist[i,1]=min(distances[VL][i,][1]/S,distances[VL][i,][2]/S,distances[VL][i,][3]/S)
+#
+#   Ldist[i,3]=substr(rownames(scval)[i],9,9)
+#
+#   n=which(c("C","G","S")==Ldist[i,3])
+# #  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
+#   Ldist[i,2]=distances[VL][i,][n]
+#
+#   Ldist[i,4]=as.character(predmF[VL][i,])
+#   Ldist[i,5]="Mal classé"
+#   if (Ldist[i,3]==Ldist[i,4]){
+#     Ldist[i,5]="Bien classé"
+#   }
+#   Ldist[i,6]=i
+#   Ldist[i,7]=substr(rownames(scval)[i],5,8)
+#   Ldist[i,8]="J"
+#   if (substr(rownames(scval)[i],15,16) %in% l2){
+#     Ldist[i,8]="V"
+#   }
+# }
+numero=matrix(nrow = length(scval[,1]), ncol = 1)
+clone=matrix(nrow = length(scval[,1]), ncol = 1)
+date=matrix(nrow = length(scval[,1]), ncol = 1)
+age=matrix(nrow = length(scval[,1]), ncol = 1)
+dista=matrix(nrow = length(scval[,1]), ncol = VL)
+predclone=matrix(nrow = length(scval[,1]), ncol = VL)
+succes=matrix(nrow = length(scval[,1]), ncol = VL)
+#Troisieme=as.data.frame(matrix(nrow = length(scval[,1]), ncol = 8))
+
+
+numero= 1:length(scval[,1])
+clone=   substr(rownames(scval),9,13)
+cepage= substr(rownames(scval),9,9)
+date= substr(rownames(scval),5,8)
+
 
 for (i in 1:length(scval[,1])){
-  S=distances[VL][i,][1]+distances[VL][i,][2]+distances[VL][i,][3]
-  Ldist[i,1]=min(distances[VL][i,][1]/S,distances[VL][i,][2]/S,distances[VL][i,][3]/S)
-
-  Ldist[i,3]=substr(rownames(scval)[i],9,9)
-
-  n=which(c("C","G","S")==Ldist[i,3])
-#  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
-  Ldist[i,2]=distances[VL][i,][n]
-
-  Ldist[i,4]=as.character(predmF[VL][i,])
-  Ldist[i,5]="Mal classé"
-  if (Ldist[i,3]==Ldist[i,4]){
-    Ldist[i,5]="Bien classé"
+  n=which(c("G 222",   "G 509",   "G 787")==clone[i])  #"C 015",   "C 169",   "C 685" #"G 222",   "G 509",   "G 787" #"S 877", "S 747", "S 525", "S 471"
+  for (j in 2:VL){
+    dista[i,j]=distances[j][i,][n]             #
+    predclone[i,j]=as.character(predmF[j][i,])     #
+    succes[i,j]="Mal classé"                     #
+    if (predclone[i,j]==clone[i]){
+      succes[i,j]="Bien classé"
+    }
   }
-  Ldist[i,6]=i
-  Ldist[i,7]=substr(rownames(scval)[i],5,8)
-  Ldist[i,8]="J"
+
+  age[i]="J"
   if (substr(rownames(scval)[i],15,16) %in% l2){
-    Ldist[i,8]="V"
+    age[i]="V"
   }
 }
 
+dista2=data.frame(dista=I(dista))
+predclone2=data.frame(predclone=I(predclone))
+succes2=data.frame(succes=I(succes))
+
+
+Ldist2=cbind(numero,   dista2, clone, predclone2, date, age, succes2)
 
 
 
-aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,5]),date=Ldist[,7],cepage=Ldist[,3],predit=Ldist[,4])) +
+
+
+# for (i in 1:length(scval[,1])){
+# #  S=distances[VL][i,][1]+distances[VL][i,][2]+distances[VL][i,][3]
+# #  Ldist[i,1]=min(distances[VL][i,][1]/S,distances[VL][i,][2]/S,distances[VL][i,][3]/S)
+#
+#   Ldist[i,3]=substr(rownames(scval)[i],9,13) #Bon ###
+#
+#   n=which(c("S 877", "S 747", "S 525", "S 471")==Ldist[i,3])  #"C 015",   "C 169",   "C 685" #"G 222",   "G 509",   "G 787" #"S 877", "S 747", "S 525", "S 471"
+#   #  Ldist[i,2]=min(distances[VL][i,][1],distances[VL][i,][2],distances[VL][i,][3])
+#
+#
+#
+#   Ldist[i,2]=distances[VL][i,][n]             #
+#   Ldist[i,4]=as.character(predmF[VL][i,])     #
+#   Ldist[i,5]="Mal classé"                     #
+#   if (Ldist[i,3]==Ldist[i,4]){
+#     Ldist[i,5]="Bien classé"
+#   }
+#
+#
+#   Ldist[i,6]=i  #Bon                            ###
+#   Ldist[i,7]=substr(rownames(scval)[i],5,8) #Bon ###
+#   Ldist[i,8]="J"
+#   if (substr(rownames(scval)[i],15,16) %in% l2){
+#     Ldist[i,8]="V"
+#   }
+# }
+
+aff=list()
+
+for (chiffre in (2:VL)){
+  print(chiffre)
+  aff[[chiffre]] <- ggplot(Ldist2, aes(x=numero, y=dista[,chiffre],colour=paste(predclone[,chiffre],succes[,chiffre]),date=date,clone=clone,predit=predclone[,chiffre])) +
+    geom_point(size=2, alpha=1) +
+    scale_color_manual(values = gamay) +
+    theme(legend.position="none")
+}
+
+aff[[2]] <- ggplot(Ldist2, aes(x=numero, y=dista[,2],colour=paste(predclone[,2],succes[,2]),date=date,clone=clone,predit=predclone[,2])) +
   geom_point(size=2, alpha=1) +
-  scale_color_manual(values = colo)
-ggplotly(aff)
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[3]] <- ggplot(Ldist2, aes(x=numero, y=dista[,3],colour=paste(predclone[,3],succes[,3]),date=date,clone=clone,predit=predclone[,3])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[4]] <- ggplot(Ldist2, aes(x=numero, y=dista[,4],colour=paste(predclone[,4],succes[,4]),date=date,clone=clone,predit=predclone[,4])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[5]] <- ggplot(Ldist2, aes(x=numero, y=dista[,5],colour=paste(predclone[,5],succes[,5]),date=date,clone=clone,predit=predclone[,5])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[6]] <- ggplot(Ldist2, aes(x=numero, y=dista[,6],colour=paste(predclone[,6],succes[,6]),date=date,clone=clone,predit=predclone[,6])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[7]] <- ggplot(Ldist2, aes(x=numero, y=dista[,7],colour=paste(predclone[,7],succes[,7]),date=date,clone=clone,predit=predclone[,7])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[8]] <- ggplot(Ldist2, aes(x=numero, y=dista[,8],colour=paste(predclone[,8],succes[,8]),date=date,clone=clone,predit=predclone[,8])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+aff[[9]] <- ggplot(Ldist2, aes(x=numero, y=dista[,9],colour=paste(predclone[,9],succes[,9]),date=date,clone=clone,predit=predclone[,9])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay) +
+  theme(legend.position="none")
+
+
+#colour=paste(clone,succes[,VL])
+aff2 <- ggplot(Ldist2, aes(x=numero, y=dista[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) +
+  geom_point(size=2, alpha=1) +
+  scale_color_manual(values = gamay)
+ggplotly(aff2)
+
+
+#abline(ordonnée à l'origine, et pente)
+#peut-être un GIF
+plot_grid(aff[[1]],aff[[2]],aff[[3]],aff[[4]],aff[[5]],aff[[6]],aff[[7]],aff[[8]],aff[[9]])
+
+
+
+# aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,5]),date=Ldist[,7],cepage=Ldist[,3],predit=Ldist[,4])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = syrah)
+ggplotly(aff[[18]])
 
 
 
