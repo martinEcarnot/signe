@@ -38,6 +38,7 @@ globalmatrixN1=globalmatrix
 #Permet de changer l'ordre des spectres, par exemple en les classant par date/par cépage/par clone... Classement fin en en faisant plusieurs à la suite
 sp=globalmatrixN1
 
+#"G 787" "G 509" "G 222"
 
 ### FIXATION DES PARAMETRES UTILISES:
 ## Nombre de repetitions de la boucle de PLSDA:
@@ -688,7 +689,6 @@ dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626",
 
 
 
-
 #length(which(substr(rownames(spcal),20,24)=="S 877"))
 
 #unique(substr(rownames(sp[which(substr(rownames(sp),18,18)=="g"),]),1,4))
@@ -697,7 +697,7 @@ dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626",
 # "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
 # unique(substr(rownames(sp),1,8))
 #idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" )#& substr(rownames(sp),5,8)!="0702")
-idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="07091" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="g" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="07091" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 #which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
@@ -728,13 +728,13 @@ classvalclo=sp$y2[idval]
 classcalclo=sp$y2[-idval]
 
 idcal=                     which(((substr(rownames(sp),18,18)=="G" #   | substr(rownames(sp),18,18)=="g"
-                ) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2017"    )) #& substr(rownames(sp),1,8) %in% dates) |    substr(rownames(sp),1,9)=="20180709C1" )
+                ) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)=="2018"    ) |    substr(rownames(sp),1,9)=="20190702G1" )
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
-             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" ))]#& substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180709C1" )]
+             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)=="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
 classcalclo=classcalclo[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
-             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" ))]#& substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180709C1" )]
+             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)=="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
-             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" )),]#& substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180709C1" ),]
+             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)=="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" ),]
 
 # idcal=which(substr(rownames(sp),1,4)=="2018" | substr(rownames(sp),1,4)=="2019")
 # classcal=classcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
@@ -750,17 +750,36 @@ sccal=rplsda$scores
 spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
 scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
+
+# plotsp(t(rplsda$projection)[1,])
+# plotsp(t(rplsda$coefficients[,6,])[1,])
+
+
 for (ii in 2:ncmax) {
   predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcalclo, scval[,1:ii])$class
   distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcalclo, scval[,1:ii])$dist
 }
 
+plotsp(t(rplsda$projection)[2,], col="blue")
+# plotsp(spcal$x[c(430,440,450,460,470,480,490),], col="blue")
+# str(spval$x)
+# rownames(spcal)[88]
+#1:88 89:214 215:429 430:645 spcal
+
+
+#G 2017
+#B 1 6 7 16  M 20 22
+
+#G 2019
+#B 2 7 10 M 8 28
+
+plotsp(t(scval)[2,], col="blue")
 
 # for (ii in 2:ncmax) {
-#   predmF[,ii]=SIGNE_maha0(sccal[,-ii], classcal, scval[,-ii])$class
-#   distances[,ii]=SIGNE_maha0(sccal[,-ii], classcal, scval[,-ii])$dist
+#   predmF[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$class
+#   distances[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$dist
 #  }
-#
+
 # predmF[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$class
 # distances[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$dist
 #
@@ -783,9 +802,8 @@ perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-VL=18
+VL=2
 tsm[VL]
-
 
 
 #analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
@@ -895,55 +913,55 @@ Ldist2=cbind(numero,   dista2, clone, predclone2, date, age, succes2)
 #   }
 # }
 
-aff=list()
-
-for (chiffre in (2:VL)){
-  print(chiffre)
-  aff[[chiffre]] <- ggplot(Ldist2, aes(x=numero, y=dista[,chiffre],colour=paste(predclone[,chiffre],succes[,chiffre]),date=date,clone=clone,predit=predclone[,chiffre])) +
-    geom_point(size=2, alpha=1) +
-    scale_color_manual(values = gamay) +
-    theme(legend.position="none")
-}
-
-aff[[2]] <- ggplot(Ldist2, aes(x=numero, y=dista[,2],colour=paste(predclone[,2],succes[,2]),date=date,clone=clone,predit=predclone[,2])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[3]] <- ggplot(Ldist2, aes(x=numero, y=dista[,3],colour=paste(predclone[,3],succes[,3]),date=date,clone=clone,predit=predclone[,3])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[4]] <- ggplot(Ldist2, aes(x=numero, y=dista[,4],colour=paste(predclone[,4],succes[,4]),date=date,clone=clone,predit=predclone[,4])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[5]] <- ggplot(Ldist2, aes(x=numero, y=dista[,5],colour=paste(predclone[,5],succes[,5]),date=date,clone=clone,predit=predclone[,5])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[6]] <- ggplot(Ldist2, aes(x=numero, y=dista[,6],colour=paste(predclone[,6],succes[,6]),date=date,clone=clone,predit=predclone[,6])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[7]] <- ggplot(Ldist2, aes(x=numero, y=dista[,7],colour=paste(predclone[,7],succes[,7]),date=date,clone=clone,predit=predclone[,7])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[8]] <- ggplot(Ldist2, aes(x=numero, y=dista[,8],colour=paste(predclone[,8],succes[,8]),date=date,clone=clone,predit=predclone[,8])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
-
-aff[[9]] <- ggplot(Ldist2, aes(x=numero, y=dista[,9],colour=paste(predclone[,9],succes[,9]),date=date,clone=clone,predit=predclone[,9])) +
-  geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay) +
-  theme(legend.position="none")
+# aff=list()
+#
+# for (chiffre in (2:VL)){
+#   print(chiffre)
+#   aff[[chiffre]] <- ggplot(Ldist2, aes(x=numero, y=dista[,chiffre],colour=paste(predclone[,chiffre],succes[,chiffre]),date=date,clone=clone,predit=predclone[,chiffre])) +
+#     geom_point(size=2, alpha=1) +
+#     scale_color_manual(values = gamay) +
+#     theme(legend.position="none")
+# }
+#
+# aff[[2]] <- ggplot(Ldist2, aes(x=numero, y=dista[,2],colour=paste(predclone[,2],succes[,2]),date=date,clone=clone,predit=predclone[,2])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[3]] <- ggplot(Ldist2, aes(x=numero, y=dista[,3],colour=paste(predclone[,3],succes[,3]),date=date,clone=clone,predit=predclone[,3])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[4]] <- ggplot(Ldist2, aes(x=numero, y=dista[,4],colour=paste(predclone[,4],succes[,4]),date=date,clone=clone,predit=predclone[,4])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[5]] <- ggplot(Ldist2, aes(x=numero, y=dista[,5],colour=paste(predclone[,5],succes[,5]),date=date,clone=clone,predit=predclone[,5])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[6]] <- ggplot(Ldist2, aes(x=numero, y=dista[,6],colour=paste(predclone[,6],succes[,6]),date=date,clone=clone,predit=predclone[,6])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[7]] <- ggplot(Ldist2, aes(x=numero, y=dista[,7],colour=paste(predclone[,7],succes[,7]),date=date,clone=clone,predit=predclone[,7])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[8]] <- ggplot(Ldist2, aes(x=numero, y=dista[,8],colour=paste(predclone[,8],succes[,8]),date=date,clone=clone,predit=predclone[,8])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
+#
+# aff[[9]] <- ggplot(Ldist2, aes(x=numero, y=dista[,9],colour=paste(predclone[,9],succes[,9]),date=date,clone=clone,predit=predclone[,9])) +
+#   geom_point(size=2, alpha=1) +
+#   scale_color_manual(values = gamay) +
+#   theme(legend.position="none")
 
 
 #colour=paste(clone,succes[,VL])
@@ -955,14 +973,13 @@ ggplotly(aff2)
 
 #abline(ordonnée à l'origine, et pente)
 #peut-être un GIF
-plot_grid(aff[[1]],aff[[2]],aff[[3]],aff[[4]],aff[[5]],aff[[6]],aff[[7]],aff[[8]],aff[[9]])
+#plot_grid(aff[[1]],aff[[2]],aff[[3]],aff[[4]],aff[[5]],aff[[6]],aff[[7]],aff[[8]],aff[[9]])
 
 
 
 # aff <- ggplot(Ldist, aes(x=Ldist[,6], y=(Ldist[,2]),colour=paste(Ldist[,3],Ldist[,5]),date=Ldist[,7],cepage=Ldist[,3],predit=Ldist[,4])) +
 #   geom_point(size=2, alpha=1) +
 #   scale_color_manual(values = syrah)
-ggplotly(aff[[18]])
 
 
 
