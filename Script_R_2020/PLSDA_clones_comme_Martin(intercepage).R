@@ -567,6 +567,7 @@ for(j in 1:repet) {
     }
   }
 
+
   ## Table de contingence CV
   tsm0=lapply(as.list(predm0), classcal, FUN = table)
   tsm0C=lapply(as.list(predm0C), classcalC, FUN = table)
