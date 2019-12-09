@@ -45,7 +45,7 @@ sp=globalmatrixN1
 repet= 2
 ## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
 p=2
-n=11
+n=11 #Faire avec un n plus gros ?
 m=1
 ## Nombre de VL max autorisees
 ncmax=35
@@ -57,7 +57,10 @@ k=2
 
 ### Pretraitements
 ## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
-sp_pre=adj_asd(sp,c(602,1402))
+#sp_pre=adj_asd(sp,c(602,1402))
+sp_pre=adj_asd(sp,c(552,1352))
+
+plotsp(sp_pre[1:300,], col="blue")
 #sp_pre=sp$x
 
 ## Reduction des variables (extremités bruitées)
@@ -71,6 +74,11 @@ sp_pre=t(scale(t(sp_pre)))
 ## Derivation Savitsky Golay
 sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
+
+plotsp(sp[1:300,], col="blue") #500:560 # 1330:1390
+sp=sp[,-(1330:1390)]
+sp=sp[,-(500:560)]
+plotsp(sp$x[1:300,], col="blue")
 #
 # globalmatrix=sp
 #
@@ -249,38 +257,38 @@ sp=sp3
 
 
 
-# L=unique(substr(rownames(sp),1,8))
-# L2=sort(L)
-# sp2=sp
-#
-# for (i in 1:length(L2)){
-#   N=which(substr(rownames(sp),1,8)==L2[i])
-#   sp2=rbind(sp2,sp[N,])
-# }
-#
-# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
-# rownames(sp3)=substr(rownames(sp3),1,18)
-#
-# sp=sp3
-#
-#
-#
-#
-#
-#
-# L=unique(substr(rownames(sp),9,9))
-# L2=sort(L)
-# sp2=sp
-#
-# for (i in 1:length(L2)){
-#   N=which(substr(rownames(sp),9,9)==L2[i])
-#   sp2=rbind(sp2,sp[N,])
-# }
-#
-# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
-# rownames(sp3)=substr(rownames(sp3),1,18)
-#
-# sp=sp3
+L=unique(substr(rownames(sp),1,8))
+L2=sort(L)
+sp2=sp
+
+for (i in 1:length(L2)){
+  N=which(substr(rownames(sp),1,8)==L2[i])
+  sp2=rbind(sp2,sp[N,])
+}
+
+sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+rownames(sp3)=substr(rownames(sp3),1,18)
+
+sp=sp3
+
+
+
+
+
+
+L=unique(substr(rownames(sp),9,9))
+L2=sort(L)
+sp2=sp
+
+for (i in 1:length(L2)){
+  N=which(substr(rownames(sp),9,9)==L2[i])
+  sp2=rbind(sp2,sp[N,])
+}
+
+sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+rownames(sp3)=substr(rownames(sp3),1,18)
+
+sp=sp3
 
 
 
@@ -697,7 +705,7 @@ dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626",
 # "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
 # unique(substr(rownames(sp),1,8))
 #idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" )#& substr(rownames(sp),5,8)!="0702")
-idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="g" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="07091" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2018" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)!="A" & substr(rownames(sp),5,8)!="07091" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 #which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
@@ -728,13 +736,13 @@ classvalclo=sp$y2[idval]
 classcalclo=sp$y2[-idval]
 
 idcal=                     which(((substr(rownames(sp),18,18)=="G" #   | substr(rownames(sp),18,18)=="g"
-                ) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)=="2018"    ) |    substr(rownames(sp),1,9)=="20190702G1" )
+                ) & substr(rownames(sp),9,9)!="A"    & substr(rownames(sp),1,4)!="2018"    ) |    substr(rownames(sp),1,9)=="20190702G1" )
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
-             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)=="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
+             ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
 classcalclo=classcalclo[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
-             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)=="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
+             ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(rownames(spcal),18,18)=="g"
-             ) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)=="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" ),]
+             ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2018" ) | substr(rownames(spcal),1,9)=="20190702G1" ),]
 
 # idcal=which(substr(rownames(sp),1,4)=="2018" | substr(rownames(sp),1,4)=="2019")
 # classcal=classcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
@@ -742,22 +750,22 @@ spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" #| substr(row
 # spcal=spcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019"),]
 
 
-predmF=as.data.frame(matrix(nrow = length(classvalclo), ncol = ncmax))
-distances=as.data.frame(matrix(nrow = length(classvalclo), ncol = ncmax))
+predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+distances=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
-rplsda=caret::plsda(spcal$x, classcalclo,ncomp=ncmax)
+rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
 sccal=rplsda$scores
 spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
 scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
 
 # plotsp(t(rplsda$projection)[1,])
-# plotsp(t(rplsda$coefficients[,6,])[1,])
+plotsp(t(rplsda$coefficients[,1,])[1,])
 
 
 for (ii in 2:ncmax) {
-  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcalclo, scval[,1:ii])$class
-  distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcalclo, scval[,1:ii])$dist
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
+  distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$dist
 }
 
 plotsp(t(rplsda$projection)[2,], col="blue")
@@ -787,22 +795,22 @@ plotsp(t(scval)[2,], col="blue")
 # distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
 
 
-classvalclo=relevel(classvalclo, "G 787")
-classvalclo=relevel(classvalclo, "G 509")
-classvalclo=relevel(classvalclo, "G 222")
+# classvalclo=relevel(classvalclo, "G 787")
+# classvalclo=relevel(classvalclo, "G 509")
+# classvalclo=relevel(classvalclo, "G 222")
 
 # classvalclo=relevel(classvalclo, "S 877")
 # classvalclo=relevel(classvalclo, "S 747")
 # classvalclo=relevel(classvalclo, "S 525")
 # classvalclo=relevel(classvalclo, "S 471")
 
-tsm=lapply(as.list(predmF), classvalclo, FUN = table)
+tsm=lapply(as.list(predmF), classval, FUN = table)
 diagsm=lapply(tsm, FUN = diag)
 perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-VL=2
+VL=18
 tsm[VL]
 
 
@@ -859,12 +867,12 @@ date= substr(rownames(scval),5,8)
 
 
 for (i in 1:length(scval[,1])){
-  n=which(c("G 222",   "G 509",   "G 787")==clone[i])  #"C 015",   "C 169",   "C 685" #"G 222",   "G 509",   "G 787" #"S 877", "S 747", "S 525", "S 471"
+  n=which(c("C",   "G",   "S")==cepage[i])  #"C 015",   "C 169",   "C 685" #"G 222",   "G 509",   "G 787" #"S 877", "S 747", "S 525", "S 471"
   for (j in 2:VL){
     dista[i,j]=distances[j][i,][n]             #
     predclone[i,j]=as.character(predmF[j][i,])     #
     succes[i,j]="Mal classé"                     #
-    if (predclone[i,j]==clone[i]){
+    if (predclone[i,j]==cepage[i]){
       succes[i,j]="Bien classé"
     }
   }
@@ -967,7 +975,7 @@ Ldist2=cbind(numero,   dista2, clone, predclone2, date, age, succes2)
 #colour=paste(clone,succes[,VL])
 aff2 <- ggplot(Ldist2, aes(x=numero, y=dista[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) +
   geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay)
+  scale_color_manual(values = colo)
 ggplotly(aff2)
 
 
@@ -986,7 +994,7 @@ ggplotly(aff2)
 
 
 idcalC=which(spcal$y1=="C")
-spcalC=spcal[idcalC,]
+sspcalC=spcal[idcalC,]
 classcalC=classcalclo[idcalC]
 
 rplsdaC=caret::plsda(spcalC$x, classcalC,ncomp=ncmax)
