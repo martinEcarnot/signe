@@ -1,9 +1,9 @@
-sp6=data.frame(sp=sp5,axeX=rplsda$scores[,axe1],axeY=rplsda$scores[,axe2],jour=substr(rownames(sp5),4,8),annee=substr(rownames(sp5),1,4),cepage=substr(rownames(sp5),9,9),clone=substr(rownames(sp5),9,13),parcelle=substr(rownames(sp5),18,18))
+  sp6=data.frame(sp=sp5,axeX=rplsda$scores[,axe1],axeY=rplsda$scores[,axe2],jour=substr(rownames(sp5),4,8),annee=substr(rownames(sp5),1,4),cepage=substr(rownames(sp5),9,9),clone=substr(rownames(sp5),9,13),parcelle=substr(rownames(sp5),18,18))
 sp6$axeX
 
 # CAS 1
 ggplot(sp6) +
-  geom_point(aes(x = axeX, y = axeY, size = 1, color = colo)) +
+  geom_point(aes(x = axeX, y = axeY, size = 1, color = cepage)) +
   scale_size(1)+scale_colour_discrete() # _ordinal
 ###Regarder ce que c'est que plotly, M est fan
 
@@ -14,7 +14,7 @@ library(ggplot2)
 
 
 # Changer la taille et la forme
-g<-ggplot(sp6, aes(x=axeX, y=axeY, color=colo)) +
+g<-ggplot(sp6, aes(x=axeX, y=axeY, color=cepage)) +
   geom_point(size=0.5, alpha=1)+scale_color_discrete()
 
 ggplotly(g)
@@ -45,7 +45,7 @@ length(spx[1])
 
 geom_point(size=5, alpha=0.5)
 
-p <- ggplot(spp, aes(x = num, y = spx, colour=colo)) + geom_point(size=0.5)
+p <- ggplot(spp, aes(x = num, y = spx, colour=cepage)) + geom_point(size=0.5)
 print(p)
 
 

@@ -1,13 +1,13 @@
+#package esquisse
+
 library(FactoMineR)
 library(factoextra)
 library(pls)
 library(MASS)
-#library(mixOmics)
 library(signal)
 library(plyr)
 library(caret)
 library(dplyr)
-#library(nirs)
 library("ellipse")
 library(rgl)
 library(ade4)
@@ -18,9 +18,7 @@ library(plotly)
 
 rm(list = ls())
 
-source('C:/Users/avitvale/Documents/Script_R/adj_asd.R')
-
-brb4="C:/Users/avitvale/Documents/Test/globalmatrix"
+brb4="C:/Users/avitvale/Documents/Test/globalmatrix" #Déplacer globalmatrix
 load(file=brb4)
 #dates=list("20180809T","20180724N","20170710P")
 
@@ -45,7 +43,7 @@ rouge2=rgb(0.8,0.35,0.13)
 rouge3=rgb(1,0.55,0.33)
 
 coloclone=c(rouge, rouge2, rouge3, bleu, bleu2, bleu3, vert, vert2, vert3, vert4)
-
+colocepage=c(rouge,bleu,vert)
 
 
 sp=globalmatrix
@@ -61,20 +59,8 @@ sp4=t(apply(sp3,1,sgolayfilt,p=p,n=n,m=m))
 
 
 
-#### Chamanisme <- Ca change la couleur d'affichage. POur des raisons mystérieuses.
-
- data = read.table("cancers.txt",sep="\t",header=T)
-
- colnames(data)
-
- rownames(data) = data[,1] # On donne ? chaque ligne le nom de son cancer (Cancer 1, Cancer 2)
-
- x = data[1:7,-1] # On exclue la colonne 1 qui contenait les noms des cancers.
-
-
- acp3 = PCA(x, scale.unit=F, ncp=5, graph=T, axes=c(1,2))
-
 ####
+## FILTRE
 rownames(sp4)[1]
 tri=as.factor(substr(rownames(sp4),9,9))
 levels(tri)
@@ -82,7 +68,7 @@ c=which(tri=="S")
 sp5=sp4[c,]
 sp6=sp4
 
-## FILTRE
+
 date=as.factor(substr(rownames(sp6),5,8))
 parc=as.factor(substr(rownames(sp6),18,18))
 DATE=c("0703","0704","0710","0709","0702")
@@ -90,9 +76,9 @@ DATE=c("0703","0704","0710","0709","0702")
 sp3=sp6[which(date  %in%  DATE),]
 parc=as.factor(substr(rownames(sp3),18,18))
 PARC="G"
-sp5=sp3[which(parc %in% PARC),]
+sp5=sp4[which(parc %in% PARC),]
 
-
+sp5=sp4
 length(sp5[,1])
 # sp5=sp4
 #iout=sample(5210,4000)
@@ -116,21 +102,21 @@ axeX <- rplsda$scores[,axe1] ; axeY <- rplsda$scores[,axe2] ; axeZ<- rplsda$scor
 #Tracer le graphique
 
 colo=as.factor(paste(as.factor(substr(rownames(sp5),1,4)),as.factor(substr(rownames(sp5),9,9)))) #cépages
-colo=as.factor(substr(rownames(sp5),9,9))
+cepage=as.factor(substr(rownames(sp5),9,9))
 annee=as.factor(substr(rownames(sp5),4,4))
 #forme=as.factor(substr(rownames(sp5),18,18))
 texte=as.factor(substr(rownames(sp5),9,9))
 
 #2D
 
- plot(axeX,axeY,pch=16, col=coloclone[colo], type="n",
+plot(axeX,axeY,pch=16, col=coloclone[cepage], type="n",
       main=paste0("Représentation en f des cépages"),xlab=paste0("VL ",axe1),ylab=paste0("VL ",axe2));grid();
 
-text(axeX,axeY,annee, col=coloclone[colo])
+text(axeX,axeY,annee, col=colocepage[cepage])
 
-text(axeX,axeY,levels(colo), col=as.numeric(annee))
+text(axeX,axeY,levels(cepage), col=as.numeric(annee))
 
-#legend(x="right", legend=unique(colo), col=unique(coloclone), pch=15, bg="white")
+legend(x="right", legend=unique(cepage), col=unique(colocepage), pch=15, bg="white")
 
  #legend(x="left", legend=unique(forme), col=1, pch=unique(as.numeric(forme)), bg="white")
 
@@ -150,22 +136,22 @@ legend(x="right", legend=unique(annee), col=c(1,2,3), pch=15, bg="white")
 
 
 
-plot3d(axeX[colo==levels(colo)[1]],axeY[colo==levels(colo)[1]],axeZ[colo==levels(colo)[1]],
+plot3d(axeX[colo==levels(cepage)[1]],axeY[colo==levels(cepage)[1]],axeZ[colo==levels(cepage)[1]],
 
-       col=coloclone[which(levels(colo)==levels(colo)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
+       col=colocepage[which(levels(cepage)==levels(cepage)[1])],radius=0.2, type="p",xlab="Dim1",ylab="Dim2",zlab="Dim3")
 
-for (i in levels(colo)) {
-  points3d(axeX[colo==i],axeY[colo==i],axeZ[colo==i], col=coloclone[which(levels(colo)==i)],radius=0.2)
+for (i in levels(cepage)) {
+  points3d(axeX[cepage==i],axeY[cepage==i],axeZ[cepage==i], col=colocepage[which(levels(cepage)==i)],radius=0.2)
 }
 
 
 
-for (i in levels(colo)) {
-  x = rplsda$scores[,axe1][colo==i] ; y = rplsda$scores[,axe2][colo==i] ; z = rplsda$scores[,axe3][colo==i]
+for (i in levels(cepage)) {
+  x = rplsda$scores[,axe1][cepage==i] ; y = rplsda$scores[,axe2][cepage==i] ; z = rplsda$scores[,axe3][cepage==i]
 
   ellipse <- ellipse3d(cov(cbind(x,y,z)), centre=c(mean(x), mean(y), mean(z)), level = 0.95)
 
-  plot3d(ellipse, col=coloclone[which(levels(colo)==i)], alpha = 0.05, add = TRUE, type="shade")
+  plot3d(ellipse, col=colocepage[which(levels(cepage)==i)], alpha = 0.05, add = TRUE, type="shade")
 }
 
 
@@ -185,79 +171,3 @@ sp <- ggplot(sp7, aes(x=axeX, y=axeY,colour=clone)) +
   scale_color_manual(values = coloclone) #+
 #  geom_density_2d(data = sp6, size=0.3, bins=3)
 ggplotly(sp)
-
-
-
-#text(axeX,axeY,rownames(x)) #Afficher un texte au dessus des points, par ex leur nom ou leur c?page...
-
-#plot(acp$li[,2])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#plot(acp,choix="ind",habillage=1993)
-#dimdesc(acp, axes = 1:2)
-
-
-## Fonction pareto
-#
-# pareto = function(x, bar.col="cyan", line.col="red", pch=16, h=80, h.lty=3,main="",xlab="D?fauts",ylab="Fr?quence (%)", names.arg=c(), ylab2="Cumul",mar=c(5,4,3,4)) {
-#
-#   if (length(names.arg)>0) {names.arg=names.arg[order(x, decreasing = TRUE)]}
-#
-#   x = sort(x,decreasing=T); x = x*100/sum(x);
-#
-#   cumul = (cumsum(x)/sum(x))*100
-#
-#   simulation = barplot(x,col=bar.col) ; simulation
-#
-#   plot.new()
-#
-#   par(mar=mar)
-#
-#   barplot(x,col=bar.col,axes=F,ylim=c(0,100),main=main,xlab=xlab,ylab="",names.arg=names.arg)
-#
-#   #par(new=TRUE)
-#
-#   points(simulation,cumul,pch=pch,col=line.col,xlab="",ylab="",type="o")
-#
-#   abline(h=h,lty=h.lty) ; box()
-#
-#   axis(2) ; axis(4,c(0,20,40,60,80,100),col.axis=line.col,col=line.col)
-#
-#   mtext(ylab,side=2,line=2,cex=1.2) ; mtext(ylab2,side=4,col="red",line=2,cex=1.2)
-#
-#   result = c(x , cumul) ; result = matrix(result,nc=length(x), byrow=T)
-#
-#   if (length(names.arg)>0) {colnames(result) = names.arg }
-#
-#   rownames(result) = c("frequency","cumul")
-#
-#   return(result)}
-
-####
-
-#pareto(acp$eig[,2], h=95)
-#acp
-
-
-

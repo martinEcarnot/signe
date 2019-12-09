@@ -126,10 +126,10 @@ k=5
 #sp=rbind(mean1_final,mean2_final)
 sp=globalmatrix
 ### Pretraitements
-## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
-sp=adj_asd(sp,c(602,1402))
-## Reduction des variables (extremites bruitees)
-sp=sp[,seq(51,ncol(sp)-30,1)]
+# ## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
+# sp=adj_asd(sp,c(602,1402))
+# ## Reduction des variables (extremites bruitees)
+# sp=sp[,seq(51,ncol(sp)-30,1)]
 ## SNV
 sp=t(scale(t(sp)))
 # ## Derivation Savitsky Golay
@@ -201,7 +201,7 @@ print(d)
 str(spok[,1993])
 ## Graphique des individus
 e <- fviz_pca_ind (spok.pca, axes = c(1,3) , mean.point = FALSE, legend.title = "Modalit?s", axes.linetype = "solid", label="none",
-                     habillage =  spok$Degr?, pointsize = 5) +
+                     habillage =  spok$Degré, pointsize = 5) +
   scale_color_brewer(palette="Set1")+
   labs(title = "ACP: graph des individus") +
   theme_minimal()
@@ -209,7 +209,7 @@ print(e)
 
 ## Graphique des individus
 g <- fviz_pca_ind (spok.pca, axes = c(1,4) , mean.point = FALSE, legend.title = "Modalit?s", axes.linetype = "solid", label="none",
-                   habillage =  spok$Degr?, pointsize = 5) +
+                   habillage =  spok$Degré, pointsize = 5) +
   scale_color_brewer(palette="Set1")+
   labs(title = "ACP: graph des individus") +
   theme_minimal()

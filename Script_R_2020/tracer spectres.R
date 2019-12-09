@@ -1,5 +1,5 @@
 library(MASS)
-library(mixOmics)
+#library("mixOmics")
 library(FactoMineR)
 library(signal)
 library(plyr)
@@ -18,32 +18,30 @@ source('C:/Users/avitvale/Documents/Script_R/SIGNE_maha0.R')
 # set.seed(1)
 
 
-#"C:/Users/Noémie/Desktop/SFE/Toutesdates/Globalmatrix/globalmatrix"
-brb4="C:/Users/avitvale/Documents/matrice toutes dates/Globalmatrix/globalmatrix"
+#"C:/Users/No?mie/Desktop/SFE/Toutesdates/Globalmatrix/globalmatrix"
+brb4="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb4)
 
-# brb2="C:/Users/Noémie/Desktop/SFE/Toutesdates/Globalmatrix/globalmatrixB"
+# brb2="C:/Users/No?mie/Desktop/SFE/Toutesdates/Globalmatrix/globalmatrixB"
 #  load(file=brb2)
-# 
-# brb3="C:/Users/Noémie/Desktop/SFE/Toutesdates/Globalmatrix/globalmatrixG"
+#
+# brb3="C:/Users/No?mie/Desktop/SFE/Toutesdates/Globalmatrix/globalmatrixG"
 #  load(file=brb3)
-# 
+#
 # globalmatrix = rbind(globalmatrix1,globalmatrix2,globalmatrix3)
-# 
-# brb4="C:\\Users\\Noémie\\Desktop\\SFE\\Toutesdates\\Globalmatrix\\"
+#
+# brb4="C:\\Users\\No?mie\\Desktop\\SFE\\Toutesdates\\Globalmatrix\\"
 #   save(globalmatrix, file=paste(brb4,"globalmatrix",sep=""))
-# 
+#
 # write.table(globalmatrix, file=paste(brb4,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
 
-#globalmatrix[,500]>0.6
-globalmatrix=globalmatrix[globalmatrix[,500]>0.6,]
-globalmatrix=globalmatrix[globalmatrix[,1]<0.2,]
-globalmatrix=globalmatrix[globalmatrix[,2000]<0.25,]
+
 
 # # Data Filter
 # # Select dates
  dates=list(
-   "20180823N"
+
+#   "20180823N"
 #   ,"20180823P"
 #   ,"20180823T"
 #   # "20180619P"
@@ -57,20 +55,34 @@ globalmatrix=globalmatrix[globalmatrix[,2000]<0.25,]
 #   # ,"20180627N"
 #   # ,"20180709T"
 #   # ,"20180709N"
-# 
+#
  )
-# 
-iok=substr(rownames(globalmatrix),1,9) %in% dates
-globalmatrix=globalmatrix[iok,]
-# 
- matplot(t(globalmatrix),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance") 
-# 
+#
+#iok=substr(rownames(globalmatrix),1,8) %in% dates
+#globalmatrix=globalmatrix[iok,]
+#
+
+ ### FIXATION DES PARAMETRES UTILISES:
+ p=2
+ n=11
+ m=1
+
+ sp=globalmatrix
+ ## SNV
+ sp3=t(scale(t(sp)))
+ # ## Derivation Savitsky Golay
+ sp4=t(apply(sp3,1,sgolayfilt,p=p,n=n,m=m))
+
+
+matplot(t(globalmatrix),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
+matplot(t(sp4),pch = ".",xlab = "Longueurs d'ondes (nm)", ylab = "Transflectance")
+#
 # ##Filtrer les feuilles par age
 # titre=rownames(globalmatrix)
 # #w=as.numeric(substr(titre,15,16))==1 | as.numeric(substr(titre,15,16))==2 | as.numeric(substr(titre,5,6))==3 | as.numeric(substr(titre,15,16))==7 | as.numeric(substr(titre,15,16))==8 | as.numeric(substr(titre,5,6))==9 | as.numeric(substr(titre,15,16))==13 | as.numeric(substr(titre,15,16))==14 | as.numeric(substr(titre,15,16))==15
 # # ## retire les lignes correspondantes (a mettre en commentaire si pas de selection de feuilles ou cepages)
 # #globalmatrix=globalmatrix[(w==TRUE),]
-# 
+#
 # ## FIXATION DES PARAMETRES UTILISES:
 # # nombre de repetitions de la boucle de FDA:
 # #repet= 50
@@ -84,15 +96,15 @@ globalmatrix=globalmatrix[iok,]
 # #v=3
 # # Nombre de groupes de CV
 # #k=6
-# 
+#
 # ## LDA ##
 # sp=globalmatrix
-# 
+#
 # # creation de la matrice de classes
 # class=as.factor(substr(rownames(sp),11,13))
 # # variable qui mesure le nombre de classes
 # c=length(levels(class))
-# 
+#
 # # ## Pretraitements
 # #  # Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
 # # sp=adj_asd(sp,c(602,1402))
@@ -102,20 +114,20 @@ globalmatrix=globalmatrix[iok,]
 # # sp=t(scale(t(sp)))
 # #  # Derivation Savitsky Golay
 # #  sp=t(apply(sp,1,sgolayfilt,p=p,n=n,m=m))
-# 
+#
 # # ##Selectionne les lignes de la matrice en fonction des modalites si pretraitements, remplacer "globalmatrix" par "sp"
 # # titre=rownames(sp)
 # # x1=substr(titre,9,9)== "N"
 # # x2=substr(titre,9,9)== "P"
 # # x3=substr(titre,9,9)== "T"
-# # 
-# # 
+# #
+# #
 # # sp1=sp[(x1==TRUE),] #N
 # # sp2=sp[(x2==TRUE),] #P
 # # sp3=sp[(x3==TRUE),] #T
-# # 
-# 
-# 
+# #
+#
+#
 # # #Plot
 # # matplot(t(sp1),pch = ".",col = "red") #N
 # # matplot(t(sp2), pch = ".",col = "blue", add = TRUE) #P
@@ -123,4 +135,3 @@ globalmatrix=globalmatrix[iok,]
 # # legend(x="topright", legend=c("N","P","T"), col=c("red","blue" ,"green"),
 # #        lty =  c(1,1,1))
 
- 
