@@ -128,182 +128,181 @@ globalmatrix <- globalmatrix[-iout,]
 
 
 
-#
-# str(globalmatrix)
-# a=matrix(ncol=1992)
-# b=matrix(ncol=1992)
-# c=matrix(ncol=1992)
-# d=matrix(ncol=1992)
-# e=matrix(ncol=1992)
-# f=matrix(ncol=1992)
-# g=matrix(ncol=1992)
-# h=matrix(ncol=1992)
-# i=matrix(ncol=1992)
-# j=matrix(ncol=1992)
-# k=matrix(ncol=1992)
-# l=matrix(ncol=1992)
-# m=matrix(ncol=1992)
-# n=matrix(ncol=1992)
-# o=matrix(ncol=1992)
-# p=matrix(ncol=1992)
-# q=matrix(ncol=1992)
-# r=matrix(ncol=1992)
-#
-# colnames(a)=449:2440
-# colnames(b)=449:2440
-# colnames(c)=449:2440
-# colnames(d)=449:2440
-# colnames(e)=449:2440
-# colnames(f)=449:2440
-# colnames(g)=449:2440
-# colnames(h)=449:2440
-# colnames(i)=449:2440
-# colnames(j)=449:2440
-# colnames(k)=449:2440
-# colnames(l)=449:2440
-# colnames(m)=449:2440
-# colnames(n)=449:2440
-# colnames(o)=449:2440
-# colnames(p)=449:2440
-# colnames(q)=449:2440
-# colnames(r)=449:2440
-#
-# # interm=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[1])),])
-# # if (length(interm[,1])==18){
-# #   a=rbind(a,interm[1,])
-# #   rownames(a)[length(a[,1])]=paste(substr(rownames(interm)[length(a[,1])],1,13),"-00 ", substr(rownames(interm)[length(a[,1])],18,18),1, sep="")
-# #   # b=rbind(b,interm[2,])
-# #   # c=rbind(c,interm[3,])
-# #   # d=rbind(d,interm[4,])
-# #   # e=rbind(e,interm[5,])
-# #   # f=rbind(f,interm[6,])
-# #   # g=rbind(g,interm[7,])
-# #   # h=rbind(h,interm[8,])
-# #   # i=rbind(i,interm[9,])
-# #   # j=rbind(j,interm[10,])
-# #   # k=rbind(k,interm[11,])
-# #   # l=rbind(l,interm[12,])
-# #   # m=rbind(m,interm[13,])
-# #   # n=rbind(n,interm[14,])
-# #   # o=rbind(o,interm[15,])
-# #   # p=rbind(p,interm[16,])
-# #   # q=rbind(q,interm[17,])
-# #   # r=rbind(r,interm[18,])
-# # }
-#
-#
-#
-# for (z in 1:length(unique(substr(rownames(globalmatrix),1,13)))) {
-#   interm=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[z]),]
-#
-# #  truc1=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),])
-# #  truc2=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),]
-#   if (length(interm[,1])==18){
-#     print(i)
-#     a=rbind(a,interm[1,])
-#     K=as.character(paste(substr(rownames(interm)[1],1,13),"-01 ", substr(rownames(interm)[1],18,18), sep=""))
-#     rownames(a)[length(a[,1])]=K
-#
-#     b=rbind(b,interm[2,])
-#     K=as.character(paste(substr(rownames(interm)[2],1,13),"-01 ", substr(rownames(interm)[2],18,18), sep=""))
-#     rownames(b)[length(b[,1])]=K
-#
-#     c=rbind(c,interm[3,])
-#     K=as.character(paste(substr(rownames(interm)[3],1,13),"-01 ", substr(rownames(interm)[3],18,18), sep=""))
-#     rownames(c)[length(c[,1])]=K
-#
-#     d=rbind(d,interm[4,])
-#     K=as.character(paste(substr(rownames(interm)[4],1,13),"-01 ", substr(rownames(interm)[4],18,18), sep=""))
-#     rownames(d)[length(d[,1])]=K
-#
-#     e=rbind(e,interm[5,])
-#     K=as.character(paste(substr(rownames(interm)[5],1,13),"-01 ", substr(rownames(interm)[5],18,18), sep=""))
-#     rownames(e)[length(e[,1])]=K
-#
-#     f=rbind(f,interm[6,])
-#     K=as.character(paste(substr(rownames(interm)[6],1,13),"-01 ", substr(rownames(interm)[6],18,18), sep=""))
-#     rownames(f)[length(f[,1])]=K
-#
-#     g=rbind(g,interm[7,])
-#     K=as.character(paste(substr(rownames(interm)[7],1,13),"-07 ", substr(rownames(interm)[7],18,18), sep=""))
-#     rownames(g)[length(g[,1])]=K
-#
-#     h=rbind(h,interm[8,])
-#     K=as.character(paste(substr(rownames(interm)[8],1,13),"-07 ", substr(rownames(interm)[8],18,18), sep=""))
-#     rownames(h)[length(h[,1])]=K
-#
-#     i=rbind(i,interm[9,])
-#     K=as.character(paste(substr(rownames(interm)[9],1,13),"-07 ", substr(rownames(interm)[9],18,18), sep=""))
-#     rownames(i)[length(i[,1])]=K
-#
-#     j=rbind(j,interm[10,])
-#     K=as.character(paste(substr(rownames(interm)[10],1,13),"-07 ", substr(rownames(interm)[10],18,18), sep=""))
-#     rownames(j)[length(j[,1])]=K
-#
-#     k=rbind(k,interm[11,])
-#     K=as.character(paste(substr(rownames(interm)[11],1,13),"-07 ", substr(rownames(interm)[11],18,18), sep=""))
-#     rownames(k)[length(k[,1])]=K
-#
-#     l=rbind(l,interm[12,])
-#     K=as.character(paste(substr(rownames(interm)[12],1,13),"-07 ", substr(rownames(interm)[12],18,18), sep=""))
-#     rownames(l)[length(l[,1])]=K
-#
-#     m=rbind(m,interm[13,])
-#     K=as.character(paste(substr(rownames(interm)[13],1,13),"-13 ", substr(rownames(interm)[13],18,18), sep=""))
-#     rownames(m)[length(m[,1])]=K
-#
-#     n=rbind(n,interm[14,])
-#     K=as.character(paste(substr(rownames(interm)[14],1,13),"-13 ", substr(rownames(interm)[14],18,18), sep=""))
-#     rownames(n)[length(n[,1])]=K
-#
-#     o=rbind(o,interm[15,])
-#     K=as.character(paste(substr(rownames(interm)[15],1,13),"-13 ", substr(rownames(interm)[15],18,18), sep=""))
-#     rownames(o)[length(o[,1])]=K
-#
-#     p=rbind(p,interm[16,])
-#     K=as.character(paste(substr(rownames(interm)[16],1,13),"-13 ", substr(rownames(interm)[16],18,18), sep=""))
-#     rownames(p)[length(p[,1])]=K
-#
-#     q=rbind(q,interm[17,])
-#     K=as.character(paste(substr(rownames(interm)[17],1,13),"-13 ", substr(rownames(interm)[17],18,18), sep=""))
-#     rownames(q)[length(q[,1])]=K
-#
-#     r=rbind(r,interm[18,])
-#     K=as.character(paste(substr(rownames(interm)[18],1,13),"-13 ", substr(rownames(interm)[18],18,18), sep=""))
-#     rownames(r)[length(r[,1])]=K
-#   }
+
+str(globalmatrix)
+a=matrix(ncol=1992)
+b=matrix(ncol=1992)
+c=matrix(ncol=1992)
+d=matrix(ncol=1992)
+e=matrix(ncol=1992)
+f=matrix(ncol=1992)
+g=matrix(ncol=1992)
+h=matrix(ncol=1992)
+i=matrix(ncol=1992)
+j=matrix(ncol=1992)
+k=matrix(ncol=1992)
+l=matrix(ncol=1992)
+m=matrix(ncol=1992)
+n=matrix(ncol=1992)
+o=matrix(ncol=1992)
+p=matrix(ncol=1992)
+q=matrix(ncol=1992)
+r=matrix(ncol=1992)
+
+colnames(a)=449:2440
+colnames(b)=449:2440
+colnames(c)=449:2440
+colnames(d)=449:2440
+colnames(e)=449:2440
+colnames(f)=449:2440
+colnames(g)=449:2440
+colnames(h)=449:2440
+colnames(i)=449:2440
+colnames(j)=449:2440
+colnames(k)=449:2440
+colnames(l)=449:2440
+colnames(m)=449:2440
+colnames(n)=449:2440
+colnames(o)=449:2440
+colnames(p)=449:2440
+colnames(q)=449:2440
+colnames(r)=449:2440
+
+# interm=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13)[1])),])
+# if (length(interm[,1])==18){
+#   a=rbind(a,interm[1,])
+#   rownames(a)[length(a[,1])]=paste(substr(rownames(interm)[length(a[,1])],1,13),"-00 ", substr(rownames(interm)[length(a[,1])],18,18),1, sep="")
+#   # b=rbind(b,interm[2,])
+#   # c=rbind(c,interm[3,])
+#   # d=rbind(d,interm[4,])
+#   # e=rbind(e,interm[5,])
+#   # f=rbind(f,interm[6,])
+#   # g=rbind(g,interm[7,])
+#   # h=rbind(h,interm[8,])
+#   # i=rbind(i,interm[9,])
+#   # j=rbind(j,interm[10,])
+#   # k=rbind(k,interm[11,])
+#   # l=rbind(l,interm[12,])
+#   # m=rbind(m,interm[13,])
+#   # n=rbind(n,interm[14,])
+#   # o=rbind(o,interm[15,])
+#   # p=rbind(p,interm[16,])
+#   # q=rbind(q,interm[17,])
+#   # r=rbind(r,interm[18,])
 # }
-#
-#
-#
-#
-#
-# colnames(b)=(max(as.numeric(colnames(a)))+1):((max(as.numeric(colnames(a)))+1)+length(b[1,])-1)
-# colnames(c)=(max(as.numeric(colnames(b)))+1):((max(as.numeric(colnames(b)))+1)+length(c[1,])-1)
-# colnames(d)=(max(as.numeric(colnames(c)))+1):((max(as.numeric(colnames(c)))+1)+length(d[1,])-1)
-# colnames(e)=(max(as.numeric(colnames(d)))+1):((max(as.numeric(colnames(d)))+1)+length(e[1,])-1)
-# colnames(f)=(max(as.numeric(colnames(e)))+1):((max(as.numeric(colnames(e)))+1)+length(f[1,])-1)
-#
-# #colnames(g)=(max(as.numeric(colnames(f)))+1):((max(as.numeric(colnames(f)))+1)+length(g[1,])-1)
-# colnames(h)=(max(as.numeric(colnames(g)))+1):((max(as.numeric(colnames(g)))+1)+length(h[1,])-1)
-# colnames(i)=(max(as.numeric(colnames(h)))+1):((max(as.numeric(colnames(h)))+1)+length(i[1,])-1)
-# colnames(j)=(max(as.numeric(colnames(i)))+1):((max(as.numeric(colnames(i)))+1)+length(j[1,])-1)
-# colnames(k)=(max(as.numeric(colnames(j)))+1):((max(as.numeric(colnames(j)))+1)+length(k[1,])-1)
-# colnames(l)=(max(as.numeric(colnames(k)))+1):((max(as.numeric(colnames(k)))+1)+length(l[1,])-1)
-#
-# #colnames(m)=(max(as.numeric(colnames(l)))+1):((max(as.numeric(colnames(l)))+1)+length(m[1,])-1)
-# colnames(n)=(max(as.numeric(colnames(m)))+1):((max(as.numeric(colnames(m)))+1)+length(n[1,])-1)
-# colnames(o)=(max(as.numeric(colnames(n)))+1):((max(as.numeric(colnames(n)))+1)+length(o[1,])-1)
-# colnames(p)=(max(as.numeric(colnames(o)))+1):((max(as.numeric(colnames(o)))+1)+length(p[1,])-1)
-# colnames(q)=(max(as.numeric(colnames(p)))+1):((max(as.numeric(colnames(p)))+1)+length(q[1,])-1)
-# colnames(r)=(max(as.numeric(colnames(q)))+1):((max(as.numeric(colnames(q)))+1)+length(r[1,])-1)
-#
-#
-# sptesta=cbind(a,b,c,d,e,f)
-# sptestb=cbind(g,h,i,j,k,l)
-# sptestc=cbind(m,n,o,p,q,r)
-#
-# sptest=rbind(sptesta,sptestb,sptestc)
+
+
+
+for (z in 1:length(unique(substr(rownames(globalmatrix),1,13)))) {
+  interm=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[z]),]
+
+#  truc1=as.data.frame(globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),])
+#  truc2=globalmatrix[which(substr(rownames(globalmatrix),1,13)==unique(substr(rownames(globalmatrix),1,13))[1]),]
+  if (length(interm[,1])==18){
+    a=rbind(a,interm[1,])
+    K=as.character(paste(substr(rownames(interm)[1],1,13),"-01 ", substr(rownames(interm)[1],18,18), sep=""))
+    rownames(a)[length(a[,1])]=K
+
+    b=rbind(b,interm[2,])
+    K=as.character(paste(substr(rownames(interm)[2],1,13),"-01 ", substr(rownames(interm)[2],18,18), sep=""))
+    rownames(b)[length(b[,1])]=K
+
+    c=rbind(c,interm[3,])
+    K=as.character(paste(substr(rownames(interm)[3],1,13),"-01 ", substr(rownames(interm)[3],18,18), sep=""))
+    rownames(c)[length(c[,1])]=K
+
+    d=rbind(d,interm[4,])
+    K=as.character(paste(substr(rownames(interm)[4],1,13),"-01 ", substr(rownames(interm)[4],18,18), sep=""))
+    rownames(d)[length(d[,1])]=K
+
+    e=rbind(e,interm[5,])
+    K=as.character(paste(substr(rownames(interm)[5],1,13),"-01 ", substr(rownames(interm)[5],18,18), sep=""))
+    rownames(e)[length(e[,1])]=K
+
+    f=rbind(f,interm[6,])
+    K=as.character(paste(substr(rownames(interm)[6],1,13),"-01 ", substr(rownames(interm)[6],18,18), sep=""))
+    rownames(f)[length(f[,1])]=K
+
+    g=rbind(g,interm[7,])
+    K=as.character(paste(substr(rownames(interm)[7],1,13),"-07 ", substr(rownames(interm)[7],18,18), sep=""))
+    rownames(g)[length(g[,1])]=K
+
+    h=rbind(h,interm[8,])
+    K=as.character(paste(substr(rownames(interm)[8],1,13),"-07 ", substr(rownames(interm)[8],18,18), sep=""))
+    rownames(h)[length(h[,1])]=K
+
+    i=rbind(i,interm[9,])
+    K=as.character(paste(substr(rownames(interm)[9],1,13),"-07 ", substr(rownames(interm)[9],18,18), sep=""))
+    rownames(i)[length(i[,1])]=K
+
+    j=rbind(j,interm[10,])
+    K=as.character(paste(substr(rownames(interm)[10],1,13),"-07 ", substr(rownames(interm)[10],18,18), sep=""))
+    rownames(j)[length(j[,1])]=K
+
+    k=rbind(k,interm[11,])
+    K=as.character(paste(substr(rownames(interm)[11],1,13),"-07 ", substr(rownames(interm)[11],18,18), sep=""))
+    rownames(k)[length(k[,1])]=K
+
+    l=rbind(l,interm[12,])
+    K=as.character(paste(substr(rownames(interm)[12],1,13),"-07 ", substr(rownames(interm)[12],18,18), sep=""))
+    rownames(l)[length(l[,1])]=K
+
+    m=rbind(m,interm[13,])
+    K=as.character(paste(substr(rownames(interm)[13],1,13),"-13 ", substr(rownames(interm)[13],18,18), sep=""))
+    rownames(m)[length(m[,1])]=K
+
+    n=rbind(n,interm[14,])
+    K=as.character(paste(substr(rownames(interm)[14],1,13),"-13 ", substr(rownames(interm)[14],18,18), sep=""))
+    rownames(n)[length(n[,1])]=K
+
+    o=rbind(o,interm[15,])
+    K=as.character(paste(substr(rownames(interm)[15],1,13),"-13 ", substr(rownames(interm)[15],18,18), sep=""))
+    rownames(o)[length(o[,1])]=K
+
+    p=rbind(p,interm[16,])
+    K=as.character(paste(substr(rownames(interm)[16],1,13),"-13 ", substr(rownames(interm)[16],18,18), sep=""))
+    rownames(p)[length(p[,1])]=K
+
+    q=rbind(q,interm[17,])
+    K=as.character(paste(substr(rownames(interm)[17],1,13),"-13 ", substr(rownames(interm)[17],18,18), sep=""))
+    rownames(q)[length(q[,1])]=K
+
+    r=rbind(r,interm[18,])
+    K=as.character(paste(substr(rownames(interm)[18],1,13),"-13 ", substr(rownames(interm)[18],18,18), sep=""))
+    rownames(r)[length(r[,1])]=K
+  }
+}
+
+
+
+
+
+colnames(b)=(max(as.numeric(colnames(a)))+1):((max(as.numeric(colnames(a)))+1)+length(b[1,])-1)
+colnames(c)=(max(as.numeric(colnames(b)))+1):((max(as.numeric(colnames(b)))+1)+length(c[1,])-1)
+colnames(d)=(max(as.numeric(colnames(c)))+1):((max(as.numeric(colnames(c)))+1)+length(d[1,])-1)
+colnames(e)=(max(as.numeric(colnames(d)))+1):((max(as.numeric(colnames(d)))+1)+length(e[1,])-1)
+colnames(f)=(max(as.numeric(colnames(e)))+1):((max(as.numeric(colnames(e)))+1)+length(f[1,])-1)
+
+#colnames(g)=(max(as.numeric(colnames(f)))+1):((max(as.numeric(colnames(f)))+1)+length(g[1,])-1)
+colnames(h)=(max(as.numeric(colnames(g)))+1):((max(as.numeric(colnames(g)))+1)+length(h[1,])-1)
+colnames(i)=(max(as.numeric(colnames(h)))+1):((max(as.numeric(colnames(h)))+1)+length(i[1,])-1)
+colnames(j)=(max(as.numeric(colnames(i)))+1):((max(as.numeric(colnames(i)))+1)+length(j[1,])-1)
+colnames(k)=(max(as.numeric(colnames(j)))+1):((max(as.numeric(colnames(j)))+1)+length(k[1,])-1)
+colnames(l)=(max(as.numeric(colnames(k)))+1):((max(as.numeric(colnames(k)))+1)+length(l[1,])-1)
+
+#colnames(m)=(max(as.numeric(colnames(l)))+1):((max(as.numeric(colnames(l)))+1)+length(m[1,])-1)
+colnames(n)=(max(as.numeric(colnames(m)))+1):((max(as.numeric(colnames(m)))+1)+length(n[1,])-1)
+colnames(o)=(max(as.numeric(colnames(n)))+1):((max(as.numeric(colnames(n)))+1)+length(o[1,])-1)
+colnames(p)=(max(as.numeric(colnames(o)))+1):((max(as.numeric(colnames(o)))+1)+length(p[1,])-1)
+colnames(q)=(max(as.numeric(colnames(p)))+1):((max(as.numeric(colnames(p)))+1)+length(q[1,])-1)
+colnames(r)=(max(as.numeric(colnames(q)))+1):((max(as.numeric(colnames(q)))+1)+length(r[1,])-1)
+
+
+sptesta=cbind(a,b,c,d,e,f)
+sptestb=cbind(g,h,i,j,k,l)
+sptestc=cbind(m,n,o,p,q,r)
+
+sptest=rbind(sptesta,sptestb,sptestc)
 #
 #
 #
@@ -357,18 +356,18 @@ globalmatrix <- globalmatrix[-iout,]
 #
 #
 
-# globalmatrix2=sptest
-# globalmatrix2=globalmatrix2[complete.cases(globalmatrix2),]
+globalmatrix2=sptest
+globalmatrix2=globalmatrix2[complete.cases(globalmatrix2),]
 
 
 
 str(globalmatrix)
-# str(globalmatrix2)
+str(globalmatrix2)
 
 
 brb="C:/Users/avitvale/Documents/Test/"
-save(globalmatrix, file=paste(brb,"globalmatrix",sep=""))
-print(length(globalmatrix))
+save(globalmatrix2, file=paste(brb,"globalmatrix2",sep=""))
+print(length(globalmatrix2))
 # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
 setwd("C:/Users/avitvale/Documents/signeG")
 ### END ###
