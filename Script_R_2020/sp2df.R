@@ -5,6 +5,6 @@ sp2df <- function(sp,y,nam,lo)
   class(dat$x)="matrix"
   if(!missing(nam)) rownames(dat$x)=nam
   if(!missing(lo)) colnames(dat)=lo
-  dat=cbind(y,dat)
+  if(!missing(y)) dat=cbind(y,dat)
   return(dat)
 }
