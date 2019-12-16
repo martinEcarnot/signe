@@ -283,38 +283,38 @@ sp=sp3
 
 
 
-# L=unique(substr(rownames(sp),1,8))
-# L2=sort(L)
-# sp2=sp
-#
-# for (i in 1:length(L2)){
-#   N=which(substr(rownames(sp),1,8)==L2[i])
-#   sp2=rbind(sp2,sp[N,])
-# }
-#
-# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
-# rownames(sp3)=substr(rownames(sp3),1,18)
-#
-# sp=sp3
-#
-#
-#
-#
-#
-#
-# L=unique(substr(rownames(sp),9,9))
-# L2=sort(L)
-# sp2=sp
-#
-# for (i in 1:length(L2)){
-#   N=which(substr(rownames(sp),9,9)==L2[i])
-#   sp2=rbind(sp2,sp[N,])
-# }
-#
-# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
-# rownames(sp3)=substr(rownames(sp3),1,18)
-#
-# sp=sp3
+L=unique(substr(rownames(sp),1,8))
+L2=sort(L)
+sp2=sp
+
+for (i in 1:length(L2)){
+  N=which(substr(rownames(sp),1,8)==L2[i])
+  sp2=rbind(sp2,sp[N,])
+}
+
+sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+rownames(sp3)=substr(rownames(sp3),1,18)
+
+sp=sp3
+
+
+
+
+
+
+L=unique(substr(rownames(sp),9,9))
+L2=sort(L)
+sp2=sp
+
+for (i in 1:length(L2)){
+  N=which(substr(rownames(sp),9,9)==L2[i])
+  sp2=rbind(sp2,sp[N,])
+}
+
+sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+rownames(sp3)=substr(rownames(sp3),1,18)
+
+sp=sp3
 
 
 
@@ -713,11 +713,14 @@ syrah=c("#17371B", "#02894F", "#237709", "#34C625", "#6B8D1F", "#9DFD37", "#B778
 
 #dates= c( "20170612",	"20170619", "20170626", "20170703",           "20180619", "20180627", "20180704",           "20190624",  "20190702", "20190710"      )
 #dates= c("20170524", "20170529", "20170606", "20170612", "20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731", "20180619", "20180627", "20180704", "20180709", "20180816", "20190613", "20190617", "20190624", "20190702", "20190710", "20190718", "20190726", "20190730")
-dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731",
+dates= c(
+  "20170524", "20170529",
+         "20170606", "20170612",	"20170619", "20170626", "20170703", "20170710", "20170717", "20170724", "20170731",
 "20180619",
 "20180627",
 "20180704",
-"20180709", "20180816",
+"20180709",
+"20180816",
          "20190613", "20190617", "20190624", "20190702", "20190710", "20190718", "20190726", "20190730",
          "20170711", "20180710", "20180817", "20190628")
 
@@ -732,7 +735,7 @@ dates= c("20170524", "20170529", "20170606", "20170612",	"20170619", "20170626",
 # "0613" "0617" "0624" "0628" "0702" "0710" "0726" "0718" "0730"
 # unique(substr(rownames(sp),1,8))
 #idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),5,8)!="0613" )#& substr(rownames(sp),5,8)!="0702")
-idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="S" & substr(rownames(sp),5,8)!="08171" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)!="A" & substr(rownames(sp),5,8)!="08171" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 #which(substr(rownames(sp[idval,]),9,13)=="C 015" & substr(rownames(sp[idval,]),18,18)=="G" & substr(rownames(sp[idval,]),18,18)=="G")
@@ -757,19 +760,19 @@ idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" &
 #ncmax=300
 spval=sp[idval,]
 spcal=sp[-idval,]
-# classval=sp$y1[idval]        #Sur les cépages
-# classcal=sp$y1[-idval]
-classval=sp$y2[idval]         #Sur les clones
-classcal=sp$y2[-idval]
+classval=sp$y1[idval]        #Sur les cépages
+classcal=sp$y1[-idval]
+# classval=sp$y2[idval]         #Sur les clones
+# classcal=sp$y2[-idval]
 
 idcal=                     which(((substr(rownames(sp),18,18)=="G"    | substr(rownames(sp),18,18)=="G"
-                ) & substr(rownames(sp),9,9)=="S"    & substr(rownames(sp),1,4)!="2019"    ) |    substr(rownames(sp),1,9)=="20180816G1" )
-# classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-#              ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2019" ) | substr(rownames(spcal),1,9)=="20190702G1" )]
+                ) & substr(rownames(sp),9,9)!="A"    & substr(rownames(sp),1,4)!="2019" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9)=="20180816G1" )
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-             ) & substr(rownames(spcal),9,9)=="S" & substr(rownames(spcal),1,4)!="2019" ) | substr(rownames(spcal),1,9)=="20180816G1" )]
+             ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2019" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20190702G1" )]
+# classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
+#              ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2018" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" )]
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-             ) & substr(rownames(spcal),9,9)=="S" & substr(rownames(spcal),1,4)!="2019" ) | substr(rownames(spcal),1,9)=="20180816G1" ),]
+             ) & substr(rownames(spcal),9,9)!="A" & substr(rownames(spcal),1,4)!="2019" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" ),]
 
 # idcal=which(substr(rownames(sp),1,4)=="2018" | substr(rownames(sp),1,4)=="2019")
 # classcal=classcal[which(substr(rownames(spcal),1,4)=="2018" | substr(rownames(spcal),1,4)=="2019")]
@@ -787,7 +790,7 @@ scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="score
 
 
 # plotsp(t(rplsda$projection)[1,])
-plotsp(t(rplsda$coefficients[,7,])[3,])
+plotsp(t(rplsda$coefficients[,1,])[3,])
 
 
 for (ii in 2:ncmax) {
@@ -822,9 +825,9 @@ for (ii in 2:ncmax) {
 # distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
 
 
-classval=relevel(classval, "G 787")
-classval=relevel(classval, "G 509")
-classval=relevel(classval, "G 222")
+# classval=relevel(classval, "G 787")
+# classval=relevel(classval, "G 509")
+# classval=relevel(classval, "G 222")
 
 # classval=relevel(classval, "S 877")
 # classval=relevel(classval, "S 747")
@@ -837,7 +840,7 @@ perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-VL=7
+VL=20
 tsm[VL]
 
 
@@ -894,12 +897,12 @@ date= substr(rownames(scval),5,8)
 
 
 for (i in 1:length(scval[,1])){
-  n=which(c("G 222",   "G 509",   "G 787")==clone[i])  #"C 015",   "C 169",   "C 685" #"G 222",   "G 509",   "G 787" #"S 877", "S 747", "S 525", "S 471"
+  n=which(c("C",   "G",   "S")==cepage[i])  #"C 015",   "C 169",   "C 685" #"G 222",   "G 509",   "G 787" #"S 877", "S 747", "S 525", "S 471"
   for (j in 2:VL){
     dista[i,j]=distances[j][i,][n]             #
     predclone[i,j]=as.character(predmF[j][i,])     #
     succes[i,j]="Mal classé"                     #
-    if (predclone[i,j]==clone[i]){
+    if (predclone[i,j]==cepage[i]){
       succes[i,j]="Bien classé"
     }
   }
@@ -1002,7 +1005,7 @@ Ldist2=cbind(numero,   dista2, clone, predclone2, date, age, succes2)
 #colour=paste(clone,succes[,VL])
 aff2 <- ggplot(Ldist2, aes(x=numero, y=dista[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) +
   geom_point(size=2, alpha=1) +
-  scale_color_manual(values = gamay)
+  scale_color_manual(values = colo)
 ggplotly(aff2)
 
 

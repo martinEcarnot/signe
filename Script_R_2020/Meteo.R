@@ -1,7 +1,7 @@
 #NB : J'ai dû remplacer les "," par des "." dans le fichier d'origine.
 rm(list = ls())
 #data<-read.table("C:/Users/avitvale/Documents/Valentin Avit/Meteo_GDR.csv",sep=";",header=TRUE)
-data<-read.table("C:/Users/avitvale/Documents/Valentin Avit/2019-90/Donnees_quotidiennes_1.csv",sep=";",header=TRUE)
+data<-read.table("C:/Users/avitvale/Documents/Valentin Avit/2019-90/Donnees_quotidiennes.csv",sep=";",header=TRUE)
 debut=4 #On commence au mois d'Avril
 
 
@@ -35,7 +35,7 @@ T0=10 #Zéro de végétation, caractéristique à chaque espèce. Pour la vigne,
 
 
 #2
-D=data[which(data$POSTE=="34154001"),]
+D=data[which(data$POSTE=="69264001"),]
 D2=as.data.frame(matrix(nrow=length(D[,1]), ncol=1), row.names=D$DATE)
 
 
@@ -139,3 +139,4 @@ D2[which(rownames(D2)==L2[1]),]
 # D2[which(rownames(D2)=="20190726"),]
 # D2[which(rownames(D2)=="20190730"),]
 # D2[which(rownames(D2)=="20190822"),]
+
