@@ -447,7 +447,7 @@ perok_finalmS=matrix(nrow = repet, ncol = ncmax)
 #set.seed(1) # fixe le tirage aleatoire
 for(j in 1:repet) {
   # On selectionne le jeu de validation de manière à ce que tous les datclone soient représentés et 1 souche sur les 3 tirée random
-  m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)))
+  m=mstage(sp,stage=list("cluster","cluster"), varnames=list("datclone","souche"),size=list(ndc,rep(1,ndc)), method=list("srswor","srswor"))
   spval=getdata(sp,m)[[2]]
   #
 
