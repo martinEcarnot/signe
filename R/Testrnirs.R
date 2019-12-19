@@ -66,8 +66,8 @@ headm(fm$Tr)
 
 comp <- c(1, 2)
 #comp <- c(2, 3)
-z <-
-  plotxy(fm$Tr[, comp])
+z <- plotxy(fm$Tr[, comp])
+z
 
 plotxy(fm$Tr[, comp], label = TRUE)
 
@@ -303,6 +303,7 @@ z <- mse(fm, ~ ncomp)
 z
 z[z$rmsep == min(z$rmsep), ]
 plotmse(z)
+
 
 ### b coefficients (model with ncomp components)
 
