@@ -1,4 +1,4 @@
-#' Function to import ASD spectra
+?#' Function to import ASD spectra
 #'
 #' @param d character
 #'
@@ -7,9 +7,9 @@
 #' @export
 #'
 #'
-source('Script_R_2020/asd_read.R')
+source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
 
-sSIGNE_load <- function (d) {
+SIGNE_load <- function (d) {
 library(asdreader)
 #d=choose.dir()
 #d="C:\\Users\\Noemie\\Desktop\\SFE\\Pour_Nathan\\Documents_finaux\\test_spectres\\"
@@ -26,7 +26,7 @@ for (i in 1:length(l)) {
   sp[i,]=sp1
 }
 
-
+# browser()
 l1=basename(l)
 l1=gsub(".asd","",l1)
 l1=gsub("000","-",l1)
