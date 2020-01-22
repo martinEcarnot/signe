@@ -40,23 +40,56 @@ sp2=sp2dfclo(sp, code, rep)
 names(sp2)=c("code", "rep", "spectre")
 sp2$code=as.numeric(as.character(sp2$code))
 sp2$rep=as.numeric(as.character(sp2$rep))
-
+#
+# T=sp2[1,]
+# SP=sp2[1,]
+# SP$rep=NA
+# Truc=sp2$spectre
+#
+# sp3=data.frame(NA,NA,NA)
+# names(sp3)=c("code","rep","spectre")
+# for (i in unique(sp2$code)){
+#   SP$code= i
+#   SP$spectre=t(as.matrix(colMeans(sp2$spectre[which(sp2$code==i),])))
+#   sp3=cbind(sp3,SP)
+#   which(sp2$code==i)
+# }
+#
+#
+# plotsp(colMeans(sp2$spectre[which(sp2$code==1),]))
+# plotsp(sp2$spectre[which(sp2$code==1),])
 
 
 trad=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Correspondance_code_conservatoire_gamay.csv")
-trad=trad[complete.cases(trad),]
 
-donnees=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Observations_2019_Conservatoire_Gamay_normalisees.csv")
-donnees=donnees[complete.cases(donnees),]
+donnees1=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_1.csv")
+
+donnees2=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_2.csv")
+#donnees2=donnees2[complete.cases(donnees2),]
 
 
-jonction=left_join(trad, donnees)
-jonction=jonction[complete.cases(jonction),]
+jonction1=left_join(trad, donnees1)
+jonction1=jonction1[complete.cases(jonction1),]
+jonction2=left_join(trad, donnees2)
+jonction2=jonction2[complete.cases(jonction2),]
 
-table=left_join(sp2, jonction)
+#table=left_join(sp2, jonction1)
+table=left_join(sp2,jonction2)
 table=table[complete.cases(table),]
 
+# intersect(donnees1$clone, trad$clone)
+# setdiff(donnees1$clone, trad$clone)
+# setdiff(trad$clone, donnees1$clone)
+#
+# setdiff(donnees2$clone, trad$clone)
+# setdiff(trad$clone, donnees2$clone)
 
+# print(table)
+# brb="C:/Users/avitvale/Documents/Test/"
+# save(table, file=paste(brb,"table",sep=""))
+# print(length(table))
+# # write.table(globalmatrix, file=paste(brb,"globalmatrix.csv",sep=""),sep=";", quote=FALSE)
+# ### END ###
 
 # Data Filter
 
@@ -93,40 +126,65 @@ sp=sp[,-(500:560)]
 table$spectre=sp
 
 
-l1=sample(192, 64)
-l2=sample((1:192)[-l1],64)
-l3=sample((1:192)[-c(l1,l2)],64)
+a=floor(length(unique(table$code))/3)
+segm=list()
+for (i in 1:10){
+  l1=sample(3*a, a)
+  l2=sample((1:(3*a))[-l1],a)
+  l3=sample((1:(3*a))[-c(l1,l2)],a)
+  #fitcv
+  #n°rep, n0 clone      16, yiyi
 
-#fitcv
-#n°rep, n0 clone      16, yiyi
-L1=vector()
-for (i in l1) {
-  L1=c(L1,which(table$code==i))
-    }
+  L1=vector()
+  for (i in l1) {
+    L1=c(L1,which(table$code==i))
+      }
+  L2=vector()
+  for (i in l2) {
+    L2=c(L2,which(table$code==i))
+  }
+  L3=vector()
+  for (i in l3) {
+    L3=c(L3,which(table$code==i))
+  }
 
-L2=vector()
-for (i in l2) {
-  L2=c(L2,which(table$code==i))
+  segm_1=list(list(L1,L2,L3))
+  segm=c(segm,segm_1)
 }
-
-L3=vector()
-for (i in l3) {
-  L3=c(L3,which(table$code==i))
-}
-
-segm=list(list(L1,L2,L3))
 
 #length(unique(table$code)) #192. 192/6=32.
-
-fm=fitcv(table$spectre, table$pds_100baies, plsr, segm, print=T, ncomp=20)
+names(table)
+fm=fitcv(table$spectre, table$intensite_botrytis, plsr, segm, print=T, ncomp=20)
 
 z <- mse(fm, ~ ncomp)
 
 plotmse(z, nam = "rmsep")
+plotmse(z, nam = "r2")
 
-fm20=lapply(fm,function (x) {x[x$ncomp==8,]})
+fm20=lapply(fm,function (x) {x[x$ncomp==1,]})
 plot(fm20$y$x1,fm20$fit$x1)
+hist(table$intensite_botrytis)
 
+
+
+#Le RPD c'est l'err / écart-type des données de départ.
+plot(z$rmsep/sd(table$pH))
+
+
+
+cor(table$pH,table$pds_100baies)
+cor(table$degre,table$pds_100baies)
+cor(table$acidite_totale,table$pds_100baies)
+cor(table$degre,table$acidite_totale)
+cor(table$degre,table$pH)
+cor(table$pH,table$acidite_totale)
+
+
+hist(table$degre)
+
+unique(table$code[which(table$degre>11,9)])
+
+#spatial, moyenne, corrélation.
 
 ##Permet de voir si, avec des trucs aleatoires, ca ferait des prédictions "illusoires"
 # L=c("C 015", "C 169", "C 685", "G 222", "G 509", "G 787", "S 471", "S 525", "S 747", "S 877")
