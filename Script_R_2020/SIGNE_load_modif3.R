@@ -9,7 +9,7 @@
 #'
 source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
 
-SIGNE_load <- function (d) {
+SIGNE_load_modif3 <- function (d) {
 library(asdreader)
 #d=choose.dir()
 #d="C:\\Users\\Noemie\\Desktop\\SFE\\Pour_Nathan\\Documents_finaux\\test_spectres\\"
@@ -28,9 +28,8 @@ for (i in 1:length(l)) {
 
 # browser()
 l1=basename(l)
-browser()
 l1=gsub(".asd","",l1)
-l1=gsub("000","-",l1)
+l1=gsub("000*","-",l1)
 # Look for wavelength
 md=get_metadata(l[i])
 wl=seq(from=md$ch1_wavel, to=md$ch1_wavel+md$channels-1)

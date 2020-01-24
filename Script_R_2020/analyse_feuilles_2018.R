@@ -30,12 +30,12 @@ source("Script_R_2020/segmFact.R")
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 #set.seed(1)
 
-brb3="C:/Users/avitvale/Documents/Test/globalmatrixconservatoiregrappes"
+brb3="C:/Users/avitvale/Documents/Test/globalmatrixconservatoirefeuilles2018"
 load(file=brb3)
-sp=globalmatrixconservatoiregrappes
-
-code=substr(rownames(sp),11,13)
-rep=substr(rownames(sp),15,16)
+sp=globalmatrixconservatoirefeuilles2018
+rownames(sp)
+code=floor((as.numeric(substr(rownames(sp),11,14))-1)/6)+1
+rep=as.numeric(substr(rownames(sp),11,14))-((code-1)*6)
 sp2=sp2dfclo(sp, code, rep)
 names(sp2)=c("code", "rep", "spectre")
 sp2$code=as.numeric(as.character(sp2$code))
@@ -60,8 +60,6 @@ sp2$rep=as.numeric(as.character(sp2$rep))
 # plotsp(sp2$spectre[which(sp2$code==1),])
 
 
-
-test=sp2$spectre
 xm=lapply(unique(sp2$code), function(x) colMeans(sp2$spectre[which(sp2$code==x),]))
 
 xm=unlist(xm)
@@ -75,7 +73,6 @@ sp3$code=as.numeric(as.character(sp3$code))
 # plotsp(sp3$spectre)
 # plotsp(sp2$spectre)
 
-
 # xm=lapply(levels(dat$ID), function(x) colMeans(dat$x[which(dat$ID==x),]))
 #
 # xm=unlist(xm)
@@ -88,18 +85,18 @@ sp3$code=as.numeric(as.character(sp3$code))
 
 
 
-trad=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Correspondance_code_conservatoire_gamay.csv")
+trad=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Correspondance_code_conservatoire_gamay_2018.csv")
 
-donnees1=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_1.csv")
+donnees1=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2018_1.csv")
 
-donnees2=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_2.csv")
+#donnees2=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_2.csv")
 #donnees2=donnees2[complete.cases(donnees2),]
 
 
 jonction1=left_join(trad, donnees1)
 jonction1=jonction1[complete.cases(jonction1),]
-jonction2=left_join(trad, donnees2)
-jonction2=jonction2[complete.cases(jonction2),]
+#jonction2=left_join(trad, donnees2)
+#jonction2=jonction2[complete.cases(jonction2),]
 
 #table=left_join(sp2, jonction1)
 #table=left_join(sp2,jonction2)
@@ -107,8 +104,8 @@ table=left_join(sp3,jonction1)
 table=table[complete.cases(table),]
 
 # intersect(donnees1$clone, trad$clone)
-# setdiff(donnees1$clone, trad$clone)
-# setdiff(trad$clone, donnees1$clone)
+#setdiff(donnees1$clone, trad$clone)
+#setdiff(trad$clone, donnees1$clone)
 #
 # setdiff(donnees2$clone, trad$clone)
 # setdiff(trad$clone, donnees2$clone)
@@ -168,19 +165,19 @@ for (i in 1:10){
 
   L1=vector()
   for (i in l1) {
-    L1=c(L1,which(table$code==i))
+    L1=c(L1,which(table$code==table$code[i]))
       }
   L2=vector()
   for (i in l2) {
-    L2=c(L2,which(table$code==i))
+    L2=c(L2,which(table$code==table$code[i]))
   }
   L3=vector()
   for (i in l3) {
-    L3=c(L3,which(table$code==i))
+    L3=c(L3,which(table$code==table$code[i]))
   }
   L4=vector()
   for (i in l4) {
-    L4=c(L4,which(table$code==i))
+    L4=c(L4,which(table$code==table$code[i]))
   }
 
   segm_1=list(list(L1,L2,L3,L4))
@@ -191,7 +188,7 @@ for (i in 1:10){
 names(table)
 #length(which(table$forme=="ronde-ovoide"))
 #fm=fitcv(table$spectre, table$arome_simpl, lwplsdalm, segm, print=T, ncomp=10, k=100, ncompdis=3)
-fm=fitcv(table$spectre, table$acidite_totale, plsr, segm, print=T, ncomp=20)
+fm=fitcv(table$spectre, table$pH, plsr, segm, print=T, ncomp=20)
 
 # z <- err(fm, ~ ncomp + rep)
 #
@@ -201,7 +198,6 @@ fm=fitcv(table$spectre, table$acidite_totale, plsr, segm, print=T, ncomp=20)
 #
 # table(fmextrait$y$x1,fmextrait$fit$x1)
 
-plotsp(sp3$spectre)
 
 z <- mse(fm, ~ ncomp + rep)
 str(z)

@@ -433,21 +433,21 @@ classcalclo=classclo[-idval]
 ### knnplsda lwplsda  ####
 predmFK=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
 
-rplsdaL=lwplsdalm(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncomp=27, ncompdis=27, h=1.5, k=1300, print=T)
+rplsdaL=lwplsdalm(Xr=spcal$x, Yr=as.character(classcal), Xu=spval$x, Yu=as.character(classval), diss="mahalanobis", ncomp=3, ncompdis=3, h=1, k=200, print=T) #ncomp=27, ncompdis=27, h=1.5, k=1300
 # predmFK= rplsdaL$fit$y1[rplsdaL$fit$ncomp==25&rplsdaL$fit$k==400&rplsdaL$fit$ncompdis==27&rplsdaL$fit$h==1.5]
 # tsmK=table(predmFK, classval)
 # diagsmK=diag(tsmK)
 # perokmK=100*sum(diagsmK)/length(idval)
 # perokmK
 # tsmK
-for (ii in 2:ncmax) {predmFK[,ii]=rplsdaL$fit$y1[rplsdaL$fit$ncomp==ii&rplsdaL$fit$k==1300&rplsdaL$fit$ncompdis==27&rplsdaL$fit$h==1.5]}
+for (ii in 2:ncmax) {predmFK[,ii]=rplsdaL$fit$y1[rplsdaL$fit$ncomp==ii&rplsdaL$fit$k==200&rplsdaL$fit$ncompdis==3&rplsdaL$fit$h==1]}
 tsm=lapply(as.list(predmFK), classval, FUN = table)
 diagsm=lapply(tsm, FUN = diag)
 perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-tsm[25]
+tsm
 
 
 erreurs=spval[-which(predmFK==classval),]
