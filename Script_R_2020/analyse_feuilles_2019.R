@@ -16,7 +16,6 @@ library(readr)
 rm(list = ls())
 
 
-
 source('Script_R_2020/adj_asd.R')
 source('Script_R_2020/SIGNE_load.R')
 source('Script_R_2020/SIGNE_maha0.R')
@@ -33,61 +32,48 @@ source("Script_R_2020/segmFact.R")
 
 brb3="C:/Users/avitvale/Documents/Test/globalmatrixconservatoiregrappes"
 load(file=brb3)
-sp=globalmatrixconservatoiregrappes
-#sp=sp[,1:1100]
+spg=globalmatrixconservatoiregrappes
+
+code=substr(rownames(spg),11,13)
+rep=substr(rownames(spg),15,16)
+spg2=sp2dfclo(spg, code, rep)
+names(spg2)=c("code", "rep", "spectreg")
+spg2$code=as.numeric(as.character(spg2$code))
+spg2$rep=as.numeric(as.character(spg2$rep))
 
 
-code=substr(rownames(sp),11,13)
-rep=substr(rownames(sp),15,16)
-sp2=sp2dfclo(sp, code, rep)
-names(sp2)=c("code", "rep", "spectre")
-sp2$code=as.numeric(as.character(sp2$code))
+
+brb3="C:/Users/avitvale/Documents/Test/globalmatrixconservatoirefeuilles2019"
+load(file=brb3)
+sp=globalmatrixconservatoirefeuilles2019
+
+sp=sp[-grep("787", rownames(sp)),]
+clone_m=gsub("-.*", "", rownames(sp))
+clone_m=gsub(".*(N )|.*(T )", "", clone_m)
+clone_m=gsub(" ", "", clone_m)
+clone_m=gsub("0","",clone_m)
+
+rep=gsub(".*-", "", rownames(sp))
+rep=gsub(" B", "", rep)
+
+sp2=sp2dfclo(sp, clone_m, rep)
+names(sp2)=c("clone_m", "rep", "spectre")
 sp2$rep=as.numeric(as.character(sp2$rep))
 
+
+
 #
-# T=sp2[1,]
-# SP=sp2[1,]
-# SP$rep=NA
-# Truc=sp2$spectre
-#
-# sp3=data.frame(NA,NA,NA)
-# names(sp3)=c("code","rep","spectre")
-# for (i in unique(sp2$code)){
-#   SP$code= i
-#   SP$spectre=t(as.matrix(colMeans(sp2$spectre[which(sp2$code==i),])))
-#   sp3=cbind(sp3,SP)
-#   which(sp2$code==i)
-# }
-#
-#
-# plotsp(colMeans(sp2$spectre[which(sp2$code==1),]))
-# plotsp(sp2$spectre[which(sp2$code==1),])
-
-
-
-test=sp2$spectre
-xm=lapply(unique(sp2$code), function(x) colMeans(sp2$spectre[which(sp2$code==x),]))
-
-xm=unlist(xm)
-
-dim(xm)=c(1992,length(xm)/1992)
-#dim(xm)=c(1100,length(xm)/1100)
-
-xm=t(xm)
-sp3=sp2dfclo(xm,unique(code),vector(length=208))
-names(sp3)=c("code","condition","spectre")
-sp3$code=as.numeric(as.character(sp3$code))
-# plotsp(sp3$spectre)
-# plotsp(sp2$spectre)
-
-
-# xm=lapply(levels(dat$ID), function(x) colMeans(dat$x[which(dat$ID==x),]))
+# test=sp2$spectre
+# xm=lapply(unique(sp2$code), function(x) colMeans(sp2$spectre[which(sp2$code==x),]))
 #
 # xm=unlist(xm)
 #
-# dim(xm)=c(2151,length(xm)/2151)
+# dim(xm)=c(1992,length(xm)/1992)
 #
-# ym=aggregate(dat, list(dat$ID), mean)
+# xm=t(xm)
+# sp3=sp2df(xm,unique(code))
+# names(sp3)=c("code","spectre")
+# sp3$code=as.numeric(as.character(sp3$code))
 
 
 
@@ -101,6 +87,38 @@ donnees2=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoi
 #donnees2=donnees2[complete.cases(donnees2),]
 
 
+
+trad2=gsub("/", "", trad$clone)
+trad2=gsub(" ", "", trad2)
+trad2=gsub("0", "", trad2)
+trad=data.frame(trad$code, trad$clone, trad2)
+names(trad)=c("code", "clone", "clone_m")
+
+setdiff(sp2$clone_m, trad$clone_m)
+
+
+
+sp2$clone_m=gsub("2153","ARB729",sp2$clone_m)
+sp2$clone_m=gsub("CJB827","CJP827",sp2$clone_m)
+sp2$clone_m=gsub("CJB827","CJP827",sp2$clone_m)
+sp2$clone_m=gsub("CJB858","CJP858",sp2$clone_m)
+sp2$clone_m=gsub("CJP635","CJB635",sp2$clone_m)
+sp2$clone_m=gsub("CJPR2113","CJPR213",sp2$clone_m)
+sp2$clone_m=gsub("CJP635","CJB635",sp2$clone_m)
+sp2$clone_m=gsub("COG771","CPG771",sp2$clone_m)
+sp2$clone_m[1534]="GAL243"
+sp2$clone_m[grep("SMHH",sp2$clone_m)]="SMHH837"
+sp2$clone_m=gsub("HPG61","MPG61",sp2$clone_m)
+
+# rownames(sp)[grep("2 43", rownames(sp))]
+# unique(D[grep("BEC",D)])
+# D[1536]
+# setdiff(trad2,C)[grep("CJPR", setdiff(trad2,C))]
+
+
+
+
+
 jonction1=left_join(trad, donnees1)
 jonction1=jonction1[complete.cases(jonction1),]
 jonction2=left_join(trad, donnees2)
@@ -108,9 +126,26 @@ jonction2=jonction2[complete.cases(jonction2),]
 
 #table=left_join(sp2, jonction1)
 #table=left_join(sp2,jonction2)
-table_1=left_join(sp3,jonction1)
-table=left_join(table_1,jonction2)
+#table=left_join(sp2,jonction1)
+table_1=left_join(sp2,jonction1)
+table_2=left_join(table_1,spg2)
+table=left_join(table_2,jonction2)
 table=table[complete.cases(table),]
+
+table$spectre=cbind(table$spectreg, table$spectre)
+# plotsp(Test[1:200,])
+# plotsp(table$spectreg[1:200,])
+# plotsp(table$spectre[1:200,1:200])
+#
+# A=table$spectre[1:200,]
+#
+# B=A[A[,1]<0.3,]
+#
+# plotsp(B)
+# setdiff(tableX$clone, table$clone)
+# intersect(tableX$clone, table$clone)
+# tableX$clone[-which(tableX$clone %in% table$clone)]
+# setdiff(table$clone, tableX$clone)
 
 # donnees1$clone
 # C=donnees1$clone
@@ -146,8 +181,8 @@ table=table[complete.cases(table),]
 repet= 2
 ## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
 p=2 #2
-n=11 #11 #Faire avec un n plus gros ?
-m=2 #1
+n=11#11 #Faire avec un n plus gros ?
+m=1 #1
 ## Nombre de VL max autorisees
 ncmax=35 #35
 ## Nombre de groupes de CV
@@ -159,23 +194,25 @@ k=2 #2
 ### Pretraitements
 ## Ajustement des sauts de detecteurs (Montpellier: sauts ?? 1000 (651 eme l.o.) et 1800 (1451))
 sp_pre=adj_asd(table$spectre,c(552,1352)) #Retrouvé empiriquement, ne correspondait pas à ce qui etait indiqué precedemment.
-#sp_pre=adj_asd(table$spectre,c(552))
-sp_pre=sp_pre+000.1
+sp_preg=adj_asd(table$spectreg,c(552,1352))
 ## SNV
 sp_pre=t(scale(t(sp_pre)))
-#sp_pre=log(sp_pre)
-
+sp_preg=t(scale(t(sp_preg)))
 
 ## Derivation Savitsky Golay
 sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
-#sp=detrend(sp_pre, method="poly")
+spg=savitzkyGolay(sp_preg, m = m, p = p, w = n)
 
 
 sp=sp[,-(1330:1390)] #Coupure du spectre autour des résidus de sauts de detecteurs. Ne semble pas encore effacer completement les sauts.
 sp=sp[,-(500:560)]
 
+spg=spg[,-(1330:1390)] #Coupure du spectre autour des résidus de sauts de detecteurs. Ne semble pas encore effacer completement les sauts.
+spg=spg[,-(500:560)]
+
 
 table$spectre=sp
+table$spectreg=spg
 
 n=4
 a=floor(length(unique(table$code))/n)
@@ -210,78 +247,31 @@ for (i in 1:10){
   segm=c(segm,segm_1)
 }
 
-critere1=which(table$pds_100baies<200)
-length(critere1)
-
-critere2=which(10<table$degre)
-length(critere2)
-critere3=which(table$degre<12)
-length(critere3)
-
-critere4=which(4.5<table$acidite_totale)
-length(critere4)
-
-critere5=which(table$pH<3.3)
-length(critere5)
-
-A=setdiff(critere1,critere2)
-B=intersect(groupe3,critere5)
-C=setdiff(which(table$degre<100000000),critere1)
-D=union(A,B)
-sort(union(D,C))
-groupe11=intersect(critere1,critere2)
-groupe1=intersect(critere1,critere2)
-groupe12=setdiff(critere1,critere2)
-groupe13=setdiff(critere2,critere1)
-groupe14=setdiff(1:195, union(critere1,critere2))
-length(groupe1)
-length(setdiff(critere1,critere2))
-length(setdiff(critere2,critere1))
-length(union(critere2,critere1))
-length(table$pds_100baies)
-length(groupe1)
-groupe2=intersect(groupe1,critere3)
-length(groupe2)
-groupe3=intersect(groupe2,critere4)
-length(groupe3)
-groupe4=intersect(groupe3,critere5)
-length(groupe4)
-length(table$acidite_totale)
-table$condition=F
-table$condition[groupe4]=T
-# table$condition[groupe12]="B"
-# table$condition[groupe13]="C"
-# table$condition[groupe14]="D"
-
 #length(unique(table$code)) #192. 192/6=32.
 names(table)
 #length(which(table$forme=="ronde-ovoide"))
-#fm=fitcv(table$spectre, table$arome_simpl, lwplsdalm, segm, print=T, ncomp=10, k=100, ncompdis=3)
-fm=fitcv(table$spectre, table$condition, plsda, segm, print=T, ncomp=20)
+#fm=fitcv(table$spectreg, table$pds_100baies, lwplsr, segm, print=T, ncomp=15, k=1000, ncompdis=15)
+fm=fitcv(table$spectre, table$acidite_totale, plsr, segm, print=T, ncomp=20)
 
-
-##Pour plsda
-z <- err(fm, ~ ncomp + rep)
-
-plotmse(z, nam = "errp", group="rep")
-
-fmextrait=lapply(fm,function (x) {x[x$ncomp==5,]})
-
-table(fmextrait$y$x1,fmextrait$fit$x1)
+# z <- err(fm, ~ ncomp + rep)
+#
+# plotmse(z, nam = "errp", group="rep")
+#
+# fmextrait=lapply(fm,function (x) {x[x$ncomp==3,]})
+#
+# table(fmextrait$y$x1,fmextrait$fit$x1)
 
 #plotsp(sp3$spectre)
 
-##Pour plsr
 z <- mse(fm, ~ ncomp + rep)
 #str(z)
-
 
 #plotmse(z, nam = "rmsep", group ="rep")
 plotmse(z, nam = "r2", group ="rep")
 
-fm20=lapply(fm,function (x) {x[x$ncomp==4,]})
+fm20=lapply(fm,function (x) {x[x$ncomp==12,]})
 plot(fm20$y$x1,fm20$fit$x1)
-hist(table$taille)
+hist(table$acidite_totale)
 
 
 
@@ -328,7 +318,6 @@ unique(table$code[which(table$degre>11,9)])
 
 
 
-#pds 100 baies <200   degré 10 à 12    acidité totale > 4,5    pH < 3,3
 
 
 

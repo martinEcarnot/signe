@@ -206,100 +206,137 @@ dates= c(
 
 
 
-prediction<- function(annee = "2017", parcelle = "G", modalite = "G", spiking = c() )
+prediction<- function(annee = "2017", parcelle = "G", modalite = "G", spiking = F )
 {
-#Consitution du jeu de validation. Les individus en faisant partie sont selectionné à partir des infos contenues dans leurs noms.
-#Choix de l'annee, de la parcelle, du cepage (pour prediction clones), d'une potentielle date d'enrichissement.
-#Caracteres 1 à 4 : annee. 5 à 8 : date. 9 : cepage. 9 à 13 : clone. 15 à 16 : numero mesure (de 1 à 18, normalement). 18 : parcelle. 20 à 21 : souche (prudence). 23 : emplacement sur la feuille.
-#Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
-idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="08171" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+  #Consitution du jeu de validation. Les individus en faisant partie sont selectionné à partir des infos contenues dans leurs noms.
+  #Choix de l'annee, de la parcelle, du cepage (pour prediction clones), d'une potentielle date d'enrichissement.
+  #Caracteres 1 à 4 : annee. 5 à 8 : date. 9 : cepage. 9 à 13 : clone. 15 à 16 : numero mesure (de 1 à 18, normalement). 18 : parcelle. 20 à 21 : souche (prudence). 23 : emplacement sur la feuille.
+  #Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
+
+  # Inclure un "if modalite est CGS.."
+  if (modalite == "C" | modalite == "G" | modalite == "S"){
+    idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),9,9)== modalite & substr(rownames(sp),1,9)!= paste(spiking,modalite, sep="") )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+
+    spval=sp[idval,]
+    spcal=sp[-idval,]
+    classval=sp$y2[idval]         #Sur les clones
+    classcal=sp$y2[-idval]
+
+    #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
+    idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
+    )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9)== paste(spiking,modalite, sep="") )
+    classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+    ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)== paste(spiking,modalite, sep="") )]
+    spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+    ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)== paste(spiking,modalite, sep="") ),]
 
 
-spval=sp[idval,]
-spcal=sp[-idval,]
+  }
 
-### Ici, choisir l'un ou l'autre selon si on veut faire l'analyse sur cepages ou sur clones.
-# classval=sp$y1[idval]        #Sur les cépages
-# classcal=sp$y1[-idval]
-classval=sp$y2[idval]         #Sur les clones
-classcal=sp$y2[-idval]
+  else {
+    idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),1,8)!= spiking )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
+    spval=sp[idval,]
+    spcal=sp[-idval,]
+    classval=sp$y1[idval]        #Sur les cépages
+    classcal=sp$y1[-idval]
 
-#Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
-idcal=                     which(((substr(rownames(sp),18,18)=="G"    | substr(rownames(sp),18,18)=="G"
-) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9)=="20180816G1" )
-classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" )]
-spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" ),]
-
-
-
-predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
-distances=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
-
-rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
-sccal=rplsda$scores
-spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
-scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+    #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
+    idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
+    )    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates )    | substr(rownames(sp),1,8)== spiking )
+    classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+    ) & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)== spiking )]
+    spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+    ) & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)== spiking ),]
+  }
 
 
-# plotsp(t(rplsda$projection)[1,])
-plotsp(t(rplsda$coefficients[,1,])[1,]) #cepage
-plotsp(t(rplsda$coefficients[,4,])[1,]) #clone Gamay
 
 
-for (ii in 2:ncmax) {
-  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
-  distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$dist
+
+  predmF=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+  distances=as.data.frame(matrix(nrow = length(classval), ncol = ncmax))
+
+  rplsda=caret::plsda(spcal$x, classcal,ncomp=ncmax)
+  sccal=rplsda$scores
+  spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+  scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
+
+  # plotsp(t(rplsda$projection)[1,])
+  if (modalite=="G"){
+    plotsp(t(rplsda$coefficients[,4,])[1,]) #clone Gamay
+  }
+  else if (modalite=="C"){
+    plotsp(t(rplsda$coefficients[,1,])[1,]) #clone Cabernet-Sauvignon
+  }
+  else if (modalite=="S"){
+    plotsp(t(rplsda$coefficients[,7,])[1,]) #clone Syrah
+  }
+  else {
+  plotsp(t(rplsda$coefficients[,1,])[1,]) #cepage
+  }
+
+
+  for (ii in 2:ncmax) {
+    predmF[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$class
+    distances[,ii]=SIGNE_maha0(sccal[,1:ii], classcal, scval[,1:ii])$dist
+  }
+
+  #plotsp(t(rplsda$projection)[2,], col="blue")
+  # plotsp(spcal$x[c(430,440,450,460,470,480,490),], col="blue")
+  # str(spval$x)
+  # rownames(spcal)[88]
+  #1:88 89:214 215:429 430:645 spcal
+
+
+  #G 2017
+  #B 1 6 7 16  M 20 22
+
+  #G 2019
+  #B 2 7 10 M 8 28
+
+  #plotsp(t(scval)[2,], col="blue")
+
+  # for (ii in 2:ncmax) {
+  #   predmF[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$class
+  #   distances[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$dist
+  #  }
+
+  # predmF[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$class
+  # distances[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$dist
+  #
+  # predmF[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$class
+  # distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
+
+  if (modalite=="G"){
+  classval=relevel(classval, "G 787")
+  classval=relevel(classval, "G 509")
+  classval=relevel(classval, "G 222")
+  }
+
+  if (modalite=="S"){
+  classval=relevel(classval, "S 877")
+  classval=relevel(classval, "S 747")
+  classval=relevel(classval, "S 525")
+  classval=relevel(classval, "S 471")
+  }
+
+  tsm=lapply(as.list(predmF), classval, FUN = table)
+  diagsm=lapply(tsm, FUN = diag)
+  perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
+
+  plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+  perokm
+
+  print("VL choisie (appuyer sur entrée deux fois)")
+  VL=scan("", what=single())
+  # VL=23
+  # VL=3
+  tsm[VL]
 }
 
-#plotsp(t(rplsda$projection)[2,], col="blue")
-# plotsp(spcal$x[c(430,440,450,460,470,480,490),], col="blue")
-# str(spval$x)
-# rownames(spcal)[88]
-#1:88 89:214 215:429 430:645 spcal
-
-
-#G 2017
-#B 1 6 7 16  M 20 22
-
-#G 2019
-#B 2 7 10 M 8 28
-
-#plotsp(t(scval)[2,], col="blue")
-
-# for (ii in 2:ncmax) {
-#   predmF[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$class
-#   distances[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$dist
-#  }
-
-# predmF[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$class
-# distances[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$dist
-#
-# predmF[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$class
-# distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
-
-#
-classval=relevel(classval, "G 787")
-classval=relevel(classval, "G 509")
-classval=relevel(classval, "G 222")
-#
-# classval=relevel(classval, "S 877")
-# classval=relevel(classval, "S 747")
-# classval=relevel(classval, "S 525")
-# classval=relevel(classval, "S 471")
-
-tsm=lapply(as.list(predmF), classval, FUN = table)
-diagsm=lapply(tsm, FUN = diag)
-perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
-
-plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-perokm
-VL=23
-VL=3
-tsm[VL]
-
+prediction(modalite="Autre")
 
 #analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
 #analyse

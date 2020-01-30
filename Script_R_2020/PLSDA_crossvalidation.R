@@ -447,49 +447,49 @@ perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
-tsm
+tsm[3]
 
 
-erreurs=spval[-which(predmFK==classval),]
-bons=spval[which(predmFK==classval),]
+# erreurs=spval[-which(as.character(predmFK[,3])==as.character(classval)),]
+# bons=spval[which(as.character(predmFK[,3])==as.character(classval)),]
+#
+#
+#
+#
+# rownames(erreurs)
+# length(which(substr(rownames(spval),9,9)=="S"))/length(rownames(spval))
+# length(which(substr(rownames(erreurs),9,9)=="S"))/length(rownames(erreurs))
+# length(which(substr(rownames(bons),9,9)=="S"))/length(rownames(bons))
+#
+# length(which(substr(rownames(erreurs),9,9)=="C"))/length(which(substr(rownames(spval),9,9)=="C"))
 
 
+# unique(rownames(sp[which(substr(rownames(sp),1,8)=="20170612"),]))
+#
+# rownames(sp[which(substr(rownames(sp),1,4)=="2017"),])
+# unique(substr(rownames(sp),1,8))
+#
+# unique(substr(rownames(erreurs),9,13))
+#
+# length(which(substr(rownames(sp),1,8)=="20180724"))
+# rownames(sp[which(substr(rownames(sp),18,18)=="g"),])
+#
+# length(which(substr(rownames(sp),1,4)=="2017"))
 
-
-rownames(erreurs)
-length(which(substr(rownames(spval),9,9)=="S"))/length(rownames(spval))
-length(which(substr(rownames(erreurs),9,9)=="S"))/length(rownames(erreurs))
-length(which(substr(rownames(bons),9,9)=="S"))/length(rownames(bons))
-
-length(which(substr(rownames(erreurs),9,9)=="C"))/length(which(substr(rownames(spval),9,9)=="C"))
-
-
-unique(rownames(sp[which(substr(rownames(sp),1,8)=="20170612"),]))
-
-rownames(sp[which(substr(rownames(sp),1,4)=="2017"),])
-unique(substr(rownames(sp),1,8))
-
-unique(substr(rownames(erreurs),9,13))
-
-length(which(substr(rownames(sp),1,8)=="20180724"))
-rownames(sp[which(substr(rownames(sp),18,18)=="g"),])
-
-length(which(substr(rownames(sp),1,4)=="2017"))
-
-names(rplsdaL)
-head(rplsdaL$y)
-head(rplsdaL$fit)
-head(rplsdaL$r)
-z <- err(rplsdaL, ~ ncomp + k + ncompdis)
-
-u <- z
-u$group <- paste("k=", u$k, ", ncompdis=", u$ncompdis, sep = "")
-#plotmse(u, group = "group")
-
-ggplot(data = u,aes(x=ncomp,y=errp,group = group,color =group))+ geom_line()
-
-z[z$errp == min(z$errp), ]
-plotmse(z, nam = "errp", group =)
+# names(rplsdaL)
+# head(rplsdaL$y)
+# head(rplsdaL$fit)
+# head(rplsdaL$r)
+# z <- err(rplsdaL, ~ ncomp + k + ncompdis)
+#
+# u <- z
+# u$group <- paste("k=", u$k, ", ncompdis=", u$ncompdis, sep = "")
+# #plotmse(u, group = "group")
+#
+# ggplot(data = u,aes(x=ncomp,y=errp,group = group,color =group))+ geom_line()
+#
+# z[z$errp == min(z$errp), ]
+# plotmse(z, nam = "errp", group =)
 
 
 
