@@ -34,8 +34,6 @@ globalmatrixN1=globalmatrix
 # Data Filter
 
 
-
-#Permet de changer l'ordre des spectres, par exemple en les classant par date/par cépage/par clone... Classement fin en en faisant plusieurs à la suite
 sp=globalmatrixN1
 
 plotsp(sp[1:20,], col="blue")
@@ -267,6 +265,8 @@ plotsp(sp[1:100,], col="blue")
 # sp=sptest
 
 
+
+#Permet de changer l'ordre des spectres, par exemple en les classant par date/par cépage/par clone... Classement fin en en faisant plusieurs à la suite
 
 L=unique(substr(rownames(sp),9,13))
 L2=sort(L)
