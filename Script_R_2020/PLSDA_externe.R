@@ -206,13 +206,11 @@ dates= c(
 
 
 
-prediction<- function(annee = "2017", parcelle = "G", modalite = "G", spiking = c() )
-{
 #Consitution du jeu de validation. Les individus en faisant partie sont selectionné à partir des infos contenues dans leurs noms.
 #Choix de l'annee, de la parcelle, du cepage (pour prediction clones), d'une potentielle date d'enrichissement.
 #Caracteres 1 à 4 : annee. 5 à 8 : date. 9 : cepage. 9 à 13 : clone. 15 à 16 : numero mesure (de 1 à 18, normalement). 18 : parcelle. 20 à 21 : souche (prudence). 23 : emplacement sur la feuille.
 #Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
-idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="08171" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2018" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="08171" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 spval=sp[idval,]
@@ -227,11 +225,11 @@ classcal=sp$y2[-idval]
 
 #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
 idcal=                     which(((substr(rownames(sp),18,18)=="G"    | substr(rownames(sp),18,18)=="G"
-) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9)=="20180816G1" )
+) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2018" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9)=="20180816G1" )
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" )]
+) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2018" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" )]
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" ),]
+) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2018" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" ),]
 
 
 
@@ -299,6 +297,62 @@ perokm
 VL=23
 VL=3
 tsm[VL]
+
+# ############################################################################
+## On veut ca. Les i, c'est chaque point
+#
+
+classvalT=as.data.frame(matrix(nrow=length(classval), ncol=ncmax))
+Passe=logical(length=length(Test[,2][,1]))
+PasseT=matrix(F, nrow=length(Test[,2][,1]), ncol= ncmax)
+seuil=1.5
+predmFT=predmF
+
+for (j in 2:ncmax) {
+  for (i in 1:length(distances[,2][,1])) {
+    if (sort(distances[j][i,])[2]/sort(distances[j][i,])[1] > seuil) {
+      PasseT[i,j]=T
+    }
+  }
+  predmFT[j]=c(predmF[j][PasseT[,j],], rep(NA, nrow(predmFT)-length(predmF[j][PasseT[,j],])))
+  classvalT[j]=c(classval[PasseT[,j]], rep(NA, length(classval)-length(classval[PasseT[,j]])))
+}
+
+# df <- data.frame(var=1:10)  #notice I created a data.frame vs. the vector you called
+# new.col <- c(1:5)
+#
+# #METHOD 1
+# df$new.col <- c(new.col, rep(NA, nrow(df)-length(new.col)))  #keep as integer
+
+# mat<-matrix(NULL,nrow=1,ncol=60)
+# for(i in 1:60){mat<-list(mat,matrix(FALSE,nrow=4,ncol=4))}
+
+
+taille=vector()
+tsmT=tsm
+for (j in 2:ncmax){
+  tsmT[[j]]=table(predmFT[,j][complete.cases(predmFT[,j])], classvalT[,j][complete.cases(classvalT[,j])])
+  taille[j]=length(classvalT[,j][complete.cases(classvalT[,j])])/length(classvalT[,j])
+}
+
+
+classvalT[,j][complete.cases(classvalT[,j])]
+
+
+diagsmT=lapply(tsmT, FUN = diag)
+
+perokmT=perokm
+for (j in 2:ncmax){
+  perokmT[j]=100*sum(diagsmT[[j]])/length(classvalT[,j][complete.cases(classvalT[,j])])
+}
+
+plot(perokmT, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+perokmT
+VL=23
+VL=6
+tsmT[VL]
+
+
 
 
 #analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
@@ -374,5 +428,5 @@ Ldist2=cbind(numero,   dista2, distamin2, diffdista2, clone, predclone2, date, a
 aff2 <- ggplot(Ldist2, aes(x=numero, y=dista[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) + #colour=paste(predclone[,VL],succes[,VL]) #colour=paste(souche2,age)
   geom_point(size=2, alpha=1) +
 #  scale_color_manual(values = colo)
-  scale_color_manual(values = gamay)
+  scale_color_manual(values = gamay) + geom_hline(yintercept=1.5, linetype="dashed", color = "red")
 ggplotly(aff2)

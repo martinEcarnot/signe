@@ -494,7 +494,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   aff2 <- ggplot(Ldist2, aes(x=numero, y=distanceaff[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) + #colour=paste(predclone[,VL],succes[,VL]) #colour=paste(souche2,age)
     geom_point(size=2, alpha=1) +
   #  scale_color_manual(values = colo)
-    scale_color_manual(values = couleur)
+    scale_color_manual(values = couleur) + geom_hline(yintercept=1.5, linetype="dashed", color = "red")
   ggplotly(aff2)
 }
 
@@ -523,7 +523,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
 # Les valeurs par défaut sont :
 #savitsky_golay_p = 2, savitsky_golay_n = 11, savitsky_golay_m = 1. ncmax=35
-prediction_affichage_globale(modalite="G", annee="2017", distanceaff = "distamin")
+prediction_affichage_globale(modalite="G", annee="2018", distanceaff = "rapdista")
 
 
 
