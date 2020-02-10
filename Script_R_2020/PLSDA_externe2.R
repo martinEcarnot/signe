@@ -12,6 +12,7 @@ library(plotly)
 library("cowplot")
 library("gridGraphics")
 
+
 rm(list = ls())
 
 
@@ -202,7 +203,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   #Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
   # Inclure un "if modalite est CGS.."
   if (modalite == "C" | modalite == "G" | modalite == "S"){
-    idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),9,9)== modalite & substr(rownames(sp),1,9)!= paste(spiking,modalite, sep="") )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+    idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),9,9)== modalite & !(substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
     spval=sp[idval,]
     spcal=sp[-idval,]
     classval=sp$y2[idval]         #Sur les clones
@@ -210,17 +211,17 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
     #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
     idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
-    )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9)== paste(spiking,modalite, sep="") )
+    )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="") )
     classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
-    ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)== paste(spiking,modalite, sep="") )]
+    ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") )]
     spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
-    ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)== paste(spiking,modalite, sep="") ),]
+    ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") ),]
 
 
   }
 
   else {
-    idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),1,8)!= spiking )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+    idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & !(substr(rownames(sp),1,8) %in% spiking) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
     spval=sp[idval,]
     spcal=sp[-idval,]
@@ -229,11 +230,11 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
     #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
     idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
-    )    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates )    | substr(rownames(sp),1,8)== spiking )
+    )    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates )    | substr(rownames(sp),1,8) %in% spiking )
     classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
-    ) & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)== spiking )]
+    ) & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8) %in% spiking )]
     spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
-    ) & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8)== spiking ),]
+    ) & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,8) %in% spiking ),]
   }
 
 
@@ -312,8 +313,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
   plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de bien classes",pch=19, cex=1.5)
-  perokm
-
+  print(perokm)
   print("VL choisie (appuyer sur entrée deux fois)")
   print("(Il est conseillé de choisir un nombre de VL qui maximise le pourcentage de bien classés tout en étant le plus petit possible)")
   VL=scan("", what=single())
@@ -322,6 +322,17 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   print("Les colonnes sont les groupes d'appartenance réels. Les lignes sont les groupes d'appartenance prédits. Un individu est donc prédit correctement si et seulement si il se trouve sur la diagonale.")
   print("Une prédiction moyenne de tous les groupes est considérée plus favorable qu'une très bonne prédiction de l'un des groupes et une très mauvaise des autres")
   print(tsm[VL])
+  if (modalite=="cepage"){
+    print( paste("    ", round(tsm[[VL]][1,1]/(tsm[[VL]][1,1]+tsm[[VL]][2,1]+tsm[[VL]][3,1]),2), " ",
+    round(tsm[[VL]][2,2]/(tsm[[VL]][1,2]+tsm[[VL]][2,2]+tsm[[VL]][3,2]),2), " ",
+    round(tsm[[VL]][3,3]/(tsm[[VL]][1,3]+tsm[[VL]][2,3]+tsm[[VL]][3,3]),2), "<-- Pourcentages de biens classés par classe" ))
+  }
+  else{
+    print( paste("", round(tsm[[VL]][1,1]/(tsm[[VL]][1,1]+tsm[[VL]][2,1]+tsm[[VL]][3,1]),2), " ",
+                 round(tsm[[VL]][2,2]/(tsm[[VL]][1,2]+tsm[[VL]][2,2]+tsm[[VL]][3,2]),2), " ",
+                 round(tsm[[VL]][3,3]/(tsm[[VL]][1,3]+tsm[[VL]][2,3]+tsm[[VL]][3,3]),2), "<-- Pourcentages de biens classés par classe" ))
+  }
+
   VL=VL[length(VL)]
   #   return(predict)
   # }
@@ -333,7 +344,48 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   #analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
   #analyse
 
+  classvalT=as.data.frame(matrix(nrow=length(classval), ncol=ncmax))
+  Passe=logical(length=length(distances[,2][,1]))
+  PasseT=matrix(F, nrow=length(distances[,2][,1]), ncol= ncmax)
+  seuil=1.5
+  predmFT=predmF
 
+  for (j in 2:ncmax) {
+    for (i in 1:length(distances[,2][,1])) {
+      if (sort(distances[j][i,])[2]/sort(distances[j][i,])[1] > seuil) {
+        PasseT[i,j]=T
+      }
+    }
+    predmFT[j]=c(predmF[j][PasseT[,j],], rep(NA, nrow(predmFT)-length(predmF[j][PasseT[,j],])))
+    classvalT[j]=c(classval[PasseT[,j]], rep(NA, length(classval)-length(classval[PasseT[,j]])))
+  }
+
+  taille=vector()
+  tsmT=tsm
+  for (j in 2:ncmax){
+    tsmT[[j]]=table(predmFT[,j][complete.cases(predmFT[,j])], classvalT[,j][complete.cases(classvalT[,j])])
+    taille[j]=length(classvalT[,j][complete.cases(classvalT[,j])])/length(classvalT[,j])
+  }
+
+  classvalT[,j][complete.cases(classvalT[,j])]
+  diagsmT=lapply(tsmT, FUN = diag)
+
+  perokmT=perokm
+  for (j in 2:ncmax){
+    perokmT[j]=100*sum(diagsmT[[j]])/length(classvalT[,j][complete.cases(classvalT[,j])])
+  }
+
+  print ("")
+  print ("")
+  print("Résultat des points respectant le seuil de fiabilité :")
+  print(paste( "Sur les",length(classvalT[,VL]),"points en validation,", length(which(complete.cases(classvalT[,VL])==T)), "respectent le seuil de fiabilité"))
+  print("")
+  plot(perokmT, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+  print(perokmT)
+  print(tsmT[VL])
+  print( paste("    ", round(tsmT[[VL]][1,1]/(tsmT[[VL]][1,1]+tsmT[[VL]][2,1]+tsmT[[VL]][3,1]),2), " ",
+               round(tsmT[[VL]][2,2]/(tsmT[[VL]][1,2]+tsmT[[VL]][2,2]+tsmT[[VL]][3,2]),2), " ",
+               round(tsmT[[VL]][3,3]/(tsmT[[VL]][1,3]+tsmT[[VL]][2,3]+tsmT[[VL]][3,3]),2), "<-- Pourcentages de biens classés par classe" ))
 
 
 
@@ -486,7 +538,6 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
     stop("distanceaff doit être inclus dans la liste suivante : dista, distamin, rapdista diffdista")
   }
 
-
   #colour=paste(clone,succes[,VL])
   print("Passez la souris sur un point pour des informations complémentaires.")
   print("Ce graphique permet notamment d'évaluer si certaines dates sont particulièrement soumises aux confusions, si la distance de mahalanobis d'un point donné à son groupe d'appartenance réel (en calibration) est élevée")
@@ -509,6 +560,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 #modalite : la plsda et le graphique pourront considérer une discrimination des 3 cépages différents (cepage), ou alors, au sein d'un cépage, entre ses différents clones (C,G,S).
 #spiking : le spiking, ou enrichissement : en ajoutant une date de l'année évaluée en validation, on enrichit le jeu de calibration de spectres plus semblables à ce que l'on souhaite évaluer. L'effet recherché est d'améliorer ainsi les résultats, grâce à une calibration plus à propos.
 #distanceaff : en fonction de ce que l'on désire observer, plusieurs distances différentes peuvent être affichées sur le graphe. distamin est la distance au groupe le plus proche, qui est donc le groupe d'attribution. dista est la distance au groupe réel. rapdista est le rapport entre les deux distances les plus proches (donc la distance au groupe d'attribution et celle au groupe de non-attribution le plus proche), diffdista est la différence entre le groupe réel et le groupe d'attribution, diffdistaT est la différence entre les deux groupes les plus proches (le groupe d'attribution et le premier groupe de non-attribution)
+#dista distamin rapdista diffdista diffdistaT
 
 #Les valeurs par défaut sont :
 #annee = "2017", parcelle = "G", modalite = "G", spiking = F, distanceaff= "distamin",
@@ -523,7 +575,17 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
 # Les valeurs par défaut sont :
 #savitsky_golay_p = 2, savitsky_golay_n = 11, savitsky_golay_m = 1. ncmax=35
-prediction_affichage_globale(modalite="G", annee="2018", distanceaff = "rapdista")
+prediction_affichage_globale(modalite="G", annee="2017", distanceaff = "rapdista", spiking=c("20170524", "20170529", "20170606"))
+
+
+
+
+#  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
+
+#, "20170524G", "20170529G", "20170606G", "20170612G", "20170619G", "20170626G", "20170703G", "20170710G", "20170711g", "20170717G", "20170724G", "20170731G",
+#, "20180619G", "20180627G", "20180704G", "20180709G", "20180710g", "20180724B", "20180731A", "20180810B", "20180816G", "20180817g", "20180823A",
+#, "20190613G", "20190617G", "20190624G", "20190628g", "20190702G", "20190703A", "20190710G", "20190718G", "20190723A", "20190726G", "20190730G", "20190822B",
+
 
 
 

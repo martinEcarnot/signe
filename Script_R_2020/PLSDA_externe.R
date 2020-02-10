@@ -11,6 +11,7 @@ library(ggplot2)
 library(plotly)
 library("cowplot")
 library("gridGraphics")
+library(MetStaT)
 
 rm(list = ls())
 
@@ -151,10 +152,6 @@ str(sp)
 
 
 
-
-
-
-
 bleu=rgb(0.09,0.63,1)
 bleu2=rgb(0,0.43,0.8)
 bleu3=rgb(0.59,0.83,1)
@@ -204,13 +201,13 @@ dates= c(
 # length(which(substr(rownames(sp[which(substr(rownames(sp),18,18)=="G"),]),9,13)=="S 877"))
 
 
-
+###----
 
 #Consitution du jeu de validation. Les individus en faisant partie sont selectionné à partir des infos contenues dans leurs noms.
 #Choix de l'annee, de la parcelle, du cepage (pour prediction clones), d'une potentielle date d'enrichissement.
 #Caracteres 1 à 4 : annee. 5 à 8 : date. 9 : cepage. 9 à 13 : clone. 15 à 16 : numero mesure (de 1 à 18, normalement). 18 : parcelle. 20 à 21 : souche (prudence). 23 : emplacement sur la feuille.
 #Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
-idval=which(substr(rownames(sp),1,4)=="2018" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & substr(rownames(sp),5,8)!="08171" )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & !(substr(rownames(sp),5,8) %in% c("0724","0731")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 spval=sp[idval,]
@@ -225,11 +222,11 @@ classcal=sp$y2[-idval]
 
 #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
 idcal=                     which(((substr(rownames(sp),18,18)=="G"    | substr(rownames(sp),18,18)=="G"
-) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2018" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9)=="20180816G1" )
+) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9) %in% c("20170724G","20170731G") )
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2018" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" )]
+) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% c("20170724G","20170731G") )]
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2018" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9)=="20180816G1" ),]
+) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% c("20170724G","20170731G") ),]
 
 
 
@@ -296,15 +293,19 @@ plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19,
 perokm
 VL=23
 VL=3
-tsm[VL]
+tsm[[VL]]
+tsm[[VL]][1,1]/(tsm[[VL]][1,1]+tsm[[VL]][2,1]+tsm[[VL]][3,1])
+tsm[[VL]][2,2]/(tsm[[VL]][1,2]+tsm[[VL]][2,2]+tsm[[VL]][3,2])
+tsm[[VL]][3,3]/(tsm[[VL]][1,3]+tsm[[VL]][2,3]+tsm[[VL]][3,3])
+
 
 # ############################################################################
 ## On veut ca. Les i, c'est chaque point
 #
 
 classvalT=as.data.frame(matrix(nrow=length(classval), ncol=ncmax))
-Passe=logical(length=length(Test[,2][,1]))
-PasseT=matrix(F, nrow=length(Test[,2][,1]), ncol= ncmax)
+Passe=logical(length=length(distances[,2][,1]))
+PasseT=matrix(F, nrow=length(distances[,2][,1]), ncol= ncmax)
 seuil=1.5
 predmFT=predmF
 
@@ -352,7 +353,8 @@ VL=23
 VL=6
 tsmT[VL]
 
-
+length(classvalT[,VL])
+length(which(complete.cases(classvalT[,VL])==T))
 
 
 #analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
