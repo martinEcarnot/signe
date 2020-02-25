@@ -34,7 +34,7 @@ sp=globalmatrix
 
 L= 2*(1:996)
 sp2=sp[,L]
-sp=sp2[sample(1:5354,3500),]
+sp=sp2[sample(1:5354,3500),] #On choisit aléatoirement 2/3 des données (sert à réduire le temps de calcul. On suppose que ca n'impact pas les résultats).
 
 # Data Filter
 
@@ -104,8 +104,15 @@ sp$position=as.numeric(as.factor(substr(rownames(sp),23,23)))
 sp$jour=as.numeric(as.factor(substr(rownames(sp),1,8)))
 sp$mois=as.numeric(as.factor(substr(rownames(sp),5,6)))
 
+
+
+## Choix ici du sous-ensemble auquel on applique ASCA (si on le fait sur toutes les données, sauter cette étape)
 sp=sp[which(sp$parcelle==4),] #G
-sp=sp[which(sp$y1==2),]
+sp=sp[which(sp$y1==1),]
+#
+
+
+
 
 splevels=data.frame(cepage=as.numeric(sp$y1), annee=as.numeric(sp$annee), parcelle=as.numeric(sp$parcelle), position=as.numeric(sp$position), souche=as.numeric(sp$souche) )
 

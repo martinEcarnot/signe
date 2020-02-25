@@ -32,6 +32,9 @@ brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
 load(file=brb3)
 sp=globalmatrix
 
+unique(paste(substr(rownames(sp),1,8),substr(rownames(sp),18,18)))
+
+
 
 # Data Filter
 
@@ -64,7 +67,7 @@ sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 sp=sp[,-(1330:1390)] #Coupure du spectre autour des résidus de sauts de detecteurs. Ne semble pas encore effacer completement les sauts.
 sp=sp[,-(500:560)]
 
-
+plotsp(sp[1,], col="darkgreen")
 #Changement de l'ordre des spectres, par exemple en les classant par date/par cepage/par clone... Classement fin en en faisant plusieurs à la suite
 #Changer l'ordre est notamment utile pour les fonctions d'affichage.
 
@@ -207,7 +210,14 @@ dates= c(
 #Choix de l'annee, de la parcelle, du cepage (pour prediction clones), d'une potentielle date d'enrichissement.
 #Caracteres 1 à 4 : annee. 5 à 8 : date. 9 : cepage. 9 à 13 : clone. 15 à 16 : numero mesure (de 1 à 18, normalement). 18 : parcelle. 20 à 21 : souche (prudence). 23 : emplacement sur la feuille.
 #Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
-idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & !(substr(rownames(sp),5,8) %in% c("0724","0731")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+l1=c(1,2,3,7,8,9,13,14,15)
+l2=c(4,5,6,10,11,12,16,17,18)
+Truc=vector()
+Truc[which(as.numeric(substr(rownames(sp),15,16)) %in% l2)]="V"
+Truc[which(as.numeric(substr(rownames(sp),15,16)) %in% l1)]="J"
+
+#& as.numeric(substr(rownames(sp),15,16)) %in% l1
+idval=which(substr(rownames(sp),1,4)=="2019" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)=="G" & !(substr(rownames(sp),5,8) %in% c("07241","07311")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 spval=sp[idval,]
@@ -222,11 +232,11 @@ classcal=sp$y2[-idval]
 
 #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
 idcal=                     which(((substr(rownames(sp),18,18)=="G"    | substr(rownames(sp),18,18)=="G"
-) & substr(rownames(sp),9,9)=="G"    & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9) %in% c("20170724G","20170731G") )
+) & substr(rownames(sp),9,9)=="G"       & substr(rownames(sp),1,4)!="2019" & substr(rownames(sp),1,8) %in% dates )    |    substr(rownames(sp),1,9) %in% c("20170724G1","20170731G1") ) # & !as.numeric(substr(rownames(sp),15,16)) %in% l1
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% c("20170724G","20170731G") )]
+) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2019" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") )] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% c("20170724G","20170731G") ),]
+) & substr(rownames(spcal),9,9)=="G" & substr(rownames(spcal),1,4)!="2019" & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") ),] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
 
 
 
@@ -288,73 +298,93 @@ classval=relevel(classval, "G 222")
 tsm=lapply(as.list(predmF), classval, FUN = table)
 diagsm=lapply(tsm, FUN = diag)
 perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
+perokmT=perokm
+
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
 VL=23
 VL=3
-tsm[[VL]]
-tsm[[VL]][1,1]/(tsm[[VL]][1,1]+tsm[[VL]][2,1]+tsm[[VL]][3,1])
-tsm[[VL]][2,2]/(tsm[[VL]][1,2]+tsm[[VL]][2,2]+tsm[[VL]][3,2])
-tsm[[VL]][3,3]/(tsm[[VL]][1,3]+tsm[[VL]][2,3]+tsm[[VL]][3,3])
+
+# a=vector()
+# b=vector()
+# c=vector()
+# f=vector()
+# for (i in 2:ncmax) {
+#   a[i]=tsm[[i]][1,1]/(tsm[[i]][1,1]+tsm[[i]][2,1]+tsm[[i]][3,1])
+#   b[i]=tsm[[i]][2,2]/(tsm[[i]][1,2]+tsm[[i]][2,2]+tsm[[i]][3,2])
+#   c[i]=tsm[[i]][3,3]/(tsm[[i]][1,3]+tsm[[i]][2,3]+tsm[[i]][3,3])
+#   f[i]=var(c(a[i],b[i],c[i]))
+# }
+# e=100*(sqrt(a)+sqrt(b)+sqrt(c))/3
+# e[1]=0
+# names(e)=names(perokm)
+# g=perokm/f
+#
+# tsm[[VL]]
+# tsm[[VL]][1,1]/(tsm[[VL]][1,1]+tsm[[VL]][2,1]+tsm[[VL]][3,1])
+# tsm[[VL]][2,2]/(tsm[[VL]][1,2]+tsm[[VL]][2,2]+tsm[[VL]][3,2])
+# tsm[[VL]][3,3]/(tsm[[VL]][1,3]+tsm[[VL]][2,3]+tsm[[VL]][3,3])
+#
+# d=data.frame(a,b,c)
 
 
 # ############################################################################
 ## On veut ca. Les i, c'est chaque point
 #
 
-classvalT=as.data.frame(matrix(nrow=length(classval), ncol=ncmax))
-Passe=logical(length=length(distances[,2][,1]))
-PasseT=matrix(F, nrow=length(distances[,2][,1]), ncol= ncmax)
-seuil=1.5
-predmFT=predmF
-
-for (j in 2:ncmax) {
-  for (i in 1:length(distances[,2][,1])) {
-    if (sort(distances[j][i,])[2]/sort(distances[j][i,])[1] > seuil) {
-      PasseT[i,j]=T
-    }
-  }
-  predmFT[j]=c(predmF[j][PasseT[,j],], rep(NA, nrow(predmFT)-length(predmF[j][PasseT[,j],])))
-  classvalT[j]=c(classval[PasseT[,j]], rep(NA, length(classval)-length(classval[PasseT[,j]])))
-}
-
-# df <- data.frame(var=1:10)  #notice I created a data.frame vs. the vector you called
-# new.col <- c(1:5)
+# classvalT=as.data.frame(matrix(nrow=length(classval), ncol=ncmax))
+# Passe=logical(length=length(distances[,2][,1]))
+# PasseT=matrix(F, nrow=length(distances[,2][,1]), ncol= ncmax)
+# seuil=1.5
+# predmFT=predmF
 #
-# #METHOD 1
-# df$new.col <- c(new.col, rep(NA, nrow(df)-length(new.col)))  #keep as integer
-
-# mat<-matrix(NULL,nrow=1,ncol=60)
-# for(i in 1:60){mat<-list(mat,matrix(FALSE,nrow=4,ncol=4))}
-
-
-taille=vector()
-tsmT=tsm
-for (j in 2:ncmax){
-  tsmT[[j]]=table(predmFT[,j][complete.cases(predmFT[,j])], classvalT[,j][complete.cases(classvalT[,j])])
-  taille[j]=length(classvalT[,j][complete.cases(classvalT[,j])])/length(classvalT[,j])
-}
-
-
-classvalT[,j][complete.cases(classvalT[,j])]
-
-
-diagsmT=lapply(tsmT, FUN = diag)
-
-perokmT=perokm
-for (j in 2:ncmax){
-  perokmT[j]=100*sum(diagsmT[[j]])/length(classvalT[,j][complete.cases(classvalT[,j])])
-}
-
-plot(perokmT, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-perokmT
-VL=23
-VL=6
-tsmT[VL]
-
-length(classvalT[,VL])
-length(which(complete.cases(classvalT[,VL])==T))
+# for (j in 2:ncmax) {
+#   for (i in 1:length(distances[,2][,1])) {
+#     if (sort(distances[j][i,])[2]/sort(distances[j][i,])[1] > seuil) {
+#       PasseT[i,j]=T
+#     }
+#   }
+#   predmFT[j]=c(predmF[j][PasseT[,j],], rep(NA, nrow(predmFT)-length(predmF[j][PasseT[,j],])))
+#   classvalT[j]=c(classval[PasseT[,j]], rep(NA, length(classval)-length(classval[PasseT[,j]])))
+# }
+#
+# # df <- data.frame(var=1:10)  #notice I created a data.frame vs. the vector you called
+# # new.col <- c(1:5)
+# #
+# # #METHOD 1
+# # df$new.col <- c(new.col, rep(NA, nrow(df)-length(new.col)))  #keep as integer
+#
+# # mat<-matrix(NULL,nrow=1,ncol=60)
+# # for(i in 1:60){mat<-list(mat,matrix(FALSE,nrow=4,ncol=4))}
+#
+#
+# taille=vector()
+# tsmT=tsm
+# for (j in 2:ncmax){
+#   tsmT[[j]]=table(predmFT[,j][complete.cases(predmFT[,j])], classvalT[,j][complete.cases(classvalT[,j])])
+#   taille[j]=length(classvalT[,j][complete.cases(classvalT[,j])])/length(classvalT[,j])
+# }
+#
+#
+# classvalT[,j][complete.cases(classvalT[,j])]
+#
+#
+# diagsmT=lapply(tsmT, FUN = diag)
+#
+# perokmT=perokm
+# for (j in 2:ncmax){
+#   perokmT[j]=100*sum(diagsmT[[j]])/length(classvalT[,j][complete.cases(classvalT[,j])])
+# }
+#
+# plot(perokmT, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+# perokmT
+# VL=23
+# VL=6
+# tsmT[VL]
+#
+# length(classvalT[,VL])
+# length(which(complete.cases(classvalT[,VL])==T))
 
 
 #analyse <- manova(scval ~ substr(rownames(scval),9,9) * substr(rownames(scval),5,8) * substr(rownames(scval),11,13))
@@ -422,13 +452,15 @@ succes2=data.frame(succes=I(succes))
 
 Ldist2=cbind(numero,   dista2, distamin2, diffdista2, clone, predclone2, date, age, succes2, souche2, endroit2)
 
-
-
+truc=age
+truc[age=="V"]=16
+truc[age=="J"]=17
 
 
 #colour=paste(clone,succes[,VL])
-aff2 <- ggplot(Ldist2, aes(x=numero, y=dista[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) + #colour=paste(predclone[,VL],succes[,VL]) #colour=paste(souche2,age)
-  geom_point(size=2, alpha=1) +
+aff2 <- ggplot(Ldist2, aes(x=numero, y=dista[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date, age=age, clone=clone,predit=predclone[,VL])) + #colour=paste(predclone[,VL],succes[,VL]) #colour=paste(souche2,age)
+  geom_point(size=2, alpha=2, shape=truc) +
 #  scale_color_manual(values = colo)
   scale_color_manual(values = gamay) + geom_hline(yintercept=1.5, linetype="dashed", color = "red")
 ggplotly(aff2)
+

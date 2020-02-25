@@ -147,7 +147,7 @@ repet= 2
 ## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
 p=2 #2
 n=11 #11 #Faire avec un n plus gros ?
-m=2 #1
+m=1 #1
 ## Nombre de VL max autorisees
 ncmax=35 #35
 ## Nombre de groupes de CV
@@ -180,7 +180,7 @@ table$spectre=sp
 n=4
 a=floor(length(unique(table$code))/n)
 segm=list()
-for (i in 1:10){
+for (i in 1:3){
   l1=sample(n*a, a)
   l2=sample((1:(n*a))[-l1],a)
   l3=sample((1:(n*a))[-c(l1,l2)],a)
@@ -209,46 +209,46 @@ for (i in 1:10){
   segm_1=list(list(L1,L2,L3,L4))
   segm=c(segm,segm_1)
 }
-
-critere1=which(table$pds_100baies<200)
-length(critere1)
-
-critere2=which(10<table$degre)
-length(critere2)
-critere3=which(table$degre<12)
-length(critere3)
-
-critere4=which(4.5<table$acidite_totale)
-length(critere4)
-
-critere5=which(table$pH<3.3)
-length(critere5)
-
-A=setdiff(critere1,critere2)
-B=intersect(groupe3,critere5)
-C=setdiff(which(table$degre<100000000),critere1)
-D=union(A,B)
-sort(union(D,C))
-groupe11=intersect(critere1,critere2)
-groupe1=intersect(critere1,critere2)
-groupe12=setdiff(critere1,critere2)
-groupe13=setdiff(critere2,critere1)
-groupe14=setdiff(1:195, union(critere1,critere2))
-length(groupe1)
-length(setdiff(critere1,critere2))
-length(setdiff(critere2,critere1))
-length(union(critere2,critere1))
-length(table$pds_100baies)
-length(groupe1)
-groupe2=intersect(groupe1,critere3)
-length(groupe2)
-groupe3=intersect(groupe2,critere4)
-length(groupe3)
-groupe4=intersect(groupe3,critere5)
-length(groupe4)
-length(table$acidite_totale)
-table$condition=F
-table$condition[groupe4]=T
+#
+# critere1=which(table$pds_100baies<200)
+# length(critere1)
+#
+# critere2=which(10<table$degre)
+# length(critere2)
+# critere3=which(table$degre<12)
+# length(critere3)
+#
+# critere4=which(4.5<table$acidite_totale)
+# length(critere4)
+#
+# critere5=which(table$pH<3.3)
+# length(critere5)
+#
+# A=setdiff(critere1,critere2)
+# B=intersect(groupe3,critere5)
+# C=setdiff(which(table$degre<100000000),critere1)
+# D=union(A,B)
+# sort(union(D,C))
+# groupe11=intersect(critere1,critere2)
+# groupe1=intersect(critere1,critere2)
+# groupe12=setdiff(critere1,critere2)
+# groupe13=setdiff(critere2,critere1)
+# groupe14=setdiff(1:195, union(critere1,critere2))
+# length(groupe1)
+# length(setdiff(critere1,critere2))
+# length(setdiff(critere2,critere1))
+# length(union(critere2,critere1))
+# length(table$pds_100baies)
+# length(groupe1)
+# groupe2=intersect(groupe1,critere3)
+# length(groupe2)
+# groupe3=intersect(groupe2,critere4)
+# length(groupe3)
+# groupe4=intersect(groupe3,critere5)
+# length(groupe4)
+# length(table$acidite_totale)
+# table$condition=F
+# table$condition[groupe4]=T
 # table$condition[groupe12]="B"
 # table$condition[groupe13]="C"
 # table$condition[groupe14]="D"
@@ -257,17 +257,17 @@ table$condition[groupe4]=T
 names(table)
 #length(which(table$forme=="ronde-ovoide"))
 #fm=fitcv(table$spectre, table$arome_simpl, lwplsdalm, segm, print=T, ncomp=10, k=100, ncompdis=3)
-fm=fitcv(table$spectre, table$condition, plsda, segm, print=T, ncomp=20)
+fm=fitcv(table$spectre, table$fertilite, plsr, segm, print=T, ncomp=20)
 
 
 ##Pour plsda
-z <- err(fm, ~ ncomp + rep)
-
-plotmse(z, nam = "errp", group="rep")
-
-fmextrait=lapply(fm,function (x) {x[x$ncomp==5,]})
-
-table(fmextrait$y$x1,fmextrait$fit$x1)
+# z <- err(fm, ~ ncomp + rep)
+#
+# plotmse(z, nam = "errp", group="rep")
+#
+# fmextrait=lapply(fm,function (x) {x[x$ncomp==5,]})
+#
+# table(fmextrait$y$x1,fmextrait$fit$x1)
 
 #plotsp(sp3$spectre)
 
@@ -278,10 +278,12 @@ z <- mse(fm, ~ ncomp + rep)
 
 #plotmse(z, nam = "rmsep", group ="rep")
 plotmse(z, nam = "r2", group ="rep")
+plotmse(z, nam = "rmsep", group ="rep")
 
-fm20=lapply(fm,function (x) {x[x$ncomp==4,]})
+
+fm20=lapply(fm,function (x) {x[x$ncomp==8,]})
 plot(fm20$y$x1,fm20$fit$x1)
-hist(table$taille)
+hist(table$fertilite)
 
 
 
