@@ -25,7 +25,7 @@ source("Script_R_2020/sp2dfclo.R")
 #plotsp, fonction d'affichage du package rnirs.
 
 
-prediction_affichage_globale <- function(annee = "2017", parcelle = "G", modalite = "G", spiking = F, distanceaff= "distamin",  savitsky_golay_p = 2, savitsky_golay_n = 11, savitsky_golay_m = 1, ncmax=35) {
+prediction_affichage_globale <- function(annee = "2017", parcelle = "G", modalite = "G", spiking = F, distanceaff= "distamin",  savitsky_golay_p = 2, savitsky_golay_n = 11, savitsky_golay_m = 1, ncmax=35, Age=0) {
   print("initialisation")
   brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
   load(file=brb3)
@@ -33,6 +33,9 @@ prediction_affichage_globale <- function(annee = "2017", parcelle = "G", modalit
 
   if (modalite != "C" & modalite != "G" & modalite != "S" & modalite != "cepage"){
     stop("modalite doit être \"C\", \"S\", \"G\" ou \"cepage\"")
+  }
+  if (Age!=0 & Age!=1 & Age!=2){
+    stop("Age doit être \"0\" (pour les deux), \"1\" (pour seulement les jeunes) ou \"2\" (pour seulement les jeunes) ")
   }
 
   # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
@@ -151,7 +154,7 @@ prediction_affichage_globale <- function(annee = "2017", parcelle = "G", modalit
 
   sp=sp2dfclo(sp,class,classclo)
   sp=cbind(sp,datclone,souche)
-  prediction_affichage(annee=annee, parcelle=parcelle, modalite=modalite, spiking=spiking, distanceaff=distanceaff, sp=sp, ncmax=ncmax)
+  prediction_affichage(annee=annee, parcelle=parcelle, modalite=modalite, spiking=spiking, distanceaff=distanceaff, sp=sp, ncmax=ncmax, Age=Age)
 
 }
 
@@ -164,7 +167,7 @@ prediction_affichage_globale <- function(annee = "2017", parcelle = "G", modalit
 
 
 
-prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", spiking = F, distanceaff= "distamin", sp=sp, ncmax=ncmax )
+prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", spiking = F, distanceaff= "distamin", sp=sp, ncmax=ncmax, Age=Age )
 {
 
   #  C 015   C 169   C 685   G 222   G 509   G 787   S 471   S 525   S 747   S 877
@@ -202,7 +205,10 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   #Caracteres 1 à 4 : annee. 5 à 8 : date. 9 : cepage. 9 à 13 : clone. 15 à 16 : numero mesure (de 1 à 18, normalement). 18 : parcelle. 20 à 21 : souche (prudence). 23 : emplacement sur la feuille.
   #Si on veut faire sur cepage, prendre les 3 cepages differents, si on veut faire sur clone, prendre seulement l'un des cepages (via caractère n°9).
   # Inclure un "if modalite est CGS.."
+  l1=c(1,2,3,7,8,9,13,14,15)
+  l2=c(4,5,6,10,11,12,16,17,18)
   if (modalite == "C" | modalite == "G" | modalite == "S"){
+    if (Age==0){
     idval=which(substr(rownames(sp),1,4)== annee & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),9,9)== modalite & !(substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
     spval=sp[idval,]
     spcal=sp[-idval,]
@@ -211,13 +217,43 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
     #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
     idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
-    )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee    & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="") )
+    )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="") )
     classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
     ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") )]
     spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
     ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") ),]
 
+    }
+    else if (Age==1){
+      idval=which(substr(rownames(sp),1,4)== annee & as.numeric(substr(rownames(sp),15,16)) %in% l1 & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),9,9)== modalite & !(substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+      spval=sp[idval,]
+      spcal=sp[-idval,]
+      classval=sp$y2[idval]         #Sur les clones
+      classcal=sp$y2[-idval]
 
+      #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
+      idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
+      )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee & !as.numeric(substr(rownames(sp),15,16)) %in% l1    & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="") )
+      classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+      ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & !as.numeric(substr(rownames(spcal),15,16)) %in% l1 & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") )]
+      spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+      ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & !as.numeric(substr(rownames(spcal),15,16)) %in% l1 & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") ),]
+    }
+    else{
+      idval=which(substr(rownames(sp),1,4)== annee & as.numeric(substr(rownames(sp),15,16)) %in% l2 & substr(rownames(sp),18,18)== parcelle & substr(rownames(sp),9,9)== modalite & !(substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+      spval=sp[idval,]
+      spcal=sp[-idval,]
+      classval=sp$y2[idval]         #Sur les clones
+      classcal=sp$y2[-idval]
+
+      #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
+      idcal=                     which(((substr(rownames(sp),18,18)== parcelle    #| substr(rownames(sp),18,18)=="G"
+      )    & substr(rownames(sp),9,9)== modalite    & substr(rownames(sp),1,4)!= annee & !as.numeric(substr(rownames(sp),15,16)) %in% l2    & substr(rownames(sp),1,8) %in% dates ) |    substr(rownames(sp),1,9) %in% paste(spiking,modalite, sep="") )
+      classcal=      classcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+      ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & !as.numeric(substr(rownames(spcal),15,16)) %in% l2 & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") )]
+      spcal=            spcal[which(((substr(rownames(spcal),18,18)== parcelle #| substr(rownames(spcal),18,18)=="G"
+      ) & substr(rownames(spcal),9,9)== modalite & substr(rownames(spcal),1,4)!= annee & !as.numeric(substr(rownames(spcal),15,16)) %in% l2 & substr(rownames(spcal),1,8) %in% dates ) | substr(rownames(spcal),1,9) %in% paste(spiking,modalite, sep="") ),]
+    }
   }
 
   else {
@@ -310,10 +346,36 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
   tsm=lapply(as.list(predmF), classval, FUN = table)
   diagsm=lapply(tsm, FUN = diag)
+
   perokm =100*unlist(lapply(diagsm, FUN = sum))/length(idval)
 
+
+  a=vector()
+  b=vector()
+  c=vector()
+  f=vector()
+  for (i in 2:ncmax) {
+    a[i]=tsm[[i]][1,1]/(tsm[[i]][1,1]+tsm[[i]][2,1]+tsm[[i]][3,1])
+    b[i]=tsm[[i]][2,2]/(tsm[[i]][1,2]+tsm[[i]][2,2]+tsm[[i]][3,2])
+    c[i]=tsm[[i]][3,3]/(tsm[[i]][1,3]+tsm[[i]][2,3]+tsm[[i]][3,3])
+    f[i]=var(c(a[i],b[i],c[i]))
+  }
+  e=100*(sqrt(a)+sqrt(b)+sqrt(c))/3
+  e[1]=0
+  names(e)=names(perokm)
+  g=perokm/f
+
+
+
+
+
+
   plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de bien classes",pch=19, cex=1.5)
+#  plot(e, xlab= "Nombre de VL", ylab = "Pourcentage de bien classes",pch=19, cex=1.5)
+#  plot(g, xlab= "Nombre de VL", ylab = "Pourcentage de bien classes",pch=19, cex=1.5)
   print(perokm)
+#  print(e)
+#  print(g)
   print("VL choisie (appuyer sur entrée deux fois)")
   print("(Il est conseillé de choisir un nombre de VL qui maximise le pourcentage de bien classés tout en étant le plus petit possible)")
   VL=scan("", what=single())
@@ -322,6 +384,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   print("Les colonnes sont les groupes d'appartenance réels. Les lignes sont les groupes d'appartenance prédits. Un individu est donc prédit correctement si et seulement si il se trouve sur la diagonale.")
   print("Une prédiction moyenne de tous les groupes est considérée plus favorable qu'une très bonne prédiction de l'un des groupes et une très mauvaise des autres")
   print(tsm[VL])
+  VL=VL[length(VL)]
   if (modalite=="cepage"){
     print( paste("    ", round(tsm[[VL]][1,1]/(tsm[[VL]][1,1]+tsm[[VL]][2,1]+tsm[[VL]][3,1]),2), " ",
     round(tsm[[VL]][2,2]/(tsm[[VL]][1,2]+tsm[[VL]][2,2]+tsm[[VL]][3,2]),2), " ",
@@ -333,7 +396,6 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
                  round(tsm[[VL]][3,3]/(tsm[[VL]][1,3]+tsm[[VL]][2,3]+tsm[[VL]][3,3]),2), "<-- Pourcentages de biens classés par classe" ))
   }
 
-  VL=VL[length(VL)]
   #   return(predict)
   # }
   #
@@ -383,10 +445,11 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   plot(perokmT, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
   print(perokmT)
   print(tsmT[VL])
-  print( paste("    ", round(tsmT[[VL]][1,1]/(tsmT[[VL]][1,1]+tsmT[[VL]][2,1]+tsmT[[VL]][3,1]),2), " ",
+  if (length(tsmT[[VL]][,1])==3){
+  print( paste("", round(tsmT[[VL]][1,1]/(tsmT[[VL]][1,1]+tsmT[[VL]][2,1]+tsmT[[VL]][3,1]),2), " ",
                round(tsmT[[VL]][2,2]/(tsmT[[VL]][1,2]+tsmT[[VL]][2,2]+tsmT[[VL]][3,2]),2), " ",
                round(tsmT[[VL]][3,3]/(tsmT[[VL]][1,3]+tsmT[[VL]][2,3]+tsmT[[VL]][3,3]),2), "<-- Pourcentages de biens classés par classe" ))
-
+}
 
 
 
@@ -532,7 +595,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
     distanceaff=diffdista
   }
   else if (distanceaff == "diffdistaT"){
-    distanceaff=diffdista
+    distanceaff=diffdistaT
   }
   else {
     stop("distanceaff doit être inclus dans la liste suivante : dista, distamin, rapdista diffdista")
@@ -542,8 +605,14 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
   print("Passez la souris sur un point pour des informations complémentaires.")
   print("Ce graphique permet notamment d'évaluer si certaines dates sont particulièrement soumises aux confusions, si la distance de mahalanobis d'un point donné à son groupe d'appartenance réel (en calibration) est élevée")
 
-  aff2 <- ggplot(Ldist2, aes(x=numero, y=distanceaff[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,clone=clone,predit=predclone[,VL])) + #colour=paste(predclone[,VL],succes[,VL]) #colour=paste(souche2,age)
-    geom_point(size=2, alpha=1) +
+  truc=age
+  truc[age=="V"]=16
+  truc[age=="J"]=17
+  tsmage=lapply(as.list(predmF), age, FUN = table)
+  print(tsmage[VL])
+
+  aff2 <- ggplot(Ldist2, aes(x=numero, y=distanceaff[,VL],colour=paste(predclone[,VL],succes[,VL]),date=date,age=age,clone=clone,predit=predclone[,VL])) + #colour=paste(predclone[,VL],succes[,VL]) #colour=paste(souche2,age)
+    geom_point(size=2, alpha=1 , shape=truc) +
   #  scale_color_manual(values = colo)
     scale_color_manual(values = couleur) + geom_hline(yintercept=1.5, linetype="dashed", color = "red")
   ggplotly(aff2)
@@ -575,7 +644,7 @@ prediction_affichage<- function(annee = "2017", parcelle = "G", modalite = "G", 
 
 # Les valeurs par défaut sont :
 #savitsky_golay_p = 2, savitsky_golay_n = 11, savitsky_golay_m = 1. ncmax=35
-prediction_affichage_globale(modalite="G", annee="2017", distanceaff = "rapdista", spiking=c("20170524", "20170529", "20170606"))
+prediction_affichage_globale(modalite="cepage", annee="2018", distanceaff = "rapdista", spiking=c("20180619", "20180627", "20180704"), Age=0)
 
 
 
