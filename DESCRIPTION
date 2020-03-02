@@ -7,7 +7,7 @@ Authors@R: c(
            )
 Description: Useful functions to handle spectra.
 Depends:
-    R (>= 3.2.0)
+    R (>= 3.5.0)
 License: GPL-3 | AGPL-3
 Encoding: UTF-8
 LazyData: true
