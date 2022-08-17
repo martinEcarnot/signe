@@ -32,7 +32,7 @@ source("Script_R_2020/segmFact.R")
 #set.seed(1)
 
 brb3="C:/Users/avitvale/Documents/Test/globalmatrixconservatoiregrappes"
-load(file=brb3)
+d=load(file=brb3)
 sp=globalmatrixconservatoiregrappes
 #sp=sp[,1:1100]
 
@@ -93,12 +93,17 @@ sp3$code=as.numeric(as.character(sp3$code))
 
 
 
-trad=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Correspondance_code_conservatoire_gamay.csv")
 
-donnees1=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_1.csv")
+# trad=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Correspondance_code_conservatoire_gamay.csv")
+# donnees1=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_1.csv")
+# donnees2=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_2.csv")
+###donnees2=donnees2[complete.cases(donnees2),]
 
-donnees2=read_csv2(file = "C:/Users/avitvale/Documents/Valentin Avit/Conservatoire_2019_2.csv")
-#donnees2=donnees2[complete.cases(donnees2),]
+# Modif MEC juillet 2022
+dnew="/run/user/1000/gvfs/smb-share:server=cubebe,share=agap/daav-ge2pop/Cereales/Blé/valentin_Avit/SIGNE Documents Stage 4/Moins utile/Données"
+trad=read_csv2(file = file.path(dnew,"Correspondance_code_conservatoire_gamay.csv"))
+donnees1=read_csv2(file = file.path(dnew,"Conservatoire_2019_1.csv"))
+donnees2=read_csv2(file = file.path(dnew,"Conservatoire_2019_2.csv"))
 
 
 jonction1=left_join(trad, donnees1)
@@ -257,7 +262,9 @@ for (i in 1:3){
 names(table)
 #length(which(table$forme=="ronde-ovoide"))
 #fm=fitcv(table$spectre, table$arome_simpl, lwplsdalm, segm, print=T, ncomp=10, k=100, ncompdis=3)
-fm=fitcv(table$spectre, table$fertilite, plsr, segm, print=T, ncomp=20)
+
+# fm=fitcv(table$spectre, table$fertilite, plsr, segm, print=T, ncomp=20)
+fm=cvfit(table$spectre, table$pH, plsr, segm, print=T, ncomp=20)
 
 
 ##Pour plsda
@@ -282,7 +289,7 @@ plotmse(z, nam = "rmsep", group ="rep")
 
 
 fm20=lapply(fm,function (x) {x[x$ncomp==8,]})
-plot(fm20$y$x1,fm20$fit$x1)
+plot(fm20$y$y1,fm20$fit$y1)
 hist(table$fertilite)
 
 

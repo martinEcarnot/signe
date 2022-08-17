@@ -1,10 +1,17 @@
-sp2df <- function(sp,y,nam,lo)
+sp2df <- function(sp,y)
 {
-
-  dat=data.frame(x=I(sp))
+  # browser()
+  if(missing(y)) {
+    dat=data.frame(x=I(sp))
+  }
+    else
+    {
+      dat=data.frame(x=I(sp),y)
+    }
   class(dat$x)="matrix"
-  if(!missing(nam)) rownames(dat$x)=nam
-  if(!missing(lo)) colnames(dat)=lo
-  if(!missing(y)) dat=cbind(y,dat)
+  # colnames(dat)=c("x","y")
+  if(exists("nam")) rownames(dat)=nam   # rownames(dat$x)=nam
+  if(exists("lo")) colnames(dat$x)=lo
+
   return(dat)
 }

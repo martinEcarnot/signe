@@ -7,9 +7,9 @@
 #' @export
 #'
 #'
-source('C:/Users/avitvale/Documents/Script_R/asd_read.R')
 
 SIGNE_load <- function (d) {
+library(nirsextra)
 library(asdreader)
 #d=choose.dir()
 #d="C:\\Users\\Noemie\\Desktop\\SFE\\Pour_Nathan\\Documents_finaux\\test_spectres\\"
@@ -28,7 +28,6 @@ for (i in 1:length(l)) {
 
 # browser()
 l1=basename(l)
-browser()
 l1=gsub(".asd","",l1)
 l1=gsub("000","-",l1)
 # Look for wavelength
@@ -50,7 +49,8 @@ row.names(sp)=l1
  clas=data.frame(clas)
  row.names(clas)=l1
  colnames(clas)="clone"
- sp=sp[,50:2121] # Remove noisy part of the spectra
+ # sp=sp[,50:2121] # Remove noisy part of the spectra
+ sp=sp[,100:2091] # Remove noisy part of the spectra
 
 return(sp)
 # setwd(d)
