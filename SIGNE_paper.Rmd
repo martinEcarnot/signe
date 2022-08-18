@@ -9,15 +9,16 @@ library(MASS)
 library(FactoMineR)
 library(signal)
 library(plyr)
-library(caret)
+# library(caret)
 library(dplyr)
 library(prospectr)
-library(sampling)
+# library(sampling)
 library(rnirs)
+library(nirsextra)
 library(ggplot2)
 library(plotly)
 library("cowplot")
-library("gridGraphics")
+# library("gridGraphics")
 library(MetStaT)
 
 source('Script_R_2020/adj_asd.R')
@@ -75,46 +76,49 @@ ndc=length(unique(datclone))
 numsp=as.numeric(substr(rownames(sp),15,16))
 souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))
 endroit=as.numeric(substr(rownames(sp),15,16))%%3
+rownames(sp)=paste(rownames(sp),souche,endroit)
+
+sp=sp2dfclo(sp,class,classclo)
+sp=cbind(sp,datclone,souche)
+
+sp$cep=as.numeric(as.factor(sp$y1))
+sp$clo=as.numeric(as.factor(sp$y2))
+sp=sp[,-c(1,2)]
+sp$annee=as.numeric(as.factor(substr(rownames(sp),1,4)))
+sp$parcelle=as.numeric(as.factor(substr(rownames(sp),18,18)))
+sp$position=as.numeric(as.factor(substr(rownames(sp),23,23)))
+sp$jour=as.numeric(as.factor(substr(rownames(sp),1,8)))
+sp$mois=as.numeric(as.factor(substr(rownames(sp),5,6)))
+```
+
+ASCA
+```{r}
+## Choix ici du sous-ensemble auquel on applique ASCA (si on le fait sur toutes les données, sauter cette étape)
+sp=sp[which(sp$parcelle==4),] #G
+sp=sp[which(sp$y1==1),]
+
+# <!-- splevels=data.frame(cepage=as.numeric(sp$y1), annee=as.numeric(sp$annee), parcelle=as.numeric(sp$parcelle), position=as.numeric(sp$position), souche=as.numeric(sp$souche) ) -->
+# 
+# <!-- name_fact=c("cep","clo","souche","annee","parcelle","position","mois") -->
+name_fact=c("cep","clo","annee","parcelle")
+
+# <!-- fact=matrix(cbind(sp[,1],sp[,2],sp[,5],sp[,6],sp[,7],sp[,8],sp[,10]), ncol=7) # 1:cépage. 2:clone. 3:souche. 4:année. 5:parcelle. 6:position. 7:mois. -->
+# <!-- fact=matrix(cbind(sp$cep,sp$clo,sp$souche,sp$annee,sp$parcelle,sp$position,sp$mois, ncol=7) # 1:cépage. 2:clone. 3:souche. 4:année. 5:parcelle. 6:position. 7:mois. -->
+
+idx <- match(name_fact, names(sp))
+fact=as.matrix(sp[,idx])
+#fact=as.matrix(sp[,c(1,6)])
+
+sp$xr=sp$x[,seq(1,ncol(sp$x),20)]
+
+res=ASCA.Calculate(sp$xr, fact)
+
+ASCA.DoPermutationTest(res)
+
 ```
 
 
 
 
 
-
-rownames(sp)=paste(rownames(sp),souche,endroit)
-
-sp=sp2dfclo(sp,class,classclo)
-sp=cbind(sp,datclone,souche)
-str(sp)
-
-
-
-
-sp$y1=as.numeric(as.factor(sp$y1))
-sp$annee=as.numeric(as.factor(substr(rownames(sp),1,4)))
-sp$parcelle=as.numeric(as.factor(substr(rownames(sp),18,18)))
-sp$position=as.numeric(as.factor(substr(rownames(sp),23,23)))
-sp$jour=as.numeric(as.factor(substr(rownames(sp),1,8)))
-sp$mois=as.numeric(as.factor(substr(rownames(sp),5,6)))
-
-
-
-## Choix ici du sous-ensemble auquel on applique ASCA (si on le fait sur toutes les données, sauter cette étape)
-sp=sp[which(sp$parcelle==4),] #G
-sp=sp[which(sp$y1==1),]
-#
-
-
-
-
-splevels=data.frame(cepage=as.numeric(sp$y1), annee=as.numeric(sp$annee), parcelle=as.numeric(sp$parcelle), position=as.numeric(sp$position), souche=as.numeric(sp$souche) )
-
-
-fact=matrix(cbind(sp[,1],sp[,2],sp[,5],sp[,6],sp[,7],sp[,8],sp[,10]), ncol=7) # 1:cépage. 2:clone. 3:souche. 4:année. 5:parcelle. 6:position. 7:mois.
-#fact=matrix(cbind(sp[,1],sp[,6]), ncol=2)
-#fact=as.matrix(sp[,c(1,6)])
-res=ASCA.Calculate(sp$x, fact)
-
-ASCA.DoPermutationTest(res)
 
