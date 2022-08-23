@@ -29,7 +29,8 @@ source("Script_R_2020/sp2dfclo.R")
 
 Load globalmatix
 ```{r}
-brb3="/home/ecarnot/Documents/INRA/Projets/SIGNE/2019/globalmatrix"
+# brb3="/home/ecarnot/Documents/INRA/Projets/SIGNE/2019/globalmatrix"
+brb3="globalmatrix"
 load(file=brb3)
 sp=globalmatrix
 ```
@@ -70,7 +71,7 @@ cclo=length(levels(classclo))
 
 
 # On créé un facteur datclone qui groupe un clone à 1 date
-datclone=substr(rownames(sp),1,13)
+datclone=as.factor(substr(rownames(sp),1,13))
 ndc=length(unique(datclone))
 # On créé un facteur souche qui groupe les 6 spectres de chaque souche
 numsp=as.numeric(substr(rownames(sp),15,16))
@@ -81,44 +82,110 @@ rownames(sp)=paste(rownames(sp),souche,endroit)
 sp=sp2dfclo(sp,class,classclo)
 sp=cbind(sp,datclone,souche)
 
-sp$cep=as.numeric(as.factor(sp$y1))
-sp$clo=as.numeric(as.factor(sp$y2))
-sp=sp[,-c(1,2)]
-sp$annee=as.numeric(as.factor(substr(rownames(sp),1,4)))
-sp$parcelle=as.numeric(as.factor(substr(rownames(sp),18,18)))
-sp$position=as.numeric(as.factor(substr(rownames(sp),23,23)))
-sp$jour=as.numeric(as.factor(substr(rownames(sp),1,8)))
-sp$mois=as.numeric(as.factor(substr(rownames(sp),5,6)))
-```
+colnames(sp)[c(1,2)]=c("cep","clo")
+sp$annee=as.factor(substr(rownames(sp),1,4))
+sp$parcelle=as.factor(substr(rownames(sp),18,18))
+sp$position=as.factor(substr(rownames(sp),23,23))
+sp$jour=as.factor(substr(rownames(sp),1,8))
+sp$mois=as.factor(substr(rownames(sp),5,6))
 
-ASCA
-```{r}
 ## Choix ici du sous-ensemble auquel on applique ASCA (si on le fait sur toutes les données, sauter cette étape)
-sp=sp[which(sp$parcelle==4),] #G
-sp=sp[which(sp$y1==1),]
+#sp=droplevels(sp[which(sp$parcelle=="G"),]) #G
+```
 
-# <!-- splevels=data.frame(cepage=as.numeric(sp$y1), annee=as.numeric(sp$annee), parcelle=as.numeric(sp$parcelle), position=as.numeric(sp$position), souche=as.numeric(sp$souche) ) -->
-# 
-# <!-- name_fact=c("cep","clo","souche","annee","parcelle","position","mois") -->
-name_fact=c("cep","clo","annee","parcelle")
+Filter data + Save data set for Matlab
+```{r}
+set_name=c("all","parcG","cepG","parcGcepG","parcGcepC","parcGcepS")
 
-# <!-- fact=matrix(cbind(sp[,1],sp[,2],sp[,5],sp[,6],sp[,7],sp[,8],sp[,10]), ncol=7) # 1:cépage. 2:clone. 3:souche. 4:année. 5:parcelle. 6:position. 7:mois. -->
-# <!-- fact=matrix(cbind(sp$cep,sp$clo,sp$souche,sp$annee,sp$parcelle,sp$position,sp$mois, ncol=7) # 1:cépage. 2:clone. 3:souche. 4:année. 5:parcelle. 6:position. 7:mois. -->
+for (i in 1:length(set_name)) {
+  
+  if (set_name[i]=="all") {
+    ired=sample(1:nrow(sp),nrow(sp)/2)  # Too big : reduse by 2
+    spf=sp[ired,]
+    name_fact=c("cep","clo","annee","parcelle","mois")
+  }
+  else if (set_name[i]=="parcG") {
+    spf=droplevels(sp[which(sp$parcelle=="G"),])
+    name_fact=c("cep","clo","annee","mois")
+  }
+  else if (set_name[i]=="cepG") {
+    spf=droplevels(sp[which(sp$cep=="G"),])
+    name_fact=c("clo","annee","parcelle","mois")
+  }
+  else if (set_name[i]=="parcGcepG") {
+    spf=droplevels(sp[which(sp$parcelle=="G" & sp$cep=="G"),])
+    name_fact=c("clo","annee","mois")
+  }
+  else if (set_name[i]=="parcGcepC") {
+    spf=droplevels(sp[which(sp$parcelle=="G" & sp$cep=="C"),])
+    name_fact=c("clo","annee","mois")
+  }
+  else if (set_name[i]=="parcGcepS") {
+    spf=droplevels(sp[which(sp$parcelle=="G" & sp$cep=="S"),])
+    name_fact=c("clo","annee","mois")
+  }
+  
+  # Factors to numeric (for ASCA function)
+  id_x=match(name_fact, names(spf))
+  fact=as.matrix(sapply(spf[,id_x], as.numeric))
+  
+  writeMat(paste0("SIGNE_asca_",set_name[i],".mat"), x=spf$x, fact=fact, name_fact=name_fact)
+}
+```
 
-idx <- match(name_fact, names(sp))
-fact=as.matrix(sp[,idx])
-#fact=as.matrix(sp[,c(1,6)])
 
-sp$xr=sp$x[,seq(1,ncol(sp$x),20)]
+```{r}
+# All data
 
-res=ASCA.Calculate(sp$xr, fact)
+# Only parcelle G
+id=match("parcelle", colnames(fact))
+writeMat("SIGNE_asca_parcG.mat", x=spf$x, fact=fact[,-id])
 
-ASCA.DoPermutationTest(res)
 
 ```
 
 
+ASCA # Donne des resultats differents de ASCA Matlab (version )
+```{r}
+spf_xr=spf$x[seq(1,nrow(spf$x),2),seq(1,ncol(spf$x),1)]
+factr=fact[seq(1,nrow(fact),2),]
+
+res=ASCA.Calculate(spf_xr, factr) # Donne des resultats differents de ASCA Matlab (version )
+#ASCA.DoPermutationTest(res)
 
 
+opt=asca("options")
+opt$permtest="off"
+r=asca(spf_xr, factr,opt)
+
+ev=c(r$XA$EffectExplVar,r$XB$EffectExplVar,r$XC$EffectExplVar,r$XD$EffectExplVar,r$XE$EffectExplVar)
+#p=c(r$XA$EffectSignif$p,r$XB$EffectSignif$p,r$XAB$EffectSignif$p)
+disp_fac=paste( r$TermLabels[-1],c(colnames(factr), paste(colnames(factr),collapse="x")),sep = "=")
+cat(disp_fac)
+print(ev)
+#print(p)
+
+```
+
+
+Load Matlab result for plot
+```{r}
+ascaMat=readMat('SIGNE_asca_ev.mat')
+#All
+dat=data.frame(t(ascaMat$ev.all[[1]][[1]]))
+colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[1]][[1]]))
+barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[1]][[1]])
+
+# Parcelle G (Grau du Roi, parcelle 96), all cep.
+dat=data.frame(t(ascaMat$ev.all[[2]][[1]]))
+colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[2]][[1]]))
+barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[2]][[1]])
+
+# Parcelle G (Grau du Roi, parcelle 96), intra-cep variance
+dat=t(data.frame(ascaMat$ev.all[[4]][[1]],ascaMat$ev.all[[5]][[1]],ascaMat$ev.all[[6]][[1]]))
+rownames(dat)=substr(unlist(lapply(ascaMat$set.name,function (x) {x[[]][[1]]}))[4:6],6,9)
+colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[5]][[1]]))
+barplot(dat[,-1], beside = TRUE, legend=T,main="Parcelle G")
+```
 
 
