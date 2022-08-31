@@ -1,3 +1,6 @@
+% Load data sets from SIGNE_paper.rmd and perform ASCA from
+% https://www.chem.uniroma1.it/romechemometrics/research/algorithms/asca/
+% Then save for further R plot
 
 set_name={'all','parcG','cepG','parcGcepG','parcGcepC','parcGcepS'};
 

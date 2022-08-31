@@ -5,12 +5,12 @@ library(plyr)
 library(caret)
 library(dplyr)
 library(prospectr)
-library(sampling)
+#library(sampling)
 library(rnirs)
 library(ggplot2)
 library(plotly)
 library("cowplot")
-library("gridGraphics")
+#library("gridGraphics")
 library(MetStaT)
 
 rm(list = ls())
@@ -28,7 +28,8 @@ source("Script_R_2020/sp2dfclo.R")
 # Choix de la fixation du tirage aleatoire (pour comparaison, rend les repetitions inutiles)
 #set.seed(1)
 
-brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
+#brb3="C:/Users/avitvale/Documents/Test/globalmatrix"
+brb3="globalmatrix"
 load(file=brb3)
 sp=globalmatrix
 
@@ -64,28 +65,28 @@ sp_pre=t(scale(t(sp_pre)))
 sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
 
 
-sp=sp[,-(1330:1390)] #Coupure du spectre autour des résidus de sauts de detecteurs. Ne semble pas encore effacer completement les sauts.
-sp=sp[,-(500:560)]
+#sp=sp[,-(1330:1390)] #Coupure du spectre autour des résidus de sauts de detecteurs. Ne semble pas encore effacer completement les sauts.
+#sp=sp[,-(500:560)]
 
 plotsp(sp[1,], col="darkgreen")
 #Changement de l'ordre des spectres, par exemple en les classant par date/par cepage/par clone... Classement fin en en faisant plusieurs à la suite
 #Changer l'ordre est notamment utile pour les fonctions d'affichage.
 
 #Laisser le premier pour un affichage clone, laisser les trois pour un affichage cepage.
-L=unique(substr(rownames(sp),9,13))
-L2=sort(L)
-sp2=sp
-
-for (i in 1:length(L2)){
-  N=which(substr(rownames(sp),9,13)==L2[i])
-  sp2=rbind(sp2,sp[N,])
-}
-
-sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
-rownames(sp3)=substr(rownames(sp3),1,18)
-
-sp=sp3
-
+# L=unique(substr(rownames(sp),9,13))
+# L2=sort(L)
+# sp2=sp
+#
+# for (i in 1:length(L2)){
+#   N=which(substr(rownames(sp),9,13)==L2[i])
+#   sp2=rbind(sp2,sp[N,])
+# }
+#
+# sp3=sp2[(length(sp[,1])+1):length(sp2[,1]),]
+# rownames(sp3)=substr(rownames(sp3),1,18)
+#
+# sp=sp3
+#
 
 
 
@@ -305,6 +306,9 @@ perokmT=perokm
 
 plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
 perokm
+
+stop()
+
 VL=9
 tsm[VL]
 #VL=3

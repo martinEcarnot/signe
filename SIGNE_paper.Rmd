@@ -5,25 +5,10 @@ output: html_document
 
 Load libraries
 ```{r setup, include=FALSE}
-library(MASS)
-library(FactoMineR)
-library(signal)
-library(plyr)
-# library(caret)
-library(dplyr)
+library(R.matlab)
 library(prospectr)
-# library(sampling)
-library(rnirs)
 library(nirsextra)
-library(ggplot2)
-library(plotly)
-library("cowplot")
-# library("gridGraphics")
 library(MetStaT)
-
-source('Script_R_2020/adj_asd.R')
-source('Script_R_2020/SIGNE_load.R')
-source('Script_R_2020/SIGNE_maha0.R')
 source("Script_R_2020/sp2dfclo.R")
 ```
 
@@ -53,12 +38,7 @@ sp_pre=t(scale(t(sp_pre)))
 
 ##Savitsky Golay Derivation
 sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
-
-# sp=sp[,-(665:695)] #Coupure du spectre autour des résidus de sauts de detecteurs. Ne semble pas encore effacer completement les sauts.
-# sp=sp[,-(250:280)]
-
 ```
-
 
 Creaction of the factors
 ```{r}
@@ -88,9 +68,6 @@ sp$parcelle=as.factor(substr(rownames(sp),18,18))
 sp$position=as.factor(substr(rownames(sp),23,23))
 sp$jour=as.factor(substr(rownames(sp),1,8))
 sp$mois=as.factor(substr(rownames(sp),5,6))
-
-## Choix ici du sous-ensemble auquel on applique ASCA (si on le fait sur toutes les données, sauter cette étape)
-#sp=droplevels(sp[which(sp$parcelle=="G"),]) #G
 ```
 
 Filter data + Save data set for Matlab
@@ -98,7 +75,6 @@ Filter data + Save data set for Matlab
 set_name=c("all","parcG","cepG","parcGcepG","parcGcepC","parcGcepS")
 
 for (i in 1:length(set_name)) {
-  
   if (set_name[i]=="all") {
     ired=sample(1:nrow(sp),nrow(sp)/2)  # Too big : reduse by 2
     spf=sp[ired,]
@@ -129,23 +105,32 @@ for (i in 1:length(set_name)) {
   id_x=match(name_fact, names(spf))
   fact=as.matrix(sapply(spf[,id_x], as.numeric))
   
-  writeMat(paste0("SIGNE_asca_",set_name[i],".mat"), x=spf$x, fact=fact, name_fact=name_fact)
+  writeMat(paste0("asca_save/SIGNE_asca_",set_name[i],".mat"), x=spf$x, fact=fact, name_fact=name_fact)
 }
 ```
 
-
+Load Matlab result for plot
 ```{r}
-# All data
+ascaMat=readMat('asca_save/SIGNE_asca_ev.mat')
 
-# Only parcelle G
-id=match("parcelle", colnames(fact))
-writeMat("SIGNE_asca_parcG.mat", x=spf$x, fact=fact[,-id])
+#All
+dat=data.frame(t(ascaMat$ev.all[[1]][[1]]))
+colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[1]][[1]]))
+barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[1]][[1]])
 
+# Parcelle G (Grau du Roi, parcelle 96), all cep.
+dat=data.frame(t(ascaMat$ev.all[[2]][[1]]))
+colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[2]][[1]]))
+barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[2]][[1]])
 
+# Parcelle G (Grau du Roi, parcelle 96), intra-cep variance
+dat=t(data.frame(ascaMat$ev.all[[4]][[1]],ascaMat$ev.all[[5]][[1]],ascaMat$ev.all[[6]][[1]]))
+rownames(dat)=substr(unlist(lapply(ascaMat$set.name,function (x) {x[[]][[1]]}))[4:6],6,9)
+colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[5]][[1]]))
+barplot(dat[,-1], beside = TRUE, legend=T,main="Parcelle G")
 ```
 
-
-ASCA # Donne des resultats differents de ASCA Matlab (version )
+ASCA MetStat # Donne des resultats differents de ASCA Matlab (version )
 ```{r}
 spf_xr=spf$x[seq(1,nrow(spf$x),2),seq(1,ncol(spf$x),1)]
 factr=fact[seq(1,nrow(fact),2),]
@@ -165,27 +150,6 @@ cat(disp_fac)
 print(ev)
 #print(p)
 
-```
-
-
-Load Matlab result for plot
-```{r}
-ascaMat=readMat('SIGNE_asca_ev.mat')
-#All
-dat=data.frame(t(ascaMat$ev.all[[1]][[1]]))
-colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[1]][[1]]))
-barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[1]][[1]])
-
-# Parcelle G (Grau du Roi, parcelle 96), all cep.
-dat=data.frame(t(ascaMat$ev.all[[2]][[1]]))
-colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[2]][[1]]))
-barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[2]][[1]])
-
-# Parcelle G (Grau du Roi, parcelle 96), intra-cep variance
-dat=t(data.frame(ascaMat$ev.all[[4]][[1]],ascaMat$ev.all[[5]][[1]],ascaMat$ev.all[[6]][[1]]))
-rownames(dat)=substr(unlist(lapply(ascaMat$set.name,function (x) {x[[]][[1]]}))[4:6],6,9)
-colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[5]][[1]]))
-barplot(dat[,-1], beside = TRUE, legend=T,main="Parcelle G")
 ```
 
 
