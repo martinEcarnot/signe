@@ -1,0 +1,136 @@
+---
+title: "SIGNAE_paper_plsda"
+output: html_document
+date: '2022-08-31'
+---
+
+
+Load libraries
+```{r setup, include=FALSE}
+library(MASS)
+library(FactoMineR)
+library(signal)
+library(plyr)
+library(caret)
+library(dplyr)
+library(prospectr)
+library(rnirs)
+library(ggplot2)
+library(plotly)
+library(nirsextra)
+
+source("Script_R_2020/sp2dfclo.R")
+source('Script_R_2020/SIGNE_maha0.R')
+```
+
+Load globalmatix
+```{r}
+# brb3="/home/ecarnot/Documents/INRA/Projets/SIGNE/2019/globalmatrix"
+brb3="globalmatrix"
+load(file=brb3)
+sp=globalmatrix
+```
+
+Set parameters
+```{r}
+### FIXATION DES PARAMETRES UTILISES:
+## Nombre de repetitions de la boucle de PLSDA:
+repet= 2
+## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
+p=2 #2
+n=11#11 #Faire avec un n plus gros ?
+m=1 #1
+## Nombre de VL max autorisees
+ncmax=35 #35
+## Nombre de groupes de CV
+k=2 #2
+```
+
+Pretreatments
+```{r}
+## Remove gaps from 3 sub-spectrometers (Montpellier: 1000nm (#651) et 1800nm (#1451))
+sp_pre=adj_asd(sp,c(276,676)) #Retrouvé empiriquement, ne correspondait pas à ce qui etait indiqué precedemment.
+
+## SNV
+sp_pre=t(scale(t(sp_pre)))
+
+##Savitsky Golay Derivation
+sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
+```
+
+Constitution d'un jeu de calibration
+```{r}
+cep=as.factor(substr(rownames(sp),9,9))
+clo=as.factor(substr(rownames(sp),9,13))
+sp=sp2dfclo(sp,cep,clo)
+sp$annee=as.factor(substr(rownames(sp),1,4))
+sp$parcelle=as.factor(substr(rownames(sp),18,18))
+sp$date=as.factor(substr(rownames(sp),1,8))
+## On enleve 20190628, jour a + de 43°C ?
+sp=sp[sp$date != "20190628",]
+
+idcal= which(sp$parcelle=="G" & sp$annee !="2017")
+spcal= sp[idcal,]
+spval=sp[-idcal,]
+```
+
+```{r}
+
+predmF=as.data.frame(matrix(nrow = nrow(spval), ncol = ncmax))
+distances=as.data.frame(matrix(nrow = nrow(spval), ncol = ncmax))
+
+rplsda=caret::plsda(spcal$x, spcal$cep,ncomp=ncmax)
+sccal=rplsda$scores
+spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
+plotsp(t(rplsda$coefficients[,1,])[1,]) #cepage
+#plotsp(t(rplsda$coefficients[,4,])[1,]) #clone Gamay
+
+
+for (ii in 2:ncmax) {
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$cep, scval[,1:ii])$class
+  distances[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$cep, scval[,1:ii])$dist
+}
+
+
+#G 2017
+#B 1 6 7 16  M 20 22
+
+#G 2019
+#B 2 7 10 M 8 28
+
+#plotsp(t(scval)[2,], col="blue")
+
+# for (ii in 2:ncmax) {
+#   predmF[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$class
+#   distances[,ii]=SIGNE_maha0(sccal[,-ii], classcalclo, scval[,-ii])$dist
+#  }
+
+# predmF[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$class
+# distances[,2]=SIGNE_maha0(cbind(sccal[,1],sccal[,2],sccal[,3],sccal[,4],sccal[,5],sccal[,6],sccal[,7],sccal[,8],sccal[,9],sccal[,10]), classcal, cbind(scval[,1],scval[,2],scval[,3],scval[,4],scval[,5],scval[,6],scval[,7],scval[,8],scval[,9],scval[,10]))$dist
+#
+# predmF[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$class
+# distances[,2]=SIGNE_maha0(cbind(sccal[,21],sccal[,22],sccal[,20]), classcal, cbind(scval[,21],scval[,22],scval[,20]))$dist
+
+#
+# classval=relevel(classval, "G 787")
+# classval=relevel(classval, "G 509")
+# classval=relevel(classval, "G 222")
+#
+# classval=relevel(classval, "S 877")
+# classval=relevel(classval, "S 747")
+# classval=relevel(classval, "S 525")
+# classval=relevel(classval, "S 471")
+
+tsm=lapply(as.list(predmF), spval$cep, FUN = table)
+diagsm=lapply(tsm, FUN = diag)
+perokm =100*unlist(lapply(diagsm, FUN = sum))/nrow(spval)
+perokmT=perokm
+
+
+plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+perokm
+
+```
+
