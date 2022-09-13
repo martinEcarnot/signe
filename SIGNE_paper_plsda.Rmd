@@ -7,16 +7,16 @@ date: '2022-08-31'
 
 Load libraries
 ```{r setup, include=FALSE}
-library(MASS)
-library(FactoMineR)
+library(MASS) # For ginv function
+# library(FactoMineR)
 library(signal)
-library(plyr)
+# library(plyr)
 library(caret)
-library(dplyr)
+# library(dplyr)
 library(prospectr)
 library(rnirs)
-library(ggplot2)
-library(plotly)
+# library(ggplot2)
+# library(plotly)
 library(nirsextra)
 
 source("Script_R_2020/sp2dfclo.R")
@@ -67,11 +67,12 @@ sp$annee=as.factor(substr(rownames(sp),1,4))
 sp$parcelle=as.factor(substr(rownames(sp),18,18))
 sp$date=as.factor(substr(rownames(sp),1,8))
 ## On enleve 20190628, jour a + de 43°C ?
-sp=sp[sp$date != "20190628",]
+# sp=sp[sp$date != "20190628",]
 
 idcal= which(sp$parcelle=="G" & sp$annee !="2017")
-spcal= sp[idcal,]
-spval=sp[-idcal,]
+# idcal= which(sp$annee !="2017")
+spcal= droplevels(sp[idcal,])
+spval=droplevels(sp[-idcal,])
 ```
 
 ```{r}

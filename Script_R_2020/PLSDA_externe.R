@@ -9,7 +9,7 @@ library(prospectr)
 library(rnirs)
 library(ggplot2)
 library(plotly)
-library("cowplot")
+# library("cowplot")
 #library("gridGraphics")
 library(MetStaT)
 
@@ -227,15 +227,17 @@ spval=sp[idval,]
 spcal=sp[-idval,]
 
 ### Ici, choisir l'un ou l'autre selon si on veut faire l'analyse sur cepages ou sur clones.
-classval=sp$y1[idval]        #Sur les cépages
-classcal=sp$y1[-idval]
+# classval=sp$y1[idval]        #Sur les cépages
+# classcal=sp$y1[-idval]
 # classval=sp$y2[idval]         #Sur les clones
 # classcal=sp$y2[-idval]
 
+# Modif MEC 09/2022
+classval=sp$class[idval]        #Sur les cépages
+classcal=sp$class[-idval]
 
 #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
-idcal=                     which(((substr(rownames(sp),18,18)=="G"    | substr(rownames(sp),18,18)=="G"
-) & substr(rownames(sp),9,9)!="X"       & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates )    )#|    substr(rownames(sp),1,9) %in% c("20170724G1","20170731G1") ) # & !as.numeric(substr(rownames(sp),15,16)) %in% l1
+idcal=which(((substr(rownames(sp),18,18)=="G" | substr(rownames(sp),18,18)=="G") & substr(rownames(sp),9,9)!="X"  & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates)    )#|    substr(rownames(sp),1,9) %in% c("20170724G1","20170731G1") ) # & !as.numeric(substr(rownames(sp),15,16)) %in% l1
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
 ) & substr(rownames(spcal),9,9)!="X" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) )]#| substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") )] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
