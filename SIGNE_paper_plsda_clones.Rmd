@@ -1,0 +1,103 @@
+---
+title: "SIGNE_paper_plsda_clones"
+output: html_document
+date: '2022-08-31'
+---
+
+
+Load libraries
+```{r setup, include=FALSE, echo=FALSE,results='hide'}
+library(MASS) # For ginv function
+# library(FactoMineR)
+library(signal)
+# library(plyr)
+library(caret)
+# library(dplyr)
+library(prospectr)
+library(rnirs)
+# library(ggplot2)
+# library(plotly)
+library(nirsextra)
+
+source("Script_R_2020/sp2dfclo.R")
+source('Script_R_2020/SIGNE_maha0.R')
+```
+
+Load globalmatix
+```{r}
+# brb3="/home/ecarnot/Documents/INRA/Projets/SIGNE/2019/globalmatrix"
+brb3="globalmatrix"
+load(file=brb3)
+# sp=globalmatrix
+```
+
+Set parameters
+```{r}
+### FIXATION DES PARAMETRES UTILISES:
+## Nombre de repetitions de la boucle de PLSDA:
+repet= 2
+## Parametres du Savitsky-Golay (p=degre du polynome, n= taille de la fenetre, m=ordre de derivation)
+p=3 #2
+n=11#11 #Faire avec un n plus gros ?
+m=1 #1
+## Nombre de VL max autorisees
+ncmax=30 #35
+```
+
+Pretreatments
+```{r}
+
+# p=rbind(list('adj',''),list('red',c(1000,1,1)),list('snv',''),list('sder',c(2,3,w)),list('red',c(w/2,w/2,1)))
+pr=rbind(list('adj',c(551,1352)),list('adj',c(552,1352)),list('snv',''),list('sder',c(m,p,n)),list('red',c(n/2,n/2,1)))
+# pr=rbind(list('adj',c(551,1352)),list('adj',c(552,1352)),list('snv',''),list('sder',c(m,p,n)))
+sp_pre=pre(globalmatrix,pr)
+```
+
+Constitution d' jeu de calibration
+```{r}
+sp=sp_pre
+cep=as.factor(substr(rownames(sp),9,9))
+clo=as.factor(substr(rownames(sp),9,13))
+sp=sp2dfclo(sp,cep,clo)
+sp$annee=as.factor(substr(rownames(sp),1,4))
+sp$parcelle=as.factor(substr(rownames(sp),18,18))
+sp$date=as.factor(substr(rownames(sp),1,8))
+## On enleve 20190628, jour a + de 43°C ?
+sp=sp[sp$date != "20190628" & sp$parcelle=="G" & sp$cep=="S",]
+# sp=sp[sp$parcelle=="G",]
+# sp=sp[sp$parcelle=="G" & sp$date != "20190730",]
+sp=droplevels(sp)
+```
+
+```{r}
+annees=c("2017","2018","2019")
+for (i in 1:3) {
+  idcal= which(sp$annee !=annees[i])
+spcal= droplevels(sp[idcal,])
+spval=droplevels(sp[-idcal,])
+predmF=as.data.frame(matrix(nrow = nrow(spval), ncol = ncmax))
+distances=as.data.frame(matrix(nrow = nrow(spval), ncol = ncmax))
+
+rplsda=caret::plsda(spcal$x, spcal$clo,ncomp=ncmax)
+sccal=rplsda$scores
+spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
+plotsp(t(rplsda$coefficients[,1,])[1,]) #cepage
+
+for (ii in 2:ncmax) {
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$clo, scval[,1:ii])$class
+  distances[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$clo, scval[,1:ii])$dist
+}
+
+tsm=lapply(as.list(predmF), spval$clo, FUN = table)
+diagsm=lapply(tsm, FUN = diag)
+perokm =100*unlist(lapply(diagsm, FUN = sum))/nrow(spval)
+perokmT=perokm
+
+# plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
+print(c(max(perokm),which.max(perokm)))
+}
+
+```
+
