@@ -218,9 +218,11 @@ Truc[which(as.numeric(substr(rownames(sp),15,16)) %in% l2)]="V"
 Truc[which(as.numeric(substr(rownames(sp),15,16)) %in% l1)]="J"
 
 #& as.numeric(substr(rownames(sp),15,16)) %in% l1
+annee="2019"
+
 
 ##Dans ce qui suit, substr(rownames(sp),9,9)!="X" pour la préd cépage, ou == "C" ou "G" ou "S" pour la préd clone.
-idval=which(substr(rownames(sp),1,4)=="2017" & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)!="X" )# & !(substr(rownames(sp),5,8) %in% c("07241","07311")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
+idval=which(substr(rownames(sp),1,4)==annee & substr(rownames(sp),18,18)=="G" & substr(rownames(sp),9,9)!="X" )# & !(substr(rownames(sp),5,8) %in% c("07241","07311")) )#& substr(rownames(sp),1,8)=="20170711" )#& substr(rownames(sp),5,8)!="0702")
 
 
 spval=sp[idval,]
@@ -237,11 +239,11 @@ classval=sp$class[idval]        #Sur les cépages
 classcal=sp$class[-idval]
 
 #Consitution d'un jeu de calibration à partir de ce qui n'est pas dans le jeu de validation (on empeche la meme donnée d'etre utilisée dans les deux).
-idcal=which(((substr(rownames(sp),18,18)=="G" | substr(rownames(sp),18,18)=="G") & substr(rownames(sp),9,9)!="X"  & substr(rownames(sp),1,4)!="2017" & substr(rownames(sp),1,8) %in% dates)    )#|    substr(rownames(sp),1,9) %in% c("20170724G1","20170731G1") ) # & !as.numeric(substr(rownames(sp),15,16)) %in% l1
+idcal=which(((substr(rownames(sp),18,18)=="G" | substr(rownames(sp),18,18)=="G") & substr(rownames(sp),9,9)!="X"  & substr(rownames(sp),1,4)!=annee & substr(rownames(sp),1,8) %in% dates)    )#|    substr(rownames(sp),1,9) %in% c("20170724G1","20170731G1") ) # & !as.numeric(substr(rownames(sp),15,16)) %in% l1
 classcal=      classcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)!="X" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) )]#| substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") )] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
+) & substr(rownames(spcal),9,9)!="X" & substr(rownames(spcal),1,4)!=annee & substr(rownames(spcal),1,8) %in% dates ) )]#| substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") )] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
 spcal=            spcal[which(((substr(rownames(spcal),18,18)=="G" | substr(rownames(spcal),18,18)=="G"
-) & substr(rownames(spcal),9,9)!="X" & substr(rownames(spcal),1,4)!="2017" & substr(rownames(spcal),1,8) %in% dates ) ),]#| substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") ),] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
+) & substr(rownames(spcal),9,9)!="X" & substr(rownames(spcal),1,4)!=annee & substr(rownames(spcal),1,8) %in% dates ) ),]#| substr(rownames(spcal),1,9) %in% c("20170724G1","20170731G1") ),] # & !as.numeric(substr(rownames(spcal),15,16)) %in% l1
 
 
 
@@ -311,7 +313,7 @@ perokm
 
 stop()
 
-VL=9
+VL=19
 tsm[VL]
 #VL=3
 
