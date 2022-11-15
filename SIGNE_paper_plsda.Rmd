@@ -82,8 +82,6 @@ sccal=rplsda$scores
 spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
 scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
 
-plotsp(t(rplsda$coefficients[,1,])[1,]) #cepage
-
 for (ii in 2:ncmax) {
   predmF[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$cep, scval[,1:ii])$class
   distances[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$cep, scval[,1:ii])$dist
@@ -93,10 +91,75 @@ tsm=lapply(as.list(predmF), spval$cep, FUN = table)
 diagsm=lapply(tsm, FUN = diag)
 perokm =100*unlist(lapply(diagsm, FUN = sum))/nrow(spval)
 perokmT=perokm
-
-# plot(perokm, xlab= "Nombre de VL", ylab = "Pourcentage de biens class?s",pch=19, cex=1.5)
-print(c(max(perokm),which.max(perokm)))
+print(perokm)
 }
 
+```
+
+
+Pour justifier PLSDA externe seuelemnt CV pour montrer
+```{r}
+# On moyenne par feuille pour ne pas avoir un spectre d'une mm feuille en cal et en val
+pos_feuille=floor((as.numeric(substr(rownames(sp),15,16))+2)/3)
+date_cep_feuill=paste(substr(rownames(sp),1,13),pos_feuille, sep = '-')
+spm=aggregate(sp[,3],list(date_cep_feuill),mean)
+# spm=aggregate(sp[,3],list(date_cep),head,1)
+
+rownames(spm)=spm[,1]
+cep=as.factor(substr(rownames(spm),9,9))
+clo=as.factor(substr(rownames(spm),9,13))
+spm=sp2dfclo(as.matrix(spm[,-1]),cep,clo)
+spm$annee=as.factor(substr(rownames(spm),1,4))
+spm$date=as.factor(substr(rownames(spm),1,8))
+
+idcal= which(spm$annee !=annees[3])
+spcal= droplevels(spm[idcal,])
+spval=droplevels(spm[-idcal,])
+
+
+nblock=5
+seg=segmkf(nrow(spcal),K=nblock,type = "random", nrep=20)
+r=1
+b=1
+perokmT=NULL
+for (j in 1:length(seg)) {
+spcal1=spcal[-unlist(seg[[r]][b]),]
+spval1=spcal[unlist(seg[[r]][b]),]
+rplsda=caret::plsda(spcal1$x, spcal1$cep,ncomp=ncmax)
+sccal=rplsda$scores
+spval_c=scale(spval1$x,center=rplsda$Xmeans,scale = F)
+scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+
+predmF=as.data.frame(matrix(nrow = nrow(spval1), ncol = ncmax))
+for (ii in 2:ncmax) {
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], spcal1$cep, scval[,1:ii])$class
+  # distances[,ii]=SIGNE_maha0(sccal[,1:ii], spcal1$cep, scval[,1:ii])$dist
+}
+
+tsm=lapply(as.list(predmF), spval1$cep, FUN = table)
+diagsm=lapply(tsm, FUN = diag)
+perokm =100*unlist(lapply(diagsm, FUN = sum))/nrow(spval1)
+perokmT=rbind(perokmT,perokm)
+b=b+1
+if (b==nblock) {b=1;r=r+1}
+}
+# print(colMeans(perokmT))
+
+# Validation
+rplsda=caret::plsda(spcal$x, spcal$cep,ncomp=ncmax)
+sccal=rplsda$scores
+spval_c=scale(spval$x,center=rplsda$Xmeans,scale = F)
+scval=spval_c%*%rplsda$projection  # score_val=predict(rplsda,sc_val,type="scores") : ne marche pas
+predmF=as.data.frame(matrix(nrow = nrow(spval), ncol = ncmax))
+for (ii in 2:ncmax) {
+  predmF[,ii]=SIGNE_maha0(sccal[,1:ii], spcal$cep, scval[,1:ii])$class
+}
+tsm=lapply(as.list(predmF), spval$cep, FUN = table)
+diagsm=lapply(tsm, FUN = diag)
+perokm =100*unlist(lapply(diagsm, FUN = sum))/nrow(spval)
+# print(perokm)
+
+plot(colMeans(perokmT))
+points(perokm)
 ```
 

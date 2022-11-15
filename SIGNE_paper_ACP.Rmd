@@ -1,0 +1,99 @@
+---
+title: "SIGNE_paper"
+output: html_document
+---
+
+Load libraries
+```{r setup, include=FALSE}
+library(R.matlab)
+library(prospectr)
+library(nirsextra)
+library(MetStaT)
+library(rnirs)
+library(ggplot2)
+library(cowplot)
+library(gridExtra)
+source("Script_R_2020/sp2dfclo.R")
+```
+
+Load globalmatix
+```{r}
+# brb3="/home/ecarnot/Documents/INRA/Projets/SIGNE/2019/globalmatrix"
+brb3="globalmatrix"
+load(file=brb3)
+sp=globalmatrix
+```
+
+Set parameters
+```{r}
+# Savitsky-Golay parameters (p=degree of polynom, n= window size, m=derivation order)
+p=2
+n=11
+m=1
+```
+
+Pretreatments
+```{r}
+## Remove gaps from 3 sub-spectrometers (Montpellier: 1000nm (#651) et 1800nm (#1451))
+sp_pre=adj_asd(sp,c(276,676)) #Retrouvé empiriquement, ne correspondait pas à ce qui etait indiqué precedemment.
+
+## SNV
+sp_pre=t(scale(t(sp_pre)))
+
+##Savitsky Golay Derivation
+sp=savitzkyGolay(sp_pre, m = m, p = p, w = n)
+```
+
+Creaction of the factors
+```{r}
+class=as.factor(substr(rownames(sp),9,9)) #9,9
+classclo=as.factor(substr(rownames(sp),9,13)) #9,13
+
+## Variable qui mesure le nombre de classes
+c=length(levels(class))
+cclo=length(levels(classclo))
+
+
+# On créé un facteur datclone qui groupe un clone à 1 date
+datclone=as.factor(substr(rownames(sp),1,13))
+ndc=length(unique(datclone))
+# On créé un facteur souche qui groupe les 6 spectres de chaque souche
+numsp=as.numeric(substr(rownames(sp),15,16))
+souche=cut(numsp, breaks = c(0,6,12,18),labels=c("s1","s2","s3"))
+endroit=as.numeric(substr(rownames(sp),15,16))%%3
+rownames(sp)=paste(rownames(sp),souche,endroit)
+
+sp=sp2dfclo(sp,class,classclo)
+sp=cbind(sp,datclone,souche)
+
+colnames(sp)[c(1,2)]=c("cep","clo")
+sp$annee=as.factor(substr(rownames(sp),1,4))
+sp$parcelle=as.factor(substr(rownames(sp),18,18))
+sp$position=as.factor(substr(rownames(sp),23,23))
+sp$jour=as.factor(substr(rownames(sp),1,8))
+sp$mois=as.factor(substr(rownames(sp),5,6))
+sp$x0=globalmatrix
+```
+
+PCA
+```{r}
+i1718=which(sp$annee=="2017" | sp$annee=="2019")
+i19=which(sp$annee=="2018")
+fm=pca(sp$x0[i1718,], sp$x0[i19,], ncomp=20)
+ired=seq(1,nrow(sp),5)
+
+Tr <- fm$Tr
+Tu <- fm$Tu
+annee <- c(rep("17-18", nrow(Tr)), rep("19", nrow(Tu)))
+
+p <- list()
+for(i in seq(1,10,2)){
+  p[[i]] =plotxy(rbind(Tr,Tu)[,c(i,i+1)], group=annee)
+  # p[[i]] <- qplot(1:10,10:1,main=i)
+}
+do.call(grid.arrange,p)
+
+
+
+
+```

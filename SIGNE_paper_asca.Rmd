@@ -114,9 +114,9 @@ Load Matlab result for plot
 ascaMat=readMat('asca_save/SIGNE_asca_ev.mat')
 
 #All
-dat=data.frame(t(ascaMat$ev.all[[1]][[1]]))
-colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[1]][[1]]))
-barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[1]][[1]])
+# dat=data.frame(t(ascaMat$ev.all[[1]][[1]]))
+# colnames(dat)=c("Residal",unlist(ascaMat$fact.all[[1]][[1]]))
+# barplot(as.matrix(dat[,-1]),main=ascaMat$set.name[[1]][[1]])
 
 # Parcelle G (Grau du Roi, parcelle 96), all cep.
 dat=data.frame(t(ascaMat$ev.all[[2]][[1]]))
